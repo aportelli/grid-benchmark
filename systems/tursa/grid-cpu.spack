@@ -1,0 +1,10 @@
+gcc@9.4.0 
+llvm@12.0.1 
+ucx@1.12.0.CPU%gcc@9.4.0 
+openmpi@4.1.1.CPU%gcc@9.4.0
+hdf5^openmpi@4.1.1.CPU%gcc@9.4.0
+fftw^openmpi@4.1.1.CPU%gcc@9.4.0
+openssl
+gmp%gcc@9.4.0 
+mpfr%gcc@9.4.0
+c-lime
