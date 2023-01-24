@@ -1,6 +1,7 @@
 /*
 Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
 Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
+Copyright © 2023 Simon Bürger <simon.buerger@rwth-aachen.de>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "json.hpp"
 #include <Grid/Grid.h>
 #ifdef GRID_CUDA
 #define CUDA_PROFILE
@@ -34,11 +36,8 @@ struct scal
   d internal;
 };
 
-Gamma::Algebra Gmu[] = {
-    Gamma::Algebra::GammaX,
-    Gamma::Algebra::GammaY,
-    Gamma::Algebra::GammaZ,
-    Gamma::Algebra::GammaT};
+Gamma::Algebra Gmu[] = {Gamma::Algebra::GammaX, Gamma::Algebra::GammaY,
+                        Gamma::Algebra::GammaZ, Gamma::Algebra::GammaT};
 
 int main(int argc, char **argv)
 {
@@ -48,27 +47,47 @@ int main(int argc, char **argv)
 
   Coordinate latt4 = GridDefaultLatt();
   int Ls = 16;
+  std::string json_filename = ""; // empty indicates no json output
+  nlohmann::json json;
+
+  // benchmark specific command line arguments
   for (int i = 0; i < argc; i++)
+  {
     if (std::string(argv[i]) == "-Ls")
     {
       std::stringstream ss(argv[i + 1]);
       ss >> Ls;
     }
+    if (std::string(argv[i]) == "--json-out")
+      json_filename = argv[i + 1];
+  }
 
   GridLogLayout();
 
   long unsigned int single_site_flops = 8 * Nc * (7 + 16 * Nc);
 
-  GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(GridDefaultLatt(), GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
-  GridRedBlackCartesian *UrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(UGrid);
+  json["single_site_flops"] = single_site_flops;
+
+  GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(
+      GridDefaultLatt(), GridDefaultSimd(Nd, vComplexF::Nsimd()),
+      GridDefaultMpi());
+  GridRedBlackCartesian *UrbGrid =
+      SpaceTimeGrid::makeFourDimRedBlackGrid(UGrid);
   GridCartesian *FGrid = SpaceTimeGrid::makeFiveDimGrid(Ls, UGrid);
-  GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
+  GridRedBlackCartesian *FrbGrid =
+      SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
+
+  json["grid"] = FGrid->FullDimensions().toVector();
+  json["local_grid"] = FGrid->LocalDimensions().toVector();
 
   std::cout << GridLogMessage << "Making s innermost grids" << std::endl;
-  GridCartesian *sUGrid = SpaceTimeGrid::makeFourDimDWFGrid(GridDefaultLatt(), GridDefaultMpi());
-  GridRedBlackCartesian *sUrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(sUGrid);
+  GridCartesian *sUGrid =
+      SpaceTimeGrid::makeFourDimDWFGrid(GridDefaultLatt(), GridDefaultMpi());
+  GridRedBlackCartesian *sUrbGrid =
+      SpaceTimeGrid::makeFourDimRedBlackGrid(sUGrid);
   GridCartesian *sFGrid = SpaceTimeGrid::makeFiveDimDWFGrid(Ls, UGrid);
-  GridRedBlackCartesian *sFrbGrid = SpaceTimeGrid::makeFiveDimDWFRedBlackGrid(Ls, UGrid);
+  GridRedBlackCartesian *sFrbGrid =
+      SpaceTimeGrid::makeFiveDimDWFRedBlackGrid(Ls, UGrid);
 
   std::vector<int> seeds4({1, 2, 3, 4});
   std::vector<int> seeds5({5, 6, 7, 8});
@@ -131,7 +150,8 @@ int main(int argc, char **argv)
   {
     U[mu] = PeekIndex<LorentzIndex>(Umu, mu);
   }
-  std::cout << GridLogMessage << "Setting up Cshift based reference " << std::endl;
+  std::cout << GridLogMessage << "Setting up Cshift based reference "
+            << std::endl;
 
   if (1)
   {
@@ -177,30 +197,57 @@ int main(int argc, char **argv)
   RealD NP = UGrid->_Nprocessors;
   RealD NN = UGrid->NodeCount();
 
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
-  std::cout << GridLogMessage << "* Kernel options --dslash-generic, --dslash-unroll, --dslash-asm" << std::endl;
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
-  std::cout << GridLogMessage << "* Benchmarking DomainWallFermionR::Dhop                  " << std::endl;
-  std::cout << GridLogMessage << "* Vectorising space-time by " << vComplexF::Nsimd() << std::endl;
-  std::cout << GridLogMessage << "* VComplexF size is " << sizeof(vComplexF) << " B" << std::endl;
+  json["ranks"] = NP;
+  json["nodes"] = NN;
+
+  std::cout
+      << GridLogMessage
+      << "*****************************************************************"
+      << std::endl;
+  std::cout
+      << GridLogMessage
+      << "* Kernel options --dslash-generic, --dslash-unroll, --dslash-asm"
+      << std::endl;
+  std::cout
+      << GridLogMessage
+      << "*****************************************************************"
+      << std::endl;
+  std::cout
+      << GridLogMessage
+      << "*****************************************************************"
+      << std::endl;
+  std::cout << GridLogMessage
+            << "* Benchmarking DomainWallFermionR::Dhop                  "
+            << std::endl;
+  std::cout << GridLogMessage << "* Vectorising space-time by "
+            << vComplexF::Nsimd() << std::endl;
+  std::cout << GridLogMessage << "* VComplexF size is " << sizeof(vComplexF)
+            << " B" << std::endl;
   if (sizeof(RealF) == 4)
     std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
   if (sizeof(RealF) == 8)
     std::cout << GridLogMessage << "* DOUBLE precision " << std::endl;
 #ifdef GRID_OMP
   if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsAndCompute)
-    std::cout << GridLogMessage << "* Using Overlapped Comms/Compute" << std::endl;
+    std::cout << GridLogMessage << "* Using Overlapped Comms/Compute"
+              << std::endl;
   if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsThenCompute)
-    std::cout << GridLogMessage << "* Using sequential comms compute" << std::endl;
+    std::cout << GridLogMessage << "* Using sequential comms compute"
+              << std::endl;
 #endif
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptGeneric)
-    std::cout << GridLogMessage << "* Using GENERIC Nc WilsonKernels" << std::endl;
+    std::cout << GridLogMessage << "* Using GENERIC Nc WilsonKernels"
+              << std::endl;
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptHandUnroll)
-    std::cout << GridLogMessage << "* Using Nc=3       WilsonKernels" << std::endl;
+    std::cout << GridLogMessage << "* Using Nc=3       WilsonKernels"
+              << std::endl;
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptInlineAsm)
-    std::cout << GridLogMessage << "* Using Asm Nc=3   WilsonKernels" << std::endl;
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
+    std::cout << GridLogMessage << "* Using Asm Nc=3   WilsonKernels"
+              << std::endl;
+  std::cout
+      << GridLogMessage
+      << "*****************************************************************"
+      << std::endl;
 
   DomainWallFermionF Dw(Umu, *FGrid, *FrbGrid, *UGrid, *UrbGrid, mass, M5);
   int ncall = 300;
@@ -230,19 +277,40 @@ int main(int argc, char **argv)
     auto simdwidth = sizeof(vComplex);
 
     // RF: Nd Wilson * Ls, Nd gauge * Ls, Nc colors
-    double data_rf = volume * ((2 * Nd + 1) * Nd * Nc + 2 * Nd * Nc * Nc) * simdwidth / nsimd * ncall / (1024. * 1024. * 1024.);
+    double data_rf = volume * ((2 * Nd + 1) * Nd * Nc + 2 * Nd * Nc * Nc) *
+                     simdwidth / nsimd * ncall / (1024. * 1024. * 1024.);
 
     // mem: Nd Wilson * Ls, Nd gauge, Nc colors
-    double data_mem = (volume * (2 * Nd + 1) * Nd * Nc + (volume / Ls) * 2 * Nd * Nc * Nc) * simdwidth / nsimd * ncall / (1024. * 1024. * 1024.);
+    double data_mem =
+        (volume * (2 * Nd + 1) * Nd * Nc + (volume / Ls) * 2 * Nd * Nc * Nc) *
+        simdwidth / nsimd * ncall / (1024. * 1024. * 1024.);
 
-    std::cout << GridLogMessage << "Called Dw " << ncall << " times in " << t1 - t0 << " us" << std::endl;
-    //    std::cout<<GridLogMessage << "norm result "<< norm2(result)<<std::endl;
-    //    std::cout<<GridLogMessage << "norm ref    "<< norm2(ref)<<std::endl;
-    std::cout << GridLogMessage << "mflop/s =   " << flops / (t1 - t0) << std::endl;
-    std::cout << GridLogMessage << "mflop/s per rank =  " << flops / (t1 - t0) / NP << std::endl;
-    std::cout << GridLogMessage << "mflop/s per node =  " << flops / (t1 - t0) / NN << std::endl;
-    std::cout << GridLogMessage << "RF  GiB/s (base 2) =   " << 1000000. * data_rf / ((t1 - t0)) << std::endl;
-    std::cout << GridLogMessage << "mem GiB/s (base 2) =   " << 1000000. * data_mem / ((t1 - t0)) << std::endl;
+    std::cout << GridLogMessage << "Called Dw " << ncall << " times in "
+              << t1 - t0 << " us" << std::endl;
+
+    json["Dw"]["calls"] = ncall;
+    json["Dw"]["time"] = t1 - t0;
+    json["Dw"]["mflops"] = flops / (t1 - t0);
+    json["Dw"]["mflops_per_rank"] = flops / (t1 - t0) / NP;
+    json["Dw"]["mflops_per_node"] = flops / (t1 - t0) / NN;
+    json["Dw"]["RF"] = 1000000. * data_rf / ((t1 - t0));
+    json["Dw"]["mem"] = 1000000. * data_mem / ((t1 - t0));
+
+    //    std::cout<<GridLogMessage << "norm result "<<
+    //    norm2(result)<<std::endl; std::cout<<GridLogMessage << "norm ref "<<
+    //    norm2(ref)<<std::endl;
+    std::cout << GridLogMessage << "mflop/s =   " << flops / (t1 - t0)
+              << std::endl;
+    std::cout << GridLogMessage
+              << "mflop/s per rank =  " << flops / (t1 - t0) / NP << std::endl;
+    std::cout << GridLogMessage
+              << "mflop/s per node =  " << flops / (t1 - t0) / NN << std::endl;
+    std::cout << GridLogMessage
+              << "RF  GiB/s (base 2) =   " << 1000000. * data_rf / ((t1 - t0))
+              << std::endl;
+    std::cout << GridLogMessage
+              << "mem GiB/s (base 2) =   " << 1000000. * data_mem / ((t1 - t0))
+              << std::endl;
     err = ref - result;
     std::cout << GridLogMessage << "norm diff   " << norm2(err) << std::endl;
     // exit(0);
@@ -313,9 +381,13 @@ int main(int argc, char **argv)
   }
   //  dump=1;
   Dw.Dhop(src, result, 1);
-  std::cout << GridLogMessage << "Compare to naive wilson implementation Dag to verify correctness" << std::endl;
+  std::cout
+      << GridLogMessage
+      << "Compare to naive wilson implementation Dag to verify correctness"
+      << std::endl;
   std::cout << GridLogMessage << "Called DwDag" << std::endl;
-  std::cout << GridLogMessage << "norm dag result " << norm2(result) << std::endl;
+  std::cout << GridLogMessage << "norm dag result " << norm2(result)
+            << std::endl;
   std::cout << GridLogMessage << "norm dag ref    " << norm2(ref) << std::endl;
   err = ref - result;
   std::cout << GridLogMessage << "norm dag diff   " << norm2(err) << std::endl;
@@ -333,7 +405,9 @@ int main(int argc, char **argv)
   LatticeFermionF r_o(FrbGrid);
   LatticeFermionF r_eo(FGrid);
 
-  std::cout << GridLogMessage << "Calling Deo and Doe and //assert Deo+Doe == Dunprec" << std::endl;
+  std::cout << GridLogMessage
+            << "Calling Deo and Doe and //assert Deo+Doe == Dunprec"
+            << std::endl;
   pickCheckerboard(Even, src_e, src);
   pickCheckerboard(Odd, src_o, src);
 
@@ -341,26 +415,38 @@ int main(int argc, char **argv)
   std::cout << GridLogMessage << "src_o" << norm2(src_o) << std::endl;
 
   // S-direction is INNERMOST and takes no part in the parity.
-  std::cout << GridLogMessage << "*********************************************************" << std::endl;
-  std::cout << GridLogMessage << "* Benchmarking DomainWallFermionF::DhopEO                " << std::endl;
-  std::cout << GridLogMessage << "* Vectorising space-time by " << vComplexF::Nsimd() << std::endl;
+  std::cout << GridLogMessage
+            << "*********************************************************"
+            << std::endl;
+  std::cout << GridLogMessage
+            << "* Benchmarking DomainWallFermionF::DhopEO                "
+            << std::endl;
+  std::cout << GridLogMessage << "* Vectorising space-time by "
+            << vComplexF::Nsimd() << std::endl;
   if (sizeof(RealF) == 4)
     std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
   if (sizeof(RealF) == 8)
     std::cout << GridLogMessage << "* DOUBLE precision " << std::endl;
 #ifdef GRID_OMP
   if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsAndCompute)
-    std::cout << GridLogMessage << "* Using Overlapped Comms/Compute" << std::endl;
+    std::cout << GridLogMessage << "* Using Overlapped Comms/Compute"
+              << std::endl;
   if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsThenCompute)
-    std::cout << GridLogMessage << "* Using sequential comms compute" << std::endl;
+    std::cout << GridLogMessage << "* Using sequential comms compute"
+              << std::endl;
 #endif
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptGeneric)
-    std::cout << GridLogMessage << "* Using GENERIC Nc WilsonKernels" << std::endl;
+    std::cout << GridLogMessage << "* Using GENERIC Nc WilsonKernels"
+              << std::endl;
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptHandUnroll)
-    std::cout << GridLogMessage << "* Using Nc=3       WilsonKernels" << std::endl;
+    std::cout << GridLogMessage << "* Using Nc=3       WilsonKernels"
+              << std::endl;
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptInlineAsm)
-    std::cout << GridLogMessage << "* Using Asm Nc=3   WilsonKernels" << std::endl;
-  std::cout << GridLogMessage << "*********************************************************" << std::endl;
+    std::cout << GridLogMessage << "* Using Asm Nc=3   WilsonKernels"
+              << std::endl;
+  std::cout << GridLogMessage
+            << "*********************************************************"
+            << std::endl;
   {
     Dw.ZeroCounters();
     FGrid->Barrier();
@@ -386,9 +472,18 @@ int main(int argc, char **argv)
       volume = volume * latt4[mu];
     double flops = (single_site_flops * volume * ncall) / 2.0;
 
-    std::cout << GridLogMessage << "Deo mflop/s =   " << flops / (t1 - t0) << std::endl;
-    std::cout << GridLogMessage << "Deo mflop/s per rank   " << flops / (t1 - t0) / NP << std::endl;
-    std::cout << GridLogMessage << "Deo mflop/s per node   " << flops / (t1 - t0) / NN << std::endl;
+    json["Deo"]["calls"] = ncall;
+    json["Deo"]["time"] = t1 - t0;
+    json["Deo"]["mflops"] = flops / (t1 - t0);
+    json["Deo"]["mflops_per_rank"] = flops / (t1 - t0) / NP;
+    json["Deo"]["mflops_per_node"] = flops / (t1 - t0) / NN;
+
+    std::cout << GridLogMessage << "Deo mflop/s =   " << flops / (t1 - t0)
+              << std::endl;
+    std::cout << GridLogMessage << "Deo mflop/s per rank   "
+              << flops / (t1 - t0) / NP << std::endl;
+    std::cout << GridLogMessage << "Deo mflop/s per node   "
+              << flops / (t1 - t0) / NN << std::endl;
     Dw.Report();
   }
   Dw.DhopEO(src_o, r_e, DaggerNo);
@@ -415,11 +510,28 @@ int main(int argc, char **argv)
 
   pickCheckerboard(Even, src_e, err);
   pickCheckerboard(Odd, src_o, err);
-  std::cout << GridLogMessage << "norm diff even  " << norm2(src_e) << std::endl;
-  std::cout << GridLogMessage << "norm diff odd   " << norm2(src_o) << std::endl;
+  std::cout << GridLogMessage << "norm diff even  " << norm2(src_e)
+            << std::endl;
+  std::cout << GridLogMessage << "norm diff odd   " << norm2(src_o)
+            << std::endl;
 
   assert(norm2(src_e) < 1.0e-4);
   assert(norm2(src_o) < 1.0e-4);
+
+  if (!json_filename.empty())
+  {
+    std::cout << GridLogMessage << "writing benchmark results to "
+              << json_filename << std::endl;
+
+    int me = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &me);
+    if (me == 0)
+    {
+      std::ofstream json_file(json_filename);
+      json_file << std::setw(4) << json;
+    }
+  }
+
   Grid_finalize();
   exit(0);
 }
