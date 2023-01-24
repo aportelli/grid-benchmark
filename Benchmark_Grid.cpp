@@ -2,6 +2,8 @@
 Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
 Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
 
+This is a refactoring of Benchmark_ITT.cpp from Grid
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -67,6 +69,7 @@ Gamma::Algebra Gmu[] = {
     Gamma::Algebra::GammaY,
     Gamma::Algebra::GammaZ,
     Gamma::Algebra::GammaT};
+
 struct controls
 {
   int Opt;
@@ -76,7 +79,7 @@ struct controls
 
 class Benchmark
 {
-public:
+  public:
   static void Decomposition(void)
   {
 
