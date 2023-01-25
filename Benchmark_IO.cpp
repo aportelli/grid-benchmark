@@ -32,23 +32,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #ifdef HAVE_LIME
 using namespace Grid;
 
-std::string filestem(const int l)
-{
-  return "iobench_l" + std::to_string(l);
-}
+std::string filestem(const int l) { return "iobench_l" + std::to_string(l); }
 
-int vol(const int i)
-{
-  return BENCH_IO_LMIN + 2 * i;
-}
+int vol(const int i) { return BENCH_IO_LMIN + 2 * i; }
 
-int volInd(const int l)
-{
-  return (l - BENCH_IO_LMIN) / 2;
-}
+int volInd(const int l) { return (l - BENCH_IO_LMIN) / 2; }
 
-template <typename Mat>
-void stats(Mat &mean, Mat &stdDev, const std::vector<Mat> &data)
+template <typename Mat> void stats(Mat &mean, Mat &stdDev, const std::vector<Mat> &data)
 {
   auto nr = data[0].rows(), nc = data[0].cols();
   Eigen::MatrixXd sqSum(nr, nc);
@@ -66,11 +56,11 @@ void stats(Mat &mean, Mat &stdDev, const std::vector<Mat> &data)
   mean /= n;
 }
 
-#define grid_printf(...)        \
-  {                             \
-    char _buf[1024];            \
-    sprintf(_buf, __VA_ARGS__); \
-    MSG << _buf;                \
+#define grid_printf(...)                                                                 \
+  {                                                                                      \
+    char _buf[1024];                                                                     \
+    sprintf(_buf, __VA_ARGS__);                                                          \
+    MSG << _buf;                                                                         \
   }
 
 enum
@@ -173,47 +163,49 @@ int main(int argc, char **argv)
   MSG << "SUMMARY" << std::endl;
   MSG << BIGSEP << std::endl;
   MSG << "Summary of individual results (all results in MB/s)." << std::endl;
-  MSG << "Every second colum gives the standard deviation of the previous column." << std::endl;
+  MSG << "Every second colum gives the standard deviation of the previous column."
+      << std::endl;
   MSG << std::endl;
-  grid_printf("%4s %12s %12s %12s %12s %12s %12s %12s %12s\n",
-              "L", "std read", "std dev", "std write", "std dev",
-              "Grid read", "std dev", "Grid write", "std dev");
+  grid_printf("%4s %12s %12s %12s %12s %12s %12s %12s %12s\n", "L", "std read", "std dev",
+              "std write", "std dev", "Grid read", "std dev", "Grid write", "std dev");
   for (int l = BENCH_IO_LMIN; l <= BENCH_IO_LMAX; l += 2)
   {
-    grid_printf("%4d %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f\n",
-                l, mean(volInd(l), sRead), stdDev(volInd(l), sRead),
-                mean(volInd(l), sWrite), stdDev(volInd(l), sWrite),
-                mean(volInd(l), gRead), stdDev(volInd(l), gRead),
-                mean(volInd(l), gWrite), stdDev(volInd(l), gWrite));
+    grid_printf("%4d %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f\n", l,
+                mean(volInd(l), sRead), stdDev(volInd(l), sRead), mean(volInd(l), sWrite),
+                stdDev(volInd(l), sWrite), mean(volInd(l), gRead),
+                stdDev(volInd(l), gRead), mean(volInd(l), gWrite),
+                stdDev(volInd(l), gWrite));
   }
   MSG << std::endl;
-  MSG << "Robustness of individual results, in %. (rob = 100% - std dev / mean)" << std::endl;
+  MSG << "Robustness of individual results, in %. (rob = 100% - std dev / mean)"
+      << std::endl;
   MSG << std::endl;
-  grid_printf("%4s %12s %12s %12s %12s\n",
-              "L", "std read", "std write", "Grid read", "Grid write");
+  grid_printf("%4s %12s %12s %12s %12s\n", "L", "std read", "std write", "Grid read",
+              "Grid write");
   for (int l = BENCH_IO_LMIN; l <= BENCH_IO_LMAX; l += 2)
   {
-    grid_printf("%4d %12.1f %12.1f %12.1f %12.1f\n",
-                l, rob(volInd(l), sRead), rob(volInd(l), sWrite),
-                rob(volInd(l), gRead), rob(volInd(l), gWrite));
+    grid_printf("%4d %12.1f %12.1f %12.1f %12.1f\n", l, rob(volInd(l), sRead),
+                rob(volInd(l), sWrite), rob(volInd(l), gRead), rob(volInd(l), gWrite));
   }
   MSG << std::endl;
-  MSG << "Summary of results averaged over local volumes 24^4-" << BENCH_IO_LMAX << "^4 (all results in MB/s)." << std::endl;
-  MSG << "Every second colum gives the standard deviation of the previous column." << std::endl;
+  MSG << "Summary of results averaged over local volumes 24^4-" << BENCH_IO_LMAX
+      << "^4 (all results in MB/s)." << std::endl;
+  MSG << "Every second colum gives the standard deviation of the previous column."
+      << std::endl;
   MSG << std::endl;
-  grid_printf("%12s %12s %12s %12s %12s %12s %12s %12s\n",
-              "std read", "std dev", "std write", "std dev",
-              "Grid read", "std dev", "Grid write", "std dev");
-  grid_printf("%12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f\n",
-              avMean(sRead), avStdDev(sRead), avMean(sWrite), avStdDev(sWrite),
-              avMean(gRead), avStdDev(gRead), avMean(gWrite), avStdDev(gWrite));
+  grid_printf("%12s %12s %12s %12s %12s %12s %12s %12s\n", "std read", "std dev",
+              "std write", "std dev", "Grid read", "std dev", "Grid write", "std dev");
+  grid_printf("%12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f %12.1f\n", avMean(sRead),
+              avStdDev(sRead), avMean(sWrite), avStdDev(sWrite), avMean(gRead),
+              avStdDev(gRead), avMean(gWrite), avStdDev(gWrite));
   MSG << std::endl;
-  MSG << "Robustness of volume-averaged results, in %. (rob = 100% - std dev / mean)" << std::endl;
+  MSG << "Robustness of volume-averaged results, in %. (rob = 100% - std dev / mean)"
+      << std::endl;
   MSG << std::endl;
-  grid_printf("%12s %12s %12s %12s\n",
-              "std read", "std write", "Grid read", "Grid write");
-  grid_printf("%12.1f %12.1f %12.1f %12.1f\n",
-              avRob(sRead), avRob(sWrite), avRob(gRead), avRob(gWrite));
+  grid_printf("%12s %12s %12s %12s\n", "std read", "std write", "Grid read",
+              "Grid write");
+  grid_printf("%12.1f %12.1f %12.1f %12.1f\n", avRob(sRead), avRob(sWrite), avRob(gRead),
+              avRob(gWrite));
 
   Grid_finalize();
 

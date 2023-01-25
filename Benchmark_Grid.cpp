@@ -122,87 +122,82 @@ class Benchmark
 
     for (int lat = 16; lat <= maxlat; lat += 8)
     {
-      //      for(int Ls=8;Ls<=8;Ls*=2){
+      int Ls = 12;
+
+      Coordinate latt_size({lat * mpi_layout[0],
+                            lat * mpi_layout[1],
+                            lat * mpi_layout[2],
+                            lat * mpi_layout[3]});
+
+      GridCartesian Grid(latt_size, simd_layout, mpi_layout);
+      RealD Nrank = Grid._Nprocessors;
+      RealD Nnode = Grid.NodeCount();
+      RealD ppn = Nrank / Nnode;
+
+      std::vector<HalfSpinColourVectorD *> xbuf(8);
+      std::vector<HalfSpinColourVectorD *> rbuf(8);
+      uint64_t bytes = lat * lat * lat * Ls * sizeof(HalfSpinColourVectorD);
+      for (int d = 0; d < 8; d++)
       {
-        int Ls = 12;
+        xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+        rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+        //	  bzero((void *)xbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
+        //	  bzero((void *)rbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
+      }
 
-        Coordinate latt_size({lat * mpi_layout[0],
-                              lat * mpi_layout[1],
-                              lat * mpi_layout[2],
-                              lat * mpi_layout[3]});
+      double dbytes;
 
-        GridCartesian Grid(latt_size, simd_layout, mpi_layout);
-        RealD Nrank = Grid._Nprocessors;
-        RealD Nnode = Grid.NodeCount();
-        RealD ppn = Nrank / Nnode;
-
-        std::vector<HalfSpinColourVectorD *> xbuf(8);
-        std::vector<HalfSpinColourVectorD *> rbuf(8);
-        // Grid.ShmBufferFreeAll();
-        uint64_t bytes = lat * lat * lat * Ls * sizeof(HalfSpinColourVectorD);
-        for (int d = 0; d < 8; d++)
+      for (int dir = 0; dir < 8; dir++)
+      {
+        int mu = dir % 4;
+        if (mpi_layout[mu] > 1)
         {
-          xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
-          rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
-          //	  bzero((void *)xbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
-          //	  bzero((void *)rbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
-        }
 
-        //	int ncomm;
-        double dbytes;
-
-        for (int dir = 0; dir < 8; dir++)
-        {
-          int mu = dir % 4;
-          if (mpi_layout[mu] > 1)
+          std::vector<double> times(Nloop);
+          for (int i = 0; i < Nloop; i++)
           {
 
-            std::vector<double> times(Nloop);
-            for (int i = 0; i < Nloop; i++)
+            dbytes = 0;
+            double start = usecond();
+            int xmit_to_rank;
+            int recv_from_rank;
+
+            if (dir == mu)
             {
-
-              dbytes = 0;
-              double start = usecond();
-              int xmit_to_rank;
-              int recv_from_rank;
-
-              if (dir == mu)
-              {
-                int comm_proc = 1;
-                Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-              }
-              else
-              {
-                int comm_proc = mpi_layout[mu] - 1;
-                Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-              }
-              Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
-                                  (void *)&rbuf[dir][0], recv_from_rank,
-                                  bytes);
-              dbytes += bytes;
-
-              double stop = usecond();
-              t_time[i] = stop - start; // microseconds
+              int comm_proc = 1;
+              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
             }
-            timestat.statistics(t_time);
+            else
+            {
+              int comm_proc = mpi_layout[mu] - 1;
+              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+            }
+            Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
+                                (void *)&rbuf[dir][0], recv_from_rank,
+                                bytes);
+            dbytes += bytes;
 
-            dbytes = dbytes * ppn;
-            double xbytes = dbytes * 0.5;
-            double bidibytes = dbytes;
-
-            std::cout << GridLogMessage << lat << "\t" << Ls << "\t "
-                      << bytes << " \t "
-                      << xbytes / timestat.mean << " \t " << xbytes * timestat.err / (timestat.mean * timestat.mean) << " \t "
-                      << xbytes / timestat.max << " " << xbytes / timestat.min
-                      << "\t\t" << bidibytes / timestat.mean << "  " << bidibytes * timestat.err / (timestat.mean * timestat.mean) << " "
-                      << bidibytes / timestat.max << " " << bidibytes / timestat.min << std::endl;
+            double stop = usecond();
+            t_time[i] = stop - start; // microseconds
           }
+          timestat.statistics(t_time);
+
+          dbytes = dbytes * ppn;
+          double xbytes = dbytes * 0.5;
+          double bidibytes = dbytes;
+
+          std::cout << GridLogMessage << lat << "\t" << Ls << "\t "
+                    << bytes << " \t "
+                    << xbytes / timestat.mean << " \t " << xbytes * timestat.err / (timestat.mean * timestat.mean) << " \t "
+                    << xbytes / timestat.max << " " << xbytes / timestat.min
+                    << "\t\t" << bidibytes / timestat.mean << "  " << bidibytes * timestat.err / (timestat.mean * timestat.mean) << " "
+                    << bidibytes / timestat.max << " " << bidibytes / timestat.min << std::endl;
         }
-        for (int d = 0; d < 8; d++)
-        {
-          acceleratorFreeDevice(xbuf[d]);
-          acceleratorFreeDevice(rbuf[d]);
-        }
+      }
+      for (int d = 0; d < 8; d++)
+      {
+        acceleratorFreeDevice(xbuf[d]);
+        acceleratorFreeDevice(rbuf[d]);
       }
     }
     return;

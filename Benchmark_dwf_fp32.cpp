@@ -28,17 +28,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace Grid;
 
-template <class d>
-struct scal
+template <class d> struct scal
 {
   d internal;
 };
 
-Gamma::Algebra Gmu[] = {
-    Gamma::Algebra::GammaX,
-    Gamma::Algebra::GammaY,
-    Gamma::Algebra::GammaZ,
-    Gamma::Algebra::GammaT};
+Gamma::Algebra Gmu[] = {Gamma::Algebra::GammaX, Gamma::Algebra::GammaY,
+                        Gamma::Algebra::GammaZ, Gamma::Algebra::GammaT};
 
 int main(int argc, char **argv)
 {
@@ -59,13 +55,15 @@ int main(int argc, char **argv)
 
   long unsigned int single_site_flops = 8 * Nc * (7 + 16 * Nc);
 
-  GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(GridDefaultLatt(), GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
+  GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(
+      GridDefaultLatt(), GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
   GridRedBlackCartesian *UrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(UGrid);
   GridCartesian *FGrid = SpaceTimeGrid::makeFiveDimGrid(Ls, UGrid);
   GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
 
   std::cout << GridLogMessage << "Making s innermost grids" << std::endl;
-  GridCartesian *sUGrid = SpaceTimeGrid::makeFourDimDWFGrid(GridDefaultLatt(), GridDefaultMpi());
+  GridCartesian *sUGrid =
+      SpaceTimeGrid::makeFourDimDWFGrid(GridDefaultLatt(), GridDefaultMpi());
   GridRedBlackCartesian *sUrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(sUGrid);
   GridCartesian *sFGrid = SpaceTimeGrid::makeFiveDimDWFGrid(Ls, UGrid);
   GridRedBlackCartesian *sFrbGrid = SpaceTimeGrid::makeFiveDimDWFRedBlackGrid(Ls, UGrid);
@@ -177,13 +175,24 @@ int main(int argc, char **argv)
   RealD NP = UGrid->_Nprocessors;
   RealD NN = UGrid->NodeCount();
 
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
-  std::cout << GridLogMessage << "* Kernel options --dslash-generic, --dslash-unroll, --dslash-asm" << std::endl;
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
-  std::cout << GridLogMessage << "* Benchmarking DomainWallFermionR::Dhop                  " << std::endl;
-  std::cout << GridLogMessage << "* Vectorising space-time by " << vComplexF::Nsimd() << std::endl;
-  std::cout << GridLogMessage << "* VComplexF size is " << sizeof(vComplexF) << " B" << std::endl;
+  std::cout << GridLogMessage
+            << "*****************************************************************"
+            << std::endl;
+  std::cout << GridLogMessage
+            << "* Kernel options --dslash-generic, --dslash-unroll, --dslash-asm"
+            << std::endl;
+  std::cout << GridLogMessage
+            << "*****************************************************************"
+            << std::endl;
+  std::cout << GridLogMessage
+            << "*****************************************************************"
+            << std::endl;
+  std::cout << GridLogMessage
+            << "* Benchmarking DomainWallFermionR::Dhop                  " << std::endl;
+  std::cout << GridLogMessage << "* Vectorising space-time by " << vComplexF::Nsimd()
+            << std::endl;
+  std::cout << GridLogMessage << "* VComplexF size is " << sizeof(vComplexF) << " B"
+            << std::endl;
   if (sizeof(RealF) == 4)
     std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
   if (sizeof(RealF) == 8)
@@ -200,7 +209,9 @@ int main(int argc, char **argv)
     std::cout << GridLogMessage << "* Using Nc=3       WilsonKernels" << std::endl;
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptInlineAsm)
     std::cout << GridLogMessage << "* Using Asm Nc=3   WilsonKernels" << std::endl;
-  std::cout << GridLogMessage << "*****************************************************************" << std::endl;
+  std::cout << GridLogMessage
+            << "*****************************************************************"
+            << std::endl;
 
   DomainWallFermionF Dw(Umu, *FGrid, *FrbGrid, *UGrid, *UrbGrid, mass, M5);
   int ncall = 300;
@@ -230,19 +241,29 @@ int main(int argc, char **argv)
     auto simdwidth = sizeof(vComplex);
 
     // RF: Nd Wilson * Ls, Nd gauge * Ls, Nc colors
-    double data_rf = volume * ((2 * Nd + 1) * Nd * Nc + 2 * Nd * Nc * Nc) * simdwidth / nsimd * ncall / (1024. * 1024. * 1024.);
+    double data_rf = volume * ((2 * Nd + 1) * Nd * Nc + 2 * Nd * Nc * Nc) * simdwidth /
+                     nsimd * ncall / (1024. * 1024. * 1024.);
 
     // mem: Nd Wilson * Ls, Nd gauge, Nc colors
-    double data_mem = (volume * (2 * Nd + 1) * Nd * Nc + (volume / Ls) * 2 * Nd * Nc * Nc) * simdwidth / nsimd * ncall / (1024. * 1024. * 1024.);
+    double data_mem =
+        (volume * (2 * Nd + 1) * Nd * Nc + (volume / Ls) * 2 * Nd * Nc * Nc) * simdwidth /
+        nsimd * ncall / (1024. * 1024. * 1024.);
 
-    std::cout << GridLogMessage << "Called Dw " << ncall << " times in " << t1 - t0 << " us" << std::endl;
+    std::cout << GridLogMessage << "Called Dw " << ncall << " times in " << t1 - t0
+              << " us" << std::endl;
     //    std::cout<<GridLogMessage << "norm result "<< norm2(result)<<std::endl;
     //    std::cout<<GridLogMessage << "norm ref    "<< norm2(ref)<<std::endl;
     std::cout << GridLogMessage << "mflop/s =   " << flops / (t1 - t0) << std::endl;
-    std::cout << GridLogMessage << "mflop/s per rank =  " << flops / (t1 - t0) / NP << std::endl;
-    std::cout << GridLogMessage << "mflop/s per node =  " << flops / (t1 - t0) / NN << std::endl;
-    std::cout << GridLogMessage << "RF  GiB/s (base 2) =   " << 1000000. * data_rf / ((t1 - t0)) << std::endl;
-    std::cout << GridLogMessage << "mem GiB/s (base 2) =   " << 1000000. * data_mem / ((t1 - t0)) << std::endl;
+    std::cout << GridLogMessage << "mflop/s per rank =  " << flops / (t1 - t0) / NP
+              << std::endl;
+    std::cout << GridLogMessage << "mflop/s per node =  " << flops / (t1 - t0) / NN
+              << std::endl;
+    std::cout << GridLogMessage
+              << "RF  GiB/s (base 2) =   " << 1000000. * data_rf / ((t1 - t0))
+              << std::endl;
+    std::cout << GridLogMessage
+              << "mem GiB/s (base 2) =   " << 1000000. * data_mem / ((t1 - t0))
+              << std::endl;
     err = ref - result;
     std::cout << GridLogMessage << "norm diff   " << norm2(err) << std::endl;
     // exit(0);
@@ -313,7 +334,9 @@ int main(int argc, char **argv)
   }
   //  dump=1;
   Dw.Dhop(src, result, 1);
-  std::cout << GridLogMessage << "Compare to naive wilson implementation Dag to verify correctness" << std::endl;
+  std::cout << GridLogMessage
+            << "Compare to naive wilson implementation Dag to verify correctness"
+            << std::endl;
   std::cout << GridLogMessage << "Called DwDag" << std::endl;
   std::cout << GridLogMessage << "norm dag result " << norm2(result) << std::endl;
   std::cout << GridLogMessage << "norm dag ref    " << norm2(ref) << std::endl;
@@ -333,7 +356,8 @@ int main(int argc, char **argv)
   LatticeFermionF r_o(FrbGrid);
   LatticeFermionF r_eo(FGrid);
 
-  std::cout << GridLogMessage << "Calling Deo and Doe and //assert Deo+Doe == Dunprec" << std::endl;
+  std::cout << GridLogMessage << "Calling Deo and Doe and //assert Deo+Doe == Dunprec"
+            << std::endl;
   pickCheckerboard(Even, src_e, src);
   pickCheckerboard(Odd, src_o, src);
 
@@ -341,9 +365,12 @@ int main(int argc, char **argv)
   std::cout << GridLogMessage << "src_o" << norm2(src_o) << std::endl;
 
   // S-direction is INNERMOST and takes no part in the parity.
-  std::cout << GridLogMessage << "*********************************************************" << std::endl;
-  std::cout << GridLogMessage << "* Benchmarking DomainWallFermionF::DhopEO                " << std::endl;
-  std::cout << GridLogMessage << "* Vectorising space-time by " << vComplexF::Nsimd() << std::endl;
+  std::cout << GridLogMessage
+            << "*********************************************************" << std::endl;
+  std::cout << GridLogMessage
+            << "* Benchmarking DomainWallFermionF::DhopEO                " << std::endl;
+  std::cout << GridLogMessage << "* Vectorising space-time by " << vComplexF::Nsimd()
+            << std::endl;
   if (sizeof(RealF) == 4)
     std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
   if (sizeof(RealF) == 8)
@@ -360,7 +387,8 @@ int main(int argc, char **argv)
     std::cout << GridLogMessage << "* Using Nc=3       WilsonKernels" << std::endl;
   if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptInlineAsm)
     std::cout << GridLogMessage << "* Using Asm Nc=3   WilsonKernels" << std::endl;
-  std::cout << GridLogMessage << "*********************************************************" << std::endl;
+  std::cout << GridLogMessage
+            << "*********************************************************" << std::endl;
   {
     Dw.ZeroCounters();
     FGrid->Barrier();
@@ -387,8 +415,10 @@ int main(int argc, char **argv)
     double flops = (single_site_flops * volume * ncall) / 2.0;
 
     std::cout << GridLogMessage << "Deo mflop/s =   " << flops / (t1 - t0) << std::endl;
-    std::cout << GridLogMessage << "Deo mflop/s per rank   " << flops / (t1 - t0) / NP << std::endl;
-    std::cout << GridLogMessage << "Deo mflop/s per node   " << flops / (t1 - t0) / NN << std::endl;
+    std::cout << GridLogMessage << "Deo mflop/s per rank   " << flops / (t1 - t0) / NP
+              << std::endl;
+    std::cout << GridLogMessage << "Deo mflop/s per node   " << flops / (t1 - t0) / NN
+              << std::endl;
     Dw.Report();
   }
   Dw.DhopEO(src_o, r_e, DaggerNo);
