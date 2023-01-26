@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.hpp"
 #include <Grid/Grid.h>
 
 using namespace Grid;
@@ -44,8 +45,7 @@ struct time_statistics
     mean = sum / v.size();
 
     std::vector<double> diff(v.size());
-    std::transform(v.begin(), v.end(), diff.begin(), [=](double x)
-                   { return x - mean; });
+    std::transform(v.begin(), v.end(), diff.begin(), [=](double x) { return x - mean; });
     double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
     err = std::sqrt(sq_sum / (v.size() * (v.size() - 1)));
 
@@ -64,11 +64,8 @@ void comms_header()
             << "bytes\t MB/s uni (err/min/max) \t\t MB/s bidi (err/min/max)" << std::endl;
 };
 
-Gamma::Algebra Gmu[] = {
-    Gamma::Algebra::GammaX,
-    Gamma::Algebra::GammaY,
-    Gamma::Algebra::GammaZ,
-    Gamma::Algebra::GammaT};
+Gamma::Algebra Gmu[] = {Gamma::Algebra::GammaX, Gamma::Algebra::GammaY,
+                        Gamma::Algebra::GammaZ, Gamma::Algebra::GammaT};
 
 struct controls
 {
@@ -84,26 +81,52 @@ class Benchmark
   {
 
     int threads = GridThread::GetThreads();
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
-    std::cout << GridLogMessage << "= Grid is setup to use " << threads << " threads" << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
+    std::cout << GridLogMessage << "= Grid is setup to use " << threads << " threads"
+              << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << "Grid Default Decomposition patterns\n";
-    std::cout << GridLogMessage << "\tOpenMP threads : " << GridThread::GetThreads() << std::endl;
-    std::cout << GridLogMessage << "\tMPI tasks      : " << GridCmdVectorIntToString(GridDefaultMpi()) << std::endl;
-    std::cout << GridLogMessage << "\tvReal          : " << sizeof(vReal) * 8 << "bits ; " << GridCmdVectorIntToString(GridDefaultSimd(4, vReal::Nsimd())) << std::endl;
-    std::cout << GridLogMessage << "\tvRealF         : " << sizeof(vRealF) * 8 << "bits ; " << GridCmdVectorIntToString(GridDefaultSimd(4, vRealF::Nsimd())) << std::endl;
-    std::cout << GridLogMessage << "\tvRealD         : " << sizeof(vRealD) * 8 << "bits ; " << GridCmdVectorIntToString(GridDefaultSimd(4, vRealD::Nsimd())) << std::endl;
-    std::cout << GridLogMessage << "\tvComplex       : " << sizeof(vComplex) * 8 << "bits ; " << GridCmdVectorIntToString(GridDefaultSimd(4, vComplex::Nsimd())) << std::endl;
-    std::cout << GridLogMessage << "\tvComplexF      : " << sizeof(vComplexF) * 8 << "bits ; " << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexF::Nsimd())) << std::endl;
-    std::cout << GridLogMessage << "\tvComplexD      : " << sizeof(vComplexD) * 8 << "bits ; " << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexD::Nsimd())) << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage << "\tOpenMP threads : " << GridThread::GetThreads()
+              << std::endl;
+    std::cout << GridLogMessage
+              << "\tMPI tasks      : " << GridCmdVectorIntToString(GridDefaultMpi())
+              << std::endl;
+    std::cout << GridLogMessage << "\tvReal          : " << sizeof(vReal) * 8 << "bits ; "
+              << GridCmdVectorIntToString(GridDefaultSimd(4, vReal::Nsimd()))
+              << std::endl;
+    std::cout << GridLogMessage << "\tvRealF         : " << sizeof(vRealF) * 8
+              << "bits ; "
+              << GridCmdVectorIntToString(GridDefaultSimd(4, vRealF::Nsimd()))
+              << std::endl;
+    std::cout << GridLogMessage << "\tvRealD         : " << sizeof(vRealD) * 8
+              << "bits ; "
+              << GridCmdVectorIntToString(GridDefaultSimd(4, vRealD::Nsimd()))
+              << std::endl;
+    std::cout << GridLogMessage << "\tvComplex       : " << sizeof(vComplex) * 8
+              << "bits ; "
+              << GridCmdVectorIntToString(GridDefaultSimd(4, vComplex::Nsimd()))
+              << std::endl;
+    std::cout << GridLogMessage << "\tvComplexF      : " << sizeof(vComplexF) * 8
+              << "bits ; "
+              << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexF::Nsimd()))
+              << std::endl;
+    std::cout << GridLogMessage << "\tvComplexD      : " << sizeof(vComplexD) * 8
+              << "bits ; "
+              << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexD::Nsimd()))
+              << std::endl;
   }
 
   static void Comms(void)
   {
     int Nloop = 200;
     int nmu = 0;
-    int maxlat = 32;
+    int maxlat = 48;
 
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
@@ -115,94 +138,89 @@ class Benchmark
     std::vector<double> t_time(Nloop);
     time_statistics timestat;
 
-    std::cout << GridLogMessage << "====================================================================================================" << std::endl;
-    std::cout << GridLogMessage << "= Benchmarking threaded STENCIL halo exchange in " << nmu << " dimensions" << std::endl;
-    std::cout << GridLogMessage << "====================================================================================================" << std::endl;
-    comms_header();
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "============================="
+              << std::endl;
+    std::cout << GridLogMessage << "= Benchmarking threaded STENCIL halo exchange in "
+              << nmu << " dimensions" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "============================="
+              << std::endl;
+    grid_printf("%5s %5s %15s %15s %15s %15s %15s\n", "L", "dir", "payload (B)",
+                "time (usec)", "rate (GB/s)", "std dev", "max");
 
     for (int lat = 16; lat <= maxlat; lat += 8)
     {
-      //      for(int Ls=8;Ls<=8;Ls*=2){
+      int Ls = 12;
+
+      Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
+                            lat * mpi_layout[3]});
+
+      GridCartesian Grid(latt_size, simd_layout, mpi_layout);
+      RealD Nrank = Grid._Nprocessors;
+      RealD Nnode = Grid.NodeCount();
+      RealD ppn = Nrank / Nnode;
+
+      std::vector<HalfSpinColourVectorD *> xbuf(8);
+      std::vector<HalfSpinColourVectorD *> rbuf(8);
+      uint64_t bytes = lat * lat * lat * Ls * sizeof(HalfSpinColourVectorD);
+      for (int d = 0; d < 8; d++)
       {
-        int Ls = 12;
+        xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+        rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+      }
 
-        Coordinate latt_size({lat * mpi_layout[0],
-                              lat * mpi_layout[1],
-                              lat * mpi_layout[2],
-                              lat * mpi_layout[3]});
+      double dbytes;
 
-        GridCartesian Grid(latt_size, simd_layout, mpi_layout);
-        RealD Nrank = Grid._Nprocessors;
-        RealD Nnode = Grid.NodeCount();
-        RealD ppn = Nrank / Nnode;
-
-        std::vector<HalfSpinColourVectorD *> xbuf(8);
-        std::vector<HalfSpinColourVectorD *> rbuf(8);
-        // Grid.ShmBufferFreeAll();
-        uint64_t bytes = lat * lat * lat * Ls * sizeof(HalfSpinColourVectorD);
-        for (int d = 0; d < 8; d++)
+      for (int dir = 0; dir < 8; dir++)
+      {
+        int mu = dir % 4;
+        if (mpi_layout[mu] > 1)
         {
-          xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
-          rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
-          //	  bzero((void *)xbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
-          //	  bzero((void *)rbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
-        }
 
-        //	int ncomm;
-        double dbytes;
-
-        for (int dir = 0; dir < 8; dir++)
-        {
-          int mu = dir % 4;
-          if (mpi_layout[mu] > 1)
+          std::vector<double> times(Nloop);
+          for (int i = 0; i < Nloop; i++)
           {
 
-            std::vector<double> times(Nloop);
-            for (int i = 0; i < Nloop; i++)
+            dbytes = 0;
+            double start = usecond();
+            int xmit_to_rank;
+            int recv_from_rank;
+
+            if (dir == mu)
             {
-
-              dbytes = 0;
-              double start = usecond();
-              int xmit_to_rank;
-              int recv_from_rank;
-
-              if (dir == mu)
-              {
-                int comm_proc = 1;
-                Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-              }
-              else
-              {
-                int comm_proc = mpi_layout[mu] - 1;
-                Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-              }
-              Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
-                                  (void *)&rbuf[dir][0], recv_from_rank,
-                                  bytes);
-              dbytes += bytes;
-
-              double stop = usecond();
-              t_time[i] = stop - start; // microseconds
+              int comm_proc = 1;
+              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
             }
-            timestat.statistics(t_time);
+            else
+            {
+              int comm_proc = mpi_layout[mu] - 1;
+              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+            }
+            Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
+                                (void *)&rbuf[dir][0], recv_from_rank, bytes);
+            dbytes += bytes;
 
-            dbytes = dbytes * ppn;
-            double xbytes = dbytes * 0.5;
-            double bidibytes = dbytes;
-
-            std::cout << GridLogMessage << lat << "\t" << Ls << "\t "
-                      << bytes << " \t "
-                      << xbytes / timestat.mean << " \t " << xbytes * timestat.err / (timestat.mean * timestat.mean) << " \t "
-                      << xbytes / timestat.max << " " << xbytes / timestat.min
-                      << "\t\t" << bidibytes / timestat.mean << "  " << bidibytes * timestat.err / (timestat.mean * timestat.mean) << " "
-                      << bidibytes / timestat.max << " " << bidibytes / timestat.min << std::endl;
+            double stop = usecond();
+            t_time[i] = stop - start; // microseconds
           }
+          timestat.statistics(t_time);
+
+          dbytes = dbytes * ppn;
+          double bidibytes = 2. * dbytes;
+          double rate = bidibytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
+          double rate_err = rate * timestat.err / timestat.mean;
+          double rate_max = rate * timestat.mean / timestat.min;
+          grid_printf("%5d %5d %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir, bytes,
+                      timestat.mean, rate, rate_err, rate_max);
         }
-        for (int d = 0; d < 8; d++)
-        {
-          acceleratorFreeDevice(xbuf[d]);
-          acceleratorFreeDevice(rbuf[d]);
-        }
+      }
+      for (int d = 0; d < 8; d++)
+      {
+        acceleratorFreeDevice(xbuf[d]);
+        acceleratorFreeDevice(rbuf[d]);
       }
     }
     return;
@@ -217,9 +235,15 @@ class Benchmark
     Coordinate simd_layout = GridDefaultSimd(Nd, vReal::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
 
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << "= Benchmarking a*x + y bandwidth" << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << "  L  "
               << "\t\t"
               << "bytes"
@@ -229,7 +253,9 @@ class Benchmark
               << "Gflop/s"
               << "\t\t seconds"
               << "\t\tGB/s / node" << std::endl;
-    std::cout << GridLogMessage << "----------------------------------------------------------" << std::endl;
+    std::cout << GridLogMessage
+              << "----------------------------------------------------------"
+              << std::endl;
 
     //    uint64_t NP;
     uint64_t NN;
@@ -242,7 +268,8 @@ class Benchmark
     for (int lat = 8; lat <= lmax; lat += 8)
     {
 
-      Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2], lat * mpi_layout[3]});
+      Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
+                            lat * mpi_layout[3]});
       int64_t vol = latt_size[0] * latt_size[1] * latt_size[2] * latt_size[3];
 
       GridCartesian Grid(latt_size, simd_layout, mpi_layout);
@@ -273,9 +300,10 @@ class Benchmark
 
       double flops = vol * Nvec * 2; // mul,add
       double bytes = 3.0 * vol * Nvec * sizeof(Real);
-      std::cout << GridLogMessage << std::setprecision(3)
-                << lat << "\t\t" << bytes << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t" << (stop - start) / 1000. / 1000.
-                << "\t\t" << bytes / time / NN << std::endl;
+      std::cout << GridLogMessage << std::setprecision(3) << lat << "\t\t" << bytes
+                << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t"
+                << (stop - start) / 1000. / 1000. << "\t\t" << bytes / time / NN
+                << std::endl;
     }
   };
 
@@ -287,9 +315,15 @@ class Benchmark
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexF::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
 
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << "= Benchmarking z = y*x SU(4) bandwidth" << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << "  L  "
               << "\t\t"
               << "bytes"
@@ -299,7 +333,9 @@ class Benchmark
               << "Gflop/s"
               << "\t\t seconds"
               << "\t\tGB/s / node" << std::endl;
-    std::cout << GridLogMessage << "----------------------------------------------------------" << std::endl;
+    std::cout << GridLogMessage
+              << "----------------------------------------------------------"
+              << std::endl;
 
     uint64_t NN;
 
@@ -310,7 +346,8 @@ class Benchmark
     for (int lat = 8; lat <= lmax; lat += 8)
     {
 
-      Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2], lat * mpi_layout[3]});
+      Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
+                            lat * mpi_layout[3]});
       int64_t vol = latt_size[0] * latt_size[1] * latt_size[2] * latt_size[3];
 
       GridCartesian Grid(latt_size, simd_layout, mpi_layout);
@@ -337,9 +374,10 @@ class Benchmark
 
       double flops = vol * Nc4 * Nc4 * (6 + (Nc4 - 1) * 8); // mul,add
       double bytes = 3.0 * vol * Nc4 * Nc4 * 2 * sizeof(RealF);
-      std::cout << GridLogMessage << std::setprecision(3)
-                << lat << "\t\t" << bytes << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t" << (stop - start) / 1000. / 1000.
-                << "\t\t" << bytes / time / NN << std::endl;
+      std::cout << GridLogMessage << std::setprecision(3) << lat << "\t\t" << bytes
+                << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t"
+                << (stop - start) / 1000. / 1000. << "\t\t" << bytes / time / NN
+                << std::endl;
     }
   };
 
@@ -360,31 +398,41 @@ class Benchmark
     Coordinate mpi = GridDefaultMpi();
     assert(mpi.size() == 4);
     Coordinate local({L, L, L, L});
-    Coordinate latt4({local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
+    Coordinate latt4(
+        {local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
 
-    GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(latt4,
-                                                            GridDefaultSimd(Nd, vComplex::Nsimd()),
-                                                            GridDefaultMpi());
+    GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(
+        latt4, GridDefaultSimd(Nd, vComplex::Nsimd()), GridDefaultMpi());
     uint64_t NP = TmpGrid->RankCount();
     uint64_t NN = TmpGrid->NodeCount();
     NN_global = NN;
     uint64_t SHM = NP / NN;
 
     ///////// Welcome message ////////////
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
-    std::cout << GridLogMessage << "Benchmark DWF on " << L << "^4 local volume " << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
+    std::cout << GridLogMessage << "Benchmark DWF on " << L << "^4 local volume "
+              << std::endl;
     std::cout << GridLogMessage << "* Nc             : " << Nc << std::endl;
-    std::cout << GridLogMessage << "* Global volume  : " << GridCmdVectorIntToString(latt4) << std::endl;
+    std::cout << GridLogMessage
+              << "* Global volume  : " << GridCmdVectorIntToString(latt4) << std::endl;
     std::cout << GridLogMessage << "* Ls             : " << Ls << std::endl;
     std::cout << GridLogMessage << "* ranks          : " << NP << std::endl;
     std::cout << GridLogMessage << "* nodes          : " << NN << std::endl;
     std::cout << GridLogMessage << "* ranks/node     : " << SHM << std::endl;
-    std::cout << GridLogMessage << "* ranks geom     : " << GridCmdVectorIntToString(mpi) << std::endl;
+    std::cout << GridLogMessage << "* ranks geom     : " << GridCmdVectorIntToString(mpi)
+              << std::endl;
     std::cout << GridLogMessage << "* Using " << threads << " threads" << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
 
     ///////// Lattice Init ////////////
-    GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(latt4, GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
+    GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(
+        latt4, GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
     GridRedBlackCartesian *UrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(UGrid);
     GridCartesian *FGrid = SpaceTimeGrid::makeFiveDimGrid(Ls, UGrid);
     GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
@@ -423,10 +471,14 @@ class Benchmark
       std::string fmt("G/S/C ; G/O/C ; G/S/S ; G/O/S ");
 
       controls Cases[] = {
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsThenCompute, CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsAndCompute, CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsThenCompute, CartesianCommunicator::CommunicatorPolicySequential},
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsAndCompute, CartesianCommunicator::CommunicatorPolicySequential}};
+          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsThenCompute,
+           CartesianCommunicator::CommunicatorPolicyConcurrent},
+          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsAndCompute,
+           CartesianCommunicator::CommunicatorPolicyConcurrent},
+          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsThenCompute,
+           CartesianCommunicator::CommunicatorPolicySequential},
+          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsAndCompute,
+           CartesianCommunicator::CommunicatorPolicySequential}};
 
       for (int c = 0; c < num_cases; c++)
       {
@@ -435,7 +487,10 @@ class Benchmark
         WilsonKernelsStatic::Opt = Cases[c].Opt;
         CartesianCommunicator::SetCommunicatorPolicy(Cases[c].CommsAsynch);
 
-        std::cout << GridLogMessage << "==================================================================================" << std::endl;
+        std::cout << GridLogMessage
+                  << "==================================================================="
+                     "==============="
+                  << std::endl;
         if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptGeneric)
           std::cout << GridLogMessage << "* Using GENERIC Nc WilsonKernels" << std::endl;
         if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsAndCompute)
@@ -443,7 +498,10 @@ class Benchmark
         if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsThenCompute)
           std::cout << GridLogMessage << "* Using sequential Comms/Compute" << std::endl;
         std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
-        std::cout << GridLogMessage << "==================================================================================" << std::endl;
+        std::cout << GridLogMessage
+                  << "==================================================================="
+                     "==============="
+                  << std::endl;
 
         int nwarm = 10;
         double t0 = usecond();
@@ -458,7 +516,8 @@ class Benchmark
 
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
 
-        //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per second"<<std::endl;
+        //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per
+        // second"<<std::endl;
         Dw.ZeroCounters();
 
         time_statistics timestat;
@@ -483,7 +542,8 @@ class Benchmark
 #if 0
 	double fps = Nc* (6+(Nc-1)*8)*Ns*Nd + Nd*Nc*Ns  + Nd*Nc*Ns*2;
 #else
-        double fps = Nc * (6 + (Nc - 1) * 8) * Ns * Nd + 2 * Nd * Nc * Ns + 2 * Nd * Nc * Ns * 2;
+        double fps =
+            Nc * (6 + (Nc - 1) * 8) * Ns * Nd + 2 * Nd * Nc * Ns + 2 * Nd * Nc * Ns * 2;
 #endif
         double flops = (fps * volume) / 2;
         double mf_hi, mf_lo, mf_err;
@@ -505,14 +565,25 @@ class Benchmark
           mflops_worst = mflops;
 
         std::cout << GridLogMessage << "Deo FlopsPerSite is " << fps << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1) << "Deo mflop/s =   " << mflops << " (" << mf_err << ") " << mf_lo << "-" << mf_hi << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1) << "Deo mflop/s per rank   " << mflops / NP << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1) << "Deo mflop/s per node   " << mflops / NN << std::endl;
+        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
+                  << "Deo mflop/s =   " << mflops << " (" << mf_err << ") " << mf_lo
+                  << "-" << mf_hi << std::endl;
+        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
+                  << "Deo mflop/s per rank   " << mflops / NP << std::endl;
+        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
+                  << "Deo mflop/s per node   " << mflops / NN << std::endl;
       }
 
-      std::cout << GridLogMessage << "==================================================================================" << std::endl;
-      std::cout << GridLogMessage << L << "^4 x " << Ls << " Deo Best  mflop/s        =   " << mflops_best << " ; " << mflops_best / NN << " per node " << std::endl;
-      std::cout << GridLogMessage << L << "^4 x " << Ls << " Deo Worst mflop/s        =   " << mflops_worst << " ; " << mflops_worst / NN << " per node " << std::endl;
+      std::cout << GridLogMessage
+                << "====================================================================="
+                   "============="
+                << std::endl;
+      std::cout << GridLogMessage << L << "^4 x " << Ls
+                << " Deo Best  mflop/s        =   " << mflops_best << " ; "
+                << mflops_best / NN << " per node " << std::endl;
+      std::cout << GridLogMessage << L << "^4 x " << Ls
+                << " Deo Worst mflop/s        =   " << mflops_worst << " ; "
+                << mflops_worst / NN << " per node " << std::endl;
       std::cout << GridLogMessage << fmt << std::endl;
       std::cout << GridLogMessage;
 
@@ -521,7 +592,10 @@ class Benchmark
         std::cout << mflops_all[i] / NN << " ; ";
       }
       std::cout << std::endl;
-      std::cout << GridLogMessage << "==================================================================================" << std::endl;
+      std::cout << GridLogMessage
+                << "====================================================================="
+                   "============="
+                << std::endl;
     }
     return mflops_best;
   }
@@ -540,29 +614,39 @@ class Benchmark
     Coordinate mpi = GridDefaultMpi();
     assert(mpi.size() == 4);
     Coordinate local({L, L, L, L});
-    Coordinate latt4({local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
+    Coordinate latt4(
+        {local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
 
-    GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(latt4,
-                                                            GridDefaultSimd(Nd, vComplex::Nsimd()),
-                                                            GridDefaultMpi());
+    GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(
+        latt4, GridDefaultSimd(Nd, vComplex::Nsimd()), GridDefaultMpi());
     uint64_t NP = TmpGrid->RankCount();
     uint64_t NN = TmpGrid->NodeCount();
     NN_global = NN;
     uint64_t SHM = NP / NN;
 
     ///////// Welcome message ////////////
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
-    std::cout << GridLogMessage << "Benchmark ImprovedStaggered on " << L << "^4 local volume " << std::endl;
-    std::cout << GridLogMessage << "* Global volume  : " << GridCmdVectorIntToString(latt4) << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
+    std::cout << GridLogMessage << "Benchmark ImprovedStaggered on " << L
+              << "^4 local volume " << std::endl;
+    std::cout << GridLogMessage
+              << "* Global volume  : " << GridCmdVectorIntToString(latt4) << std::endl;
     std::cout << GridLogMessage << "* ranks          : " << NP << std::endl;
     std::cout << GridLogMessage << "* nodes          : " << NN << std::endl;
     std::cout << GridLogMessage << "* ranks/node     : " << SHM << std::endl;
-    std::cout << GridLogMessage << "* ranks geom     : " << GridCmdVectorIntToString(mpi) << std::endl;
+    std::cout << GridLogMessage << "* ranks geom     : " << GridCmdVectorIntToString(mpi)
+              << std::endl;
     std::cout << GridLogMessage << "* Using " << threads << " threads" << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
 
     ///////// Lattice Init ////////////
-    GridCartesian *FGrid = SpaceTimeGrid::makeFourDimGrid(latt4, GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
+    GridCartesian *FGrid = SpaceTimeGrid::makeFourDimGrid(
+        latt4, GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
     GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(FGrid);
 
     ///////// RNG Init ////////////
@@ -604,10 +688,14 @@ class Benchmark
       std::string fmt("G/S/C ; G/O/C ; G/S/S ; G/O/S ");
 
       controls Cases[] = {
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsThenCompute, CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsAndCompute, CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsThenCompute, CartesianCommunicator::CommunicatorPolicySequential},
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsAndCompute, CartesianCommunicator::CommunicatorPolicySequential}};
+          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsThenCompute,
+           CartesianCommunicator::CommunicatorPolicyConcurrent},
+          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsAndCompute,
+           CartesianCommunicator::CommunicatorPolicyConcurrent},
+          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsThenCompute,
+           CartesianCommunicator::CommunicatorPolicySequential},
+          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsAndCompute,
+           CartesianCommunicator::CommunicatorPolicySequential}};
 
       for (int c = 0; c < num_cases; c++)
       {
@@ -616,15 +704,22 @@ class Benchmark
         StaggeredKernelsStatic::Opt = Cases[c].Opt;
         CartesianCommunicator::SetCommunicatorPolicy(Cases[c].CommsAsynch);
 
-        std::cout << GridLogMessage << "==================================================================================" << std::endl;
+        std::cout << GridLogMessage
+                  << "==================================================================="
+                     "==============="
+                  << std::endl;
         if (StaggeredKernelsStatic::Opt == StaggeredKernelsStatic::OptGeneric)
-          std::cout << GridLogMessage << "* Using GENERIC Nc StaggeredKernels" << std::endl;
+          std::cout << GridLogMessage << "* Using GENERIC Nc StaggeredKernels"
+                    << std::endl;
         if (StaggeredKernelsStatic::Comms == StaggeredKernelsStatic::CommsAndCompute)
           std::cout << GridLogMessage << "* Using Overlapped Comms/Compute" << std::endl;
         if (StaggeredKernelsStatic::Comms == StaggeredKernelsStatic::CommsThenCompute)
           std::cout << GridLogMessage << "* Using sequential Comms/Compute" << std::endl;
         std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
-        std::cout << GridLogMessage << "==================================================================================" << std::endl;
+        std::cout << GridLogMessage
+                  << "==================================================================="
+                     "==============="
+                  << std::endl;
 
         int nwarm = 10;
         double t0 = usecond();
@@ -639,7 +734,8 @@ class Benchmark
 
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
 
-        //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per second"<<std::endl;
+        //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per
+        // second"<<std::endl;
         Ds.ZeroCounters();
 
         time_statistics timestat;
@@ -675,14 +771,25 @@ class Benchmark
         if (mflops < mflops_worst)
           mflops_worst = mflops;
 
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1) << "Deo mflop/s =   " << mflops << " (" << mf_err << ") " << mf_lo << "-" << mf_hi << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1) << "Deo mflop/s per rank   " << mflops / NP << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1) << "Deo mflop/s per node   " << mflops / NN << std::endl;
+        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
+                  << "Deo mflop/s =   " << mflops << " (" << mf_err << ") " << mf_lo
+                  << "-" << mf_hi << std::endl;
+        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
+                  << "Deo mflop/s per rank   " << mflops / NP << std::endl;
+        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
+                  << "Deo mflop/s per node   " << mflops / NN << std::endl;
       }
 
-      std::cout << GridLogMessage << "==================================================================================" << std::endl;
-      std::cout << GridLogMessage << L << "^4  Deo Best  mflop/s        =   " << mflops_best << " ; " << mflops_best / NN << " per node " << std::endl;
-      std::cout << GridLogMessage << L << "^4  Deo Worst mflop/s        =   " << mflops_worst << " ; " << mflops_worst / NN << " per node " << std::endl;
+      std::cout << GridLogMessage
+                << "====================================================================="
+                   "============="
+                << std::endl;
+      std::cout << GridLogMessage << L
+                << "^4  Deo Best  mflop/s        =   " << mflops_best << " ; "
+                << mflops_best / NN << " per node " << std::endl;
+      std::cout << GridLogMessage << L
+                << "^4  Deo Worst mflop/s        =   " << mflops_worst << " ; "
+                << mflops_worst / NN << " per node " << std::endl;
       std::cout << GridLogMessage << fmt << std::endl;
       std::cout << GridLogMessage;
 
@@ -692,7 +799,10 @@ class Benchmark
       }
       std::cout << std::endl;
     }
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     return mflops_best;
   }
 };
@@ -701,7 +811,8 @@ int main(int argc, char **argv)
 {
   Grid_init(&argc, &argv);
 
-  CartesianCommunicator::SetCommunicatorPolicy(CartesianCommunicator::CommunicatorPolicySequential);
+  CartesianCommunicator::SetCommunicatorPolicy(
+      CartesianCommunicator::CommunicatorPolicySequential);
 #ifdef KNL
   LebesgueOrder::Block = std::vector<int>({8, 2, 2, 2});
 #else
@@ -709,9 +820,11 @@ int main(int argc, char **argv)
 #endif
   Benchmark::Decomposition();
 
-  int do_su4 = 1;
-  int do_memory = 1;
+  int do_su4 = 0;
+  int do_memory = 0;
   int do_comms = 1;
+  int do_flops = 0;
+  int Ls = 1;
 
   int sel = 4;
   std::vector<int> L_list({8, 12, 16, 24, 32});
@@ -721,84 +834,170 @@ int main(int argc, char **argv)
   std::vector<double> dwf4;
   std::vector<double> staggered;
 
-  int Ls = 1;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " Wilson dslash 4D vectorised" << std::endl;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
+  if (do_flops)
   {
-    wilson.push_back(Benchmark::DWF(Ls, L_list[l]));
-  }
+    Ls = 1;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Wilson dslash 4D vectorised" << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      wilson.push_back(Benchmark::DWF(Ls, L_list[l]));
+    }
 
-  Ls = 12;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " Domain wall dslash 4D vectorised" << std::endl;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
-  {
-    double result = Benchmark::DWF(Ls, L_list[l]);
-    dwf4.push_back(result);
-  }
+    Ls = 12;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Domain wall dslash 4D vectorised" << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::DWF(Ls, L_list[l]);
+      dwf4.push_back(result);
+    }
 
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " Improved Staggered dslash 4D vectorised" << std::endl;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
-  {
-    double result = Benchmark::Staggered(L_list[l]);
-    staggered.push_back(result);
-  }
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Improved Staggered dslash 4D vectorised"
+              << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::Staggered(L_list[l]);
+      staggered.push_back(result);
+    }
 
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " Summary table Ls=" << Ls << std::endl;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << "L \t\t Wilson \t\t DWF4 \t\t Staggered" << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
-  {
-    std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] << " \t\t " << dwf4[l] << " \t\t " << staggered[l] << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Summary table Ls=" << Ls << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << "L \t\t Wilson \t\t DWF4 \t\t Staggered" << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] << " \t\t "
+                << dwf4[l] << " \t\t " << staggered[l] << std::endl;
+    }
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
   }
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
 
   int NN = NN_global;
   if (do_memory)
   {
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << " Memory benchmark " << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     Benchmark::Memory();
   }
 
   if (do_su4)
   {
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << " SU(4) benchmark " << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     Benchmark::SU4();
   }
 
   if (do_comms)
   {
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     std::cout << GridLogMessage << " Communications benchmark " << std::endl;
-    std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout << GridLogMessage
+              << "======================================================================="
+                 "==========="
+              << std::endl;
     Benchmark::Comms();
   }
 
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " Per Node Summary table Ls=" << Ls << std::endl;
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " L \t\t Wilson\t\t DWF4\t\t Staggered " << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
+  if (do_flops)
   {
-    std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] / NN << " \t " << dwf4[l] / NN << " \t " << staggered[l] / NN << std::endl;
-  }
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Per Node Summary table Ls=" << Ls << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " L \t\t Wilson\t\t DWF4\t\t Staggered " << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] / NN << " \t "
+                << dwf4[l] / NN << " \t " << staggered[l] / NN << std::endl;
+    }
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
 
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
-  std::cout << GridLogMessage << " Comparison point     result: " << 0.5 * (dwf4[sel] + dwf4[selm1]) / NN << " Mflop/s per node" << std::endl;
-  std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4[sel] / NN << "+" << dwf4[selm1] / NN << ") " << std::endl;
-  std::cout << std::setprecision(3);
-  std::cout << GridLogMessage << "==================================================================================" << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage
+              << " Comparison point     result: " << 0.5 * (dwf4[sel] + dwf4[selm1]) / NN
+              << " Mflop/s per node" << std::endl;
+    std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4[sel] / NN << "+"
+              << dwf4[selm1] / NN << ") " << std::endl;
+    std::cout << std::setprecision(3);
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+  }
 
   Grid_finalize();
 }
