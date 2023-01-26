@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.hpp"
 #include <Grid/Grid.h>
 
 using namespace Grid;
@@ -119,17 +120,13 @@ class Benchmark
               << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexD::Nsimd()))
               << std::endl;
-    std::cout << GridLogMessage
-              << "======================================================================="
-                 "==========="
-              << std::endl;
   }
 
   static void Comms(void)
   {
     int Nloop = 200;
     int nmu = 0;
-    int maxlat = 32;
+    int maxlat = 48;
 
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
@@ -151,7 +148,8 @@ class Benchmark
               << "======================================================================="
                  "============================="
               << std::endl;
-    comms_header();
+    grid_printf("%5s %5s %15s %15s %15s %15s %15s\n", "L", "dir", "payload (B)",
+                "time (usec)", "rate (GB/s)", "std dev", "max");
 
     for (int lat = 16; lat <= maxlat; lat += 8)
     {
@@ -172,8 +170,6 @@ class Benchmark
       {
         xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
         rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
-        //	  bzero((void *)xbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
-        //	  bzero((void *)rbuf[d],lat*lat*lat*Ls*sizeof(HalfSpinColourVectorD));
       }
 
       double dbytes;
@@ -213,17 +209,12 @@ class Benchmark
           timestat.statistics(t_time);
 
           dbytes = dbytes * ppn;
-          double xbytes = dbytes * 0.5;
-          double bidibytes = dbytes;
-
-          std::cout << GridLogMessage << lat << "\t" << Ls << "\t " << bytes << " \t "
-                    << xbytes / timestat.mean << " \t "
-                    << xbytes * timestat.err / (timestat.mean * timestat.mean) << " \t "
-                    << xbytes / timestat.max << " " << xbytes / timestat.min << "\t\t"
-                    << bidibytes / timestat.mean << "  "
-                    << bidibytes * timestat.err / (timestat.mean * timestat.mean) << " "
-                    << bidibytes / timestat.max << " " << bidibytes / timestat.min
-                    << std::endl;
+          double bidibytes = 2. * dbytes;
+          double rate = bidibytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
+          double rate_err = rate * timestat.err / timestat.mean;
+          double rate_max = rate * timestat.mean / timestat.min;
+          grid_printf("%5d %5d %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir, bytes,
+                      timestat.mean, rate, rate_err, rate_max);
         }
       }
       for (int d = 0; d < 8; d++)
@@ -526,7 +517,7 @@ class Benchmark
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
 
         //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per
-        //second"<<std::endl;
+        // second"<<std::endl;
         Dw.ZeroCounters();
 
         time_statistics timestat;
@@ -744,7 +735,7 @@ class Benchmark
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
 
         //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per
-        //second"<<std::endl;
+        // second"<<std::endl;
         Ds.ZeroCounters();
 
         time_statistics timestat;
@@ -829,9 +820,11 @@ int main(int argc, char **argv)
 #endif
   Benchmark::Decomposition();
 
-  int do_su4 = 1;
-  int do_memory = 1;
+  int do_su4 = 0;
+  int do_memory = 0;
   int do_comms = 1;
+  int do_flops = 0;
+  int Ls = 1;
 
   int sel = 4;
   std::vector<int> L_list({8, 12, 16, 24, 32});
@@ -841,71 +834,84 @@ int main(int argc, char **argv)
   std::vector<double> dwf4;
   std::vector<double> staggered;
 
-  int Ls = 1;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << " Wilson dslash 4D vectorised" << std::endl;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
+  if (do_flops)
   {
-    wilson.push_back(Benchmark::DWF(Ls, L_list[l]));
-  }
+    Ls = 1;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Wilson dslash 4D vectorised" << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      wilson.push_back(Benchmark::DWF(Ls, L_list[l]));
+    }
 
-  Ls = 12;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << " Domain wall dslash 4D vectorised" << std::endl;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
-  {
-    double result = Benchmark::DWF(Ls, L_list[l]);
-    dwf4.push_back(result);
-  }
+    Ls = 12;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Domain wall dslash 4D vectorised" << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::DWF(Ls, L_list[l]);
+      dwf4.push_back(result);
+    }
 
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << " Improved Staggered dslash 4D vectorised" << std::endl;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
-  {
-    double result = Benchmark::Staggered(L_list[l]);
-    staggered.push_back(result);
-  }
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Improved Staggered dslash 4D vectorised"
+              << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::Staggered(L_list[l]);
+      staggered.push_back(result);
+    }
 
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << " Summary table Ls=" << Ls << std::endl;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << "L \t\t Wilson \t\t DWF4 \t\t Staggered" << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
-  {
-    std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] << " \t\t "
-              << dwf4[l] << " \t\t " << staggered[l] << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Summary table Ls=" << Ls << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << "L \t\t Wilson \t\t DWF4 \t\t Staggered" << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] << " \t\t "
+                << dwf4[l] << " \t\t " << staggered[l] << std::endl;
+    }
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
   }
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
 
   int NN = NN_global;
   if (do_memory)
@@ -950,40 +956,48 @@ int main(int argc, char **argv)
     Benchmark::Comms();
   }
 
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << " Per Node Summary table Ls=" << Ls << std::endl;
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage << " L \t\t Wilson\t\t DWF4\t\t Staggered " << std::endl;
-  for (int l = 0; l < L_list.size(); l++)
+  if (do_flops)
   {
-    std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] / NN << " \t "
-              << dwf4[l] / NN << " \t " << staggered[l] / NN << std::endl;
-  }
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " Per Node Summary table Ls=" << Ls << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage << " L \t\t Wilson\t\t DWF4\t\t Staggered " << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] / NN << " \t "
+                << dwf4[l] / NN << " \t " << staggered[l] / NN << std::endl;
+    }
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
 
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
-  std::cout << GridLogMessage
-            << " Comparison point     result: " << 0.5 * (dwf4[sel] + dwf4[selm1]) / NN
-            << " Mflop/s per node" << std::endl;
-  std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4[sel] / NN << "+"
-            << dwf4[selm1] / NN << ") " << std::endl;
-  std::cout << std::setprecision(3);
-  std::cout << GridLogMessage
-            << "========================================================================="
-               "========="
-            << std::endl;
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+    std::cout << GridLogMessage
+              << " Comparison point     result: " << 0.5 * (dwf4[sel] + dwf4[selm1]) / NN
+              << " Mflop/s per node" << std::endl;
+    std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4[sel] / NN << "+"
+              << dwf4[selm1] / NN << ") " << std::endl;
+    std::cout << std::setprecision(3);
+    std::cout
+        << GridLogMessage
+        << "========================================================================="
+           "========="
+        << std::endl;
+  }
 
   Grid_finalize();
 }
