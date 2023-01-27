@@ -166,7 +166,7 @@ spack install ucx@1.12.0.CPU%gcc@9.4.0 openmpi@4.1.1.CPU%gcc@9.4.0
 cd "${cwd}"
 
 # environments #################################################################
-dev_tools=("autoconf" "automake" "libtool" "jq")
+dev_tools=("autoconf" "automake" "libtool" "jq" "git")
 ompi_gpu_hash=$(spack find --format "{hash}" openmpi@4.1.1.GPU)
 ompi_cpu_hash=$(spack find --format "{hash}" openmpi@4.1.1.CPU)
 
@@ -190,6 +190,8 @@ spack add openssl gmp mpfr c-lime
 spack install
 spack env deactivate
 
+spack install jq git
+
 # Final setup ##################################################################
 spack clean
 spack gc -y
@@ -199,7 +201,3 @@ spack config --scope site add 'modules:prefix_inspections:lib:[LD_LIBRARY_PATH,L
 spack config --scope site add 'modules:prefix_inspections:lib64:[LD_LIBRARY_PATH,LIBRARY_PATH]'
 spack config --scope site add 'modules:prefix_inspections:include:[C_INCLUDE_PATH,CPLUS_INCLUDE_PATH,INCLUDE]'
 spack module tcl refresh -y
-
-# permission change for group access
-chmod -R g+rw "${dir}/spack/var/spack/cache"
-setfacl -d -R -m g::rwX "${dir}/spack/var/spack/cache"
