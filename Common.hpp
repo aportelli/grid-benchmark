@@ -26,6 +26,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #define GRID_MSG_MAXSIZE 1024
 #endif
 
+#define GRID_BIG_SEP                                                                     \
+  "==============================================================================="
+#define GRID_SMALL_SEP "------------------------------------------"
+
+#define grid_big_sep()                                                                   \
+  {                                                                                      \
+    GRID_MSG << GRID_BIG_SEP << std::endl;                                               \
+  }
+
+#define grid_small_sep()                                                                 \
+  {                                                                                      \
+    GRID_MSG << GRID_SMALL_SEP << std::endl;                                             \
+  }
+
 #define grid_printf(...)                                                                 \
   {                                                                                      \
     char _buf[GRID_MSG_MAXSIZE];                                                         \
