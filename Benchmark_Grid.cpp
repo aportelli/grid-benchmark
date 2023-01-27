@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Common.hpp"
+#include "json.hpp"
 #include <Grid/Grid.h>
 
 using namespace Grid;
@@ -31,6 +32,8 @@ double mflop_ref;
 double mflop_ref_err;
 
 int NN_global;
+
+nlohmann::json json_results;
 
 struct time_statistics
 {
@@ -215,6 +218,13 @@ class Benchmark
           double rate_max = rate * timestat.mean / timestat.min;
           grid_printf("%5d %5d %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir, bytes,
                       timestat.mean, rate, rate_err, rate_max);
+          nlohmann::json tmp;
+          tmp["L"] = lat;
+          tmp["dir"] = dir;
+          tmp["bytes"] = bytes;
+          tmp["time"] = timestat.mean;
+          tmp["GB_per_second"] = rate;
+          json_results["comms"].push_back(tmp);
         }
       }
       for (int d = 0; d < 8; d++)
@@ -304,6 +314,13 @@ class Benchmark
                 << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t"
                 << (stop - start) / 1000. / 1000. << "\t\t" << bytes / time / NN
                 << std::endl;
+
+      nlohmann::json tmp;
+      tmp["L"] = lat;
+      tmp["bytes"] = bytes;
+      tmp["gflops"] = flops / time;
+      tmp["GB_per_second"] = bytes / time;
+      json_results["axpy"].push_back(tmp);
     }
   };
 
@@ -378,6 +395,13 @@ class Benchmark
                 << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t"
                 << (stop - start) / 1000. / 1000. << "\t\t" << bytes / time / NN
                 << std::endl;
+
+      nlohmann::json tmp;
+      tmp["L"] = lat;
+      tmp["bytes"] = bytes;
+      tmp["GB_per_second"] = bytes / time;
+      tmp["gflops"] = flops / time;
+      json_results["SU4"].push_back(tmp);
     }
   };
 
@@ -811,6 +835,13 @@ int main(int argc, char **argv)
 {
   Grid_init(&argc, &argv);
 
+  std::string json_filename = ""; // empty indicates no json output
+  for (int i = 0; i < argc; i++)
+  {
+    if (std::string(argv[i]) == "--json-out")
+      json_filename = argv[i + 1];
+  }
+
   CartesianCommunicator::SetCommunicatorPolicy(
       CartesianCommunicator::CommunicatorPolicySequential);
 #ifdef KNL
@@ -820,10 +851,10 @@ int main(int argc, char **argv)
 #endif
   Benchmark::Decomposition();
 
-  int do_su4 = 0;
-  int do_memory = 0;
+  int do_su4 = 1;
+  int do_memory = 1;
   int do_comms = 1;
-  int do_flops = 0;
+  int do_flops = 1;
   int Ls = 1;
 
   int sel = 4;
@@ -905,6 +936,12 @@ int main(int argc, char **argv)
     {
       std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] << " \t\t "
                 << dwf4[l] << " \t\t " << staggered[l] << std::endl;
+      nlohmann::json tmp;
+      tmp["L"] = L_list[l];
+      tmp["mflops_wilson"] = wilson[l];
+      tmp["mflops_dwf4"] = dwf4[l];
+      tmp["mflops_staggered"] = staggered[l];
+      json_results["flops"].push_back(tmp);
     }
     std::cout
         << GridLogMessage
@@ -997,6 +1034,20 @@ int main(int argc, char **argv)
         << "========================================================================="
            "========="
         << std::endl;
+  }
+
+  if (!json_filename.empty())
+  {
+    std::cout << GridLogMessage << "writing benchmark results to " << json_filename
+              << std::endl;
+
+    int me = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &me);
+    if (me == 0)
+    {
+      std::ofstream json_file(json_filename);
+      json_file << std::setw(4) << json_results;
+    }
   }
 
   Grid_finalize();
