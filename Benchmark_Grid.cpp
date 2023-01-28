@@ -1,6 +1,7 @@
 /*
 Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
 Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
+Copyright © 2022 Simon Buerger <simon.buerger@rwth-aachen.de>
 
 This is a fork of Benchmark_ITT.cpp from Grid
 
@@ -23,13 +24,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <Grid/Grid.h>
 
 using namespace Grid;
-
-std::vector<int> L_list;
-std::vector<int> Ls_list;
-std::vector<double> mflop_list;
-
-double mflop_ref;
-double mflop_ref_err;
 
 int NN_global;
 
@@ -57,18 +51,6 @@ struct time_statistics
     max = *result.second;
   }
 };
-
-void comms_header()
-{
-  std::cout << GridLogMessage << " L  "
-            << "\t"
-            << " Ls  "
-            << "\t"
-            << "bytes\t MB/s uni (err/min/max) \t\t MB/s bidi (err/min/max)" << std::endl;
-};
-
-Gamma::Algebra Gmu[] = {Gamma::Algebra::GammaX, Gamma::Algebra::GammaY,
-                        Gamma::Algebra::GammaZ, Gamma::Algebra::GammaT};
 
 struct controls
 {
@@ -133,10 +115,9 @@ class Benchmark
     std::vector<double> t_time(Nloop);
     time_statistics timestat;
 
-    grid_big_sep();
-    std::cout << GridLogMessage << "= Benchmarking threaded STENCIL halo exchange in "
+    std::cout << GridLogMessage << "Benchmarking threaded STENCIL halo exchange in "
               << nmu << " dimensions" << std::endl;
-    grid_big_sep();
+    grid_small_sep();
     grid_printf("%5s %5s %15s %15s %15s %15s %15s\n", "L", "dir", "payload (B)",
                 "time (usec)", "rate (GB/s)", "std dev", "max");
 
@@ -368,10 +349,10 @@ class Benchmark
     RealD mass = 0.1;
     RealD M5 = 1.8;
 
-    double mflops;
-    double mflops_best = 0;
-    double mflops_worst = 0;
-    std::vector<double> mflops_all;
+    double gflops;
+    double gflops_best = 0;
+    double gflops_worst = 0;
+    std::vector<double> gflops_all;
 
     ///////////////////////////////////////////////////////
     // Set/Get the layout & grid size
@@ -486,8 +467,6 @@ class Benchmark
 
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
 
-        //	std::cout << GridLogMessage << " Estimate " << ncall << " calls per
-        // second"<<std::endl;
         Dw.ZeroCounters();
 
         time_statistics timestat;
@@ -515,60 +494,60 @@ class Benchmark
         double fps =
             Nc * (6 + (Nc - 1) * 8) * Ns * Nd + 2 * Nd * Nc * Ns + 2 * Nd * Nc * Ns * 2;
 #endif
-        double flops = (fps * volume) / 2;
-        double mf_hi, mf_lo, mf_err;
+        double flops = (fps * volume) / 2.;
+        double gf_hi, gf_lo, gf_err;
 
         timestat.statistics(t_time);
-        mf_hi = flops / timestat.min;
-        mf_lo = flops / timestat.max;
-        mf_err = flops / timestat.min * timestat.err / timestat.mean;
+        gf_hi = flops / timestat.min / 1000.;
+        gf_lo = flops / timestat.max / 1000.;
+        gf_err = flops / timestat.min * timestat.err / timestat.mean / 1000.;
 
-        mflops = flops / timestat.mean;
-        mflops_all.push_back(mflops);
-        if (mflops_best == 0)
-          mflops_best = mflops;
-        if (mflops_worst == 0)
-          mflops_worst = mflops;
-        if (mflops > mflops_best)
-          mflops_best = mflops;
-        if (mflops < mflops_worst)
-          mflops_worst = mflops;
+        gflops = flops / timestat.mean / 1000.;
+        gflops_all.push_back(gflops);
+        if (gflops_best == 0)
+          gflops_best = gflops;
+        if (gflops_worst == 0)
+          gflops_worst = gflops;
+        if (gflops > gflops_best)
+          gflops_best = gflops;
+        if (gflops < gflops_worst)
+          gflops_worst = gflops;
 
         std::cout << GridLogMessage << "Deo FlopsPerSite is " << fps << std::endl;
         std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo mflop/s =   " << mflops << " (" << mf_err << ") " << mf_lo
-                  << "-" << mf_hi << std::endl;
+                  << "Deo Gflop/s =   " << gflops << " (" << gf_err << ") " << gf_lo
+                  << "-" << gf_hi << std::endl;
         std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo mflop/s per rank   " << mflops / NP << std::endl;
+                  << "Deo Gflop/s per rank   " << gflops / NP << std::endl;
         std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo mflop/s per node   " << mflops / NN << std::endl;
+                  << "Deo Gflop/s per node   " << gflops / NN << std::endl;
       }
 
       grid_small_sep();
       std::cout << GridLogMessage << L << "^4 x " << Ls
-                << " Deo Best  mflop/s        =   " << mflops_best << " ; "
-                << mflops_best / NN << " per node " << std::endl;
+                << " Deo Best  Gflop/s        =   " << gflops_best << " ; "
+                << gflops_best / NN << " per node " << std::endl;
       std::cout << GridLogMessage << L << "^4 x " << Ls
-                << " Deo Worst mflop/s        =   " << mflops_worst << " ; "
-                << mflops_worst / NN << " per node " << std::endl;
+                << " Deo Worst Gflop/s        =   " << gflops_worst << " ; "
+                << gflops_worst / NN << " per node " << std::endl;
       std::cout << GridLogMessage << fmt << std::endl;
       std::cout << GridLogMessage;
 
-      for (int i = 0; i < mflops_all.size(); i++)
+      for (int i = 0; i < gflops_all.size(); i++)
       {
-        std::cout << mflops_all[i] / NN << " ; ";
+        std::cout << gflops_all[i] / NN << " ; ";
       }
       std::cout << std::endl;
     }
-    return mflops_best;
+    return gflops_best;
   }
 
   static double Staggered(int L)
   {
-    double mflops;
-    double mflops_best = 0;
-    double mflops_worst = 0;
-    std::vector<double> mflops_all;
+    double gflops;
+    double gflops_best = 0;
+    double gflops_worst = 0;
+    std::vector<double> gflops_all;
 
     ///////////////////////////////////////////////////////
     // Set/Get the layout & grid size
@@ -700,51 +679,51 @@ class Benchmark
         double volume = 1;
         for (int mu = 0; mu < Nd; mu++)
           volume = volume * latt4[mu];
-        double flops = (1146.0 * volume) / 2;
-        double mf_hi, mf_lo, mf_err;
+        double flops = (1146.0 * volume) / 2.;
+        double gf_hi, gf_lo, gf_err;
 
         timestat.statistics(t_time);
-        mf_hi = flops / timestat.min;
-        mf_lo = flops / timestat.max;
-        mf_err = flops / timestat.min * timestat.err / timestat.mean;
+        gf_hi = flops / timestat.min / 1000.;
+        gf_lo = flops / timestat.max / 1000.;
+        gf_err = flops / timestat.min * timestat.err / timestat.mean / 1000.;
 
-        mflops = flops / timestat.mean;
-        mflops_all.push_back(mflops);
-        if (mflops_best == 0)
-          mflops_best = mflops;
-        if (mflops_worst == 0)
-          mflops_worst = mflops;
-        if (mflops > mflops_best)
-          mflops_best = mflops;
-        if (mflops < mflops_worst)
-          mflops_worst = mflops;
+        gflops = flops / timestat.mean / 1000.;
+        gflops_all.push_back(gflops);
+        if (gflops_best == 0)
+          gflops_best = gflops;
+        if (gflops_worst == 0)
+          gflops_worst = gflops;
+        if (gflops > gflops_best)
+          gflops_best = gflops;
+        if (gflops < gflops_worst)
+          gflops_worst = gflops;
 
         std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo mflop/s =   " << mflops << " (" << mf_err << ") " << mf_lo
-                  << "-" << mf_hi << std::endl;
+                  << "Deo Gflop/s =   " << gflops << " (" << gf_err << ") " << gf_lo
+                  << "-" << gf_hi << std::endl;
         std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo mflop/s per rank   " << mflops / NP << std::endl;
+                  << "Deo Gflop/s per rank   " << gflops / NP << std::endl;
         std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo mflop/s per node   " << mflops / NN << std::endl;
+                  << "Deo Gflop/s per node   " << gflops / NN << std::endl;
       }
 
       grid_small_sep();
       std::cout << GridLogMessage << L
-                << "^4  Deo Best  mflop/s        =   " << mflops_best << " ; "
-                << mflops_best / NN << " per node " << std::endl;
+                << "^4  Deo Best  Gflop/s        =   " << gflops_best << " ; "
+                << gflops_best / NN << " per node " << std::endl;
       std::cout << GridLogMessage << L
-                << "^4  Deo Worst mflop/s        =   " << mflops_worst << " ; "
-                << mflops_worst / NN << " per node " << std::endl;
+                << "^4  Deo Worst Gflop/s        =   " << gflops_worst << " ; "
+                << gflops_worst / NN << " per node " << std::endl;
       std::cout << GridLogMessage << fmt << std::endl;
       std::cout << GridLogMessage;
 
-      for (int i = 0; i < mflops_all.size(); i++)
+      for (int i = 0; i < gflops_all.size(); i++)
       {
-        std::cout << mflops_all[i] / NN << " ; ";
+        std::cout << gflops_all[i] / NN << " ; ";
       }
       std::cout << std::endl;
     }
-    return mflops_best;
+    return gflops_best;
   }
 };
 
@@ -782,6 +761,30 @@ int main(int argc, char **argv)
   std::vector<double> dwf4;
   std::vector<double> staggered;
 
+  if (do_memory)
+  {
+    grid_big_sep();
+    std::cout << GridLogMessage << " Memory benchmark " << std::endl;
+    grid_big_sep();
+    Benchmark::Memory();
+  }
+
+  if (do_su4)
+  {
+    grid_big_sep();
+    std::cout << GridLogMessage << " SU(4) benchmark " << std::endl;
+    grid_big_sep();
+    Benchmark::SU4();
+  }
+
+  if (do_comms)
+  {
+    grid_big_sep();
+    std::cout << GridLogMessage << " Communications benchmark " << std::endl;
+    grid_big_sep();
+    Benchmark::Comms();
+  }
+
   if (do_flops)
   {
     Ls = 1;
@@ -810,68 +813,35 @@ int main(int argc, char **argv)
       staggered.push_back(result);
     }
 
+    int NN = NN_global;
+
     grid_big_sep();
-    std::cout << GridLogMessage << " Summary table Ls=" << Ls << std::endl;
+    std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
     grid_big_sep();
-    std::cout << GridLogMessage << "L \t\t Wilson \t\t DWF4 \t\t Staggered" << std::endl;
+    grid_printf("%5s %12s %12s %12s\n", "L", "Wilson", "DWF", "Staggered");
+    nlohmann::json tmp_flops;
     for (int l = 0; l < L_list.size(); l++)
     {
-      std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] << " \t\t "
-                << dwf4[l] << " \t\t " << staggered[l] << std::endl;
+      grid_printf("%5d %12.2f %12.2f %12.2f\n", L_list[l], wilson[l] / NN, dwf4[l] / NN,
+                  staggered[l] / NN);
+
       nlohmann::json tmp;
       tmp["L"] = L_list[l];
-      tmp["Mflops_wilson"] = wilson[l];
-      tmp["Mflops_dwf4"] = dwf4[l];
-      tmp["Mflops_staggered"] = staggered[l];
-      json_results["flops"].push_back(tmp);
-    }
-  }
-
-  int NN = NN_global;
-  if (do_memory)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " Memory benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::Memory();
-  }
-
-  if (do_su4)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " SU(4) benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::SU4();
-  }
-
-  if (do_comms)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " Communications benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::Comms();
-  }
-
-  if (do_flops)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " Per Node Summary table Ls=" << Ls << std::endl;
-    grid_big_sep();
-    std::cout << GridLogMessage << " L \t\t Wilson\t\t DWF4\t\t Staggered " << std::endl;
-    for (int l = 0; l < L_list.size(); l++)
-    {
-      std::cout << GridLogMessage << L_list[l] << " \t\t " << wilson[l] / NN << " \t "
-                << dwf4[l] / NN << " \t " << staggered[l] / NN << std::endl;
+      tmp["Gflops_wilson"] = wilson[l] / NN;
+      tmp["Gflops_dwf4"] = dwf4[l] / NN;
+      tmp["Gflops_staggered"] = staggered[l] / NN;
+      tmp_flops["results"].push_back(tmp);
     }
     grid_big_sep();
     std::cout << GridLogMessage
               << " Comparison point     result: " << 0.5 * (dwf4[sel] + dwf4[selm1]) / NN
-              << " Mflop/s per node" << std::endl;
+              << " Gflop/s per node" << std::endl;
     std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4[sel] / NN << "+"
               << dwf4[selm1] / NN << ") " << std::endl;
     std::cout << std::setprecision(3);
     grid_big_sep();
-    json_results["comp_point_Mflops"] = 0.5 * (dwf4[sel] + dwf4[selm1]) / NN;
+    tmp_flops["comparison_point_Gflops"] = 0.5 * (dwf4[sel] + dwf4[selm1]) / NN;
+    json_results["flops"] = tmp_flops;
   }
 
   if (!json_filename.empty())
