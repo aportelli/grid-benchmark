@@ -2,7 +2,7 @@
 Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
 Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
 
-This is a refactoring of Benchmark_ITT.cpp from Grid
+This is a fork of Benchmark_ITT.cpp from Grid
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -85,10 +85,8 @@ class Benchmark
 
     int threads = GridThread::GetThreads();
     grid_big_sep();
-    std::cout << GridLogMessage << "= Grid is setup to use " << threads << " threads"
-              << std::endl;
-    grid_big_sep();
     std::cout << GridLogMessage << "Grid Default Decomposition patterns\n";
+    grid_small_sep();
     std::cout << GridLogMessage << "\tOpenMP threads : " << GridThread::GetThreads()
               << std::endl;
     std::cout << GridLogMessage
@@ -233,24 +231,15 @@ class Benchmark
     Coordinate simd_layout = GridDefaultSimd(Nd, vReal::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
 
-    grid_big_sep();
-    std::cout << GridLogMessage << "= Benchmarking a*x + y bandwidth" << std::endl;
-    grid_big_sep();
-    std::cout << GridLogMessage << "  L  "
-              << "\t\t"
-              << "bytes"
-              << "\t\t\t"
-              << "GB/s"
-              << "\t\t"
-              << "Gflop/s"
-              << "\t\t seconds"
-              << "\t\tGB/s / node" << std::endl;
+    std::cout << GridLogMessage << "Benchmarking a*x + y bandwidth" << std::endl;
+    grid_small_sep();
+    grid_printf("%5s %15s %15s %15s %15s\n", "L", "size (MB/node)", "time (usec)",
+                "GB/s/node", "Gflop/s/node");
 
-    //    uint64_t NP;
     uint64_t NN;
-
-    uint64_t lmax = 32;
-#define NLOOP (1000 * lmax * lmax * lmax * lmax / lat / lat / lat / lat)
+    uint64_t lmax = 64;
+#define NLOOP (200 * lmax * lmax * lmax / lat / lat / lat)
+#define NWARMUP 50
 
     GridSerialRNG sRNG;
     sRNG.SeedFixedIntegers(std::vector<int>({45, 12, 81, 9}));
@@ -259,11 +248,10 @@ class Benchmark
 
       Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
                             lat * mpi_layout[3]});
-      int64_t vol = latt_size[0] * latt_size[1] * latt_size[2] * latt_size[3];
+      uint64_t vol = latt_size[0] * latt_size[1] * latt_size[2] * latt_size[3];
 
       GridCartesian Grid(latt_size, simd_layout, mpi_layout);
 
-      //      NP= Grid.RankCount();
       NN = Grid.NodeCount();
 
       Vec rn;
@@ -279,20 +267,23 @@ class Benchmark
 
       uint64_t Nloop = NLOOP;
 
+      for (int i = 0; i < NWARMUP; i++)
+      {
+        z = a * x - y;
+      }
       double start = usecond();
       for (int i = 0; i < Nloop; i++)
       {
         z = a * x - y;
       }
       double stop = usecond();
-      double time = (stop - start) / Nloop * 1000;
+      double time = (stop - start) / Nloop / 1.e6;
 
-      double flops = vol * Nvec * 2; // mul,add
-      double bytes = 3.0 * vol * Nvec * sizeof(Real);
-      std::cout << GridLogMessage << std::setprecision(3) << lat << "\t\t" << bytes
-                << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t"
-                << (stop - start) / 1000. / 1000. << "\t\t" << bytes / time / NN
-                << std::endl;
+      double flops = vol * Nvec * 2 / 1.e9; // mul,add
+      double bytes = 3.0 * vol * Nvec * sizeof(Real) / 1024. / 1024.;
+
+      grid_printf("%5d %15.2f %15.2f %15.2f %15.2f\n", lat, bytes / NN, time * 1.e6,
+                  bytes / time / NN / 1024., flops / time / NN);
 
       nlohmann::json tmp;
       tmp["L"] = lat;
@@ -311,22 +302,14 @@ class Benchmark
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexF::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
 
-    grid_big_sep();
-    std::cout << GridLogMessage << "= Benchmarking z = y*x SU(4) bandwidth" << std::endl;
-    grid_big_sep();
-    std::cout << GridLogMessage << "  L  "
-              << "\t\t"
-              << "bytes"
-              << "\t\t\t"
-              << "GB/s"
-              << "\t\t"
-              << "Gflop/s"
-              << "\t\t seconds"
-              << "\t\tGB/s / node" << std::endl;
+    std::cout << GridLogMessage << "Benchmarking z = y*x SU(4) bandwidth" << std::endl;
+    grid_small_sep();
+    grid_printf("%5s %15s %15s %15s %15s\n", "L", "size (MB/node)", "time (usec)",
+                "GB/s/node", "Gflop/s/node");
 
     uint64_t NN;
 
-    uint64_t lmax = 32;
+    uint64_t lmax = 48;
 
     GridSerialRNG sRNG;
     sRNG.SeedFixedIntegers(std::vector<int>({45, 12, 81, 9}));
@@ -347,24 +330,25 @@ class Benchmark
       x = Zero();
       LatticeSU4 y(&Grid);
       y = Zero();
-      //      double a=2.0;
 
       uint64_t Nloop = NLOOP;
 
+      for (int i = 0; i < NWARMUP; i++)
+      {
+        z = x * y;
+      }
       double start = usecond();
       for (int i = 0; i < Nloop; i++)
       {
         z = x * y;
       }
       double stop = usecond();
-      double time = (stop - start) / Nloop * 1000;
+      double time = (stop - start) / Nloop / 1.e6;
 
-      double flops = vol * Nc4 * Nc4 * (6 + (Nc4 - 1) * 8); // mul,add
-      double bytes = 3.0 * vol * Nc4 * Nc4 * 2 * sizeof(RealF);
-      std::cout << GridLogMessage << std::setprecision(3) << lat << "\t\t" << bytes
-                << "   \t\t" << bytes / time << "\t\t" << flops / time << "\t\t"
-                << (stop - start) / 1000. / 1000. << "\t\t" << bytes / time / NN
-                << std::endl;
+      double flops = vol * Nc4 * Nc4 * (6 + (Nc4 - 1) * 8) / 1.e9; // mul,add
+      double bytes = 3.0 * vol * Nc4 * Nc4 * 2 * sizeof(RealF) / 1024. / 1024.;
+      grid_printf("%5d %15.2f %15.2f %15.2f %15.2f\n", lat, bytes / NN, time * 1.e6,
+                  bytes / time / NN / 1024., flops / time / NN);
 
       nlohmann::json tmp;
       tmp["L"] = lat;
