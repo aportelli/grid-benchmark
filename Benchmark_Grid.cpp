@@ -205,11 +205,15 @@ class Benchmark
           grid_printf("%5d %5d %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir, bytes,
                       timestat.mean, rate, rate_err, rate_max);
           nlohmann::json tmp;
+          nlohmann::json tmp_rate;
           tmp["L"] = lat;
           tmp["dir"] = dir;
           tmp["bytes"] = bytes;
-          tmp["time"] = timestat.mean;
-          tmp["GB_per_second"] = rate;
+          tmp["time_usec"] = timestat.mean;
+          tmp_rate["mean"] = rate;
+          tmp_rate["error"] = rate_err;
+          tmp_rate["max"] = rate_max;
+          tmp["rate_GBps"] = tmp_rate;
           json_results["comms"].push_back(tmp);
         }
       }
@@ -287,9 +291,9 @@ class Benchmark
 
       nlohmann::json tmp;
       tmp["L"] = lat;
-      tmp["bytes"] = bytes;
-      tmp["gflops"] = flops / time;
-      tmp["GB_per_second"] = bytes / time;
+      tmp["size_MB"] = bytes / NN;
+      tmp["GBps"] = bytes / time / NN / 1024.;
+      tmp["GFlops"] = flops / time / NN;
       json_results["axpy"].push_back(tmp);
     }
   };
@@ -352,9 +356,9 @@ class Benchmark
 
       nlohmann::json tmp;
       tmp["L"] = lat;
-      tmp["bytes"] = bytes;
-      tmp["GB_per_second"] = bytes / time;
-      tmp["gflops"] = flops / time;
+      tmp["size_MB"] = bytes / NN;
+      tmp["GBps"] = bytes / time / NN / 1024.;
+      tmp["GFlops"] = flops / time / NN;
       json_results["SU4"].push_back(tmp);
     }
   };
@@ -816,9 +820,9 @@ int main(int argc, char **argv)
                 << dwf4[l] << " \t\t " << staggered[l] << std::endl;
       nlohmann::json tmp;
       tmp["L"] = L_list[l];
-      tmp["mflops_wilson"] = wilson[l];
-      tmp["mflops_dwf4"] = dwf4[l];
-      tmp["mflops_staggered"] = staggered[l];
+      tmp["Mflops_wilson"] = wilson[l];
+      tmp["Mflops_dwf4"] = dwf4[l];
+      tmp["Mflops_staggered"] = staggered[l];
       json_results["flops"].push_back(tmp);
     }
   }
@@ -867,6 +871,7 @@ int main(int argc, char **argv)
               << dwf4[selm1] / NN << ") " << std::endl;
     std::cout << std::setprecision(3);
     grid_big_sep();
+    json_results["comp_point_Mflops"] = 0.5 * (dwf4[sel] + dwf4[selm1]) / NN;
   }
 
   if (!json_filename.empty())
@@ -879,7 +884,7 @@ int main(int argc, char **argv)
     if (me == 0)
     {
       std::ofstream json_file(json_filename);
-      json_file << std::setw(4) << json_results;
+      json_file << std::setw(2) << json_results;
     }
   }
 
