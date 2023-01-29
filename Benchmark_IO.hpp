@@ -18,12 +18,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #ifndef Benchmark_IO_hpp_
 #define Benchmark_IO_hpp_
 
+#include "Common.hpp"
 #include <Grid/Grid.h>
-#define MSG std::cout << GridLogMessage
-#define SEP                                                                              \
-  "-----------------------------------------------------------------------------"
-#define BIGSEP                                                                           \
-  "============================================================================="
 #ifdef HAVE_LIME
 
 namespace Grid
@@ -50,9 +46,9 @@ namespace Grid
   //   crc = GridChecksum::crc32(vec_v.cpu_ptr, size);
   //   std::fwrite(&crc, sizeof(uint32_t), 1, file);
   //   crcWatch.Stop();
-  //   MSG << "Std I/O write: Data CRC32 " << std::hex << crc << std::dec << std::endl;
-  //   ioWatch.Start();
-  //   std::fwrite(vec_v.cpu_ptr, sizeof(typename Field::scalar_object),
+  //   GRID_MSG << "Std I/O write: Data CRC32 " << std::hex << crc << std::dec <<
+  //   std::endl; ioWatch.Start(); std::fwrite(vec_v.cpu_ptr, sizeof(typename
+  //   Field::scalar_object),
   //               vec.Grid()->lSites(), file);
   //   ioWatch.Stop();
   //   std::fclose(file);
@@ -61,11 +57,11 @@ namespace Grid
   //   p.size = size;
   //   p.time = ioWatch.useconds();
   //   p.mbytesPerSecond = size / 1024. / 1024. / (ioWatch.useconds() / 1.e6);
-  //   MSG << "Std I/O write: Wrote " << p.size << " bytes in " << ioWatch.Elapsed()
+  //   GRID_MSG << "Std I/O write: Wrote " << p.size << " bytes in " << ioWatch.Elapsed()
   //       << ",
   //          "
   //       << p.mbytesPerSecond << " MB/s" << std::endl;
-  //   MSG << "Std I/O write: checksum overhead " << crcWatch.Elapsed() << std::endl;
+  //   GRID_MSG << "Std I/O write: checksum overhead " << crcWatch.Elapsed() << std::endl;
   // }
 
   // template <typename Field> void stdRead(Field &vec, const std::string filestem)
@@ -94,16 +90,14 @@ namespace Grid
   //     crcData = GridChecksum::crc32(vec_v.cpu_ptr, size);
   //     crcWatch.Stop();
   //   }
-  //   MSG << "Std I/O read: Data CRC32 " << std::hex << crcData << std::dec << std::endl;
-  //   assert(crcData == crcRead);
-  //   size *= vec.Grid()->ProcessorCount();
-  //   auto &p = BinaryIO::lastPerf;
-  //   p.size = size;
-  //   p.time = ioWatch.useconds();
+  //   GRID_MSG << "Std I/O read: Data CRC32 " << std::hex << crcData << std::dec <<
+  //   std::endl; assert(crcData == crcRead); size *= vec.Grid()->ProcessorCount(); auto
+  //   &p = BinaryIO::lastPerf; p.size = size; p.time = ioWatch.useconds();
   //   p.mbytesPerSecond = size / 1024. / 1024. / (ioWatch.useconds() / 1.e6);
-  //   MSG << "Std I/O read: Read " << p.size << " bytes in " << ioWatch.Elapsed() << ", "
+  //   GRID_MSG << "Std I/O read: Read " << p.size << " bytes in " << ioWatch.Elapsed() <<
+  //   ", "
   //       << p.mbytesPerSecond << " MB/s" << std::endl;
-  //   MSG << "Std I/O read: checksum overhead " << crcWatch.Elapsed() << std::endl;
+  //   GRID_MSG << "Std I/O read: checksum overhead " << crcWatch.Elapsed() << std::endl;
   // }
 
   template <typename Field> void stdWrite(const std::string filestem, Field &vec)
@@ -122,7 +116,7 @@ namespace Grid
     crc = GridChecksum::crc32(vec_v.cpu_ptr, size);
     file.write(reinterpret_cast<char *>(&crc), sizeof(uint32_t) / sizeof(char));
     crcWatch.Stop();
-    MSG << "Std I/O write: Data CRC32 " << std::hex << crc << std::dec << std::endl;
+    GRID_MSG << "Std I/O write: Data CRC32 " << std::hex << crc << std::dec << std::endl;
     ioWatch.Start();
     file.write(reinterpret_cast<char *>(vec_v.cpu_ptr), sizec);
     file.flush();
@@ -132,9 +126,9 @@ namespace Grid
     p.size = size;
     p.time = ioWatch.useconds();
     p.mbytesPerSecond = size / 1024. / 1024. / (ioWatch.useconds() / 1.e6);
-    MSG << "Std I/O write: Wrote " << p.size << " bytes in " << ioWatch.Elapsed() << ", "
-        << p.mbytesPerSecond << " MB/s" << std::endl;
-    MSG << "Std I/O write: checksum overhead " << crcWatch.Elapsed() << std::endl;
+    GRID_MSG << "Std I/O write: Wrote " << p.size << " bytes in " << ioWatch.Elapsed()
+             << ", " << p.mbytesPerSecond << " MB/s" << std::endl;
+    GRID_MSG << "Std I/O write: checksum overhead " << crcWatch.Elapsed() << std::endl;
   }
 
   template <typename Field> void stdRead(Field &vec, const std::string filestem)
@@ -163,16 +157,17 @@ namespace Grid
       crcData = GridChecksum::crc32(vec_v.cpu_ptr, size);
       crcWatch.Stop();
     }
-    MSG << "Std I/O read: Data CRC32 " << std::hex << crcData << std::dec << std::endl;
+    GRID_MSG << "Std I/O read: Data CRC32 " << std::hex << crcData << std::dec
+             << std::endl;
     assert(crcData == crcRead);
     size *= vec.Grid()->ProcessorCount();
     auto &p = BinaryIO::lastPerf;
     p.size = size;
     p.time = ioWatch.useconds();
     p.mbytesPerSecond = size / 1024. / 1024. / (ioWatch.useconds() / 1.e6);
-    MSG << "Std I/O read: Read " << p.size << " bytes in " << ioWatch.Elapsed() << ", "
-        << p.mbytesPerSecond << " MB/s" << std::endl;
-    MSG << "Std I/O read: checksum overhead " << crcWatch.Elapsed() << std::endl;
+    GRID_MSG << "Std I/O read: Read " << p.size << " bytes in " << ioWatch.Elapsed()
+             << ", " << p.mbytesPerSecond << " MB/s" << std::endl;
+    GRID_MSG << "Std I/O read: checksum overhead " << crcWatch.Elapsed() << std::endl;
   }
 
   template <typename Field> void limeWrite(const std::string filestem, Field &vec)
