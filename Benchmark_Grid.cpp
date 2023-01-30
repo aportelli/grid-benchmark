@@ -64,39 +64,64 @@ class Benchmark
   public:
   static void Decomposition(void)
   {
-
+    nlohmann::json tmp;
     int threads = GridThread::GetThreads();
+    Grid::Coordinate mpi = GridDefaultMpi();
+    assert(mpi.size() == 4);
+    Coordinate local({8, 8, 8, 8});
+    Coordinate latt4(
+        {local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
+    GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(
+        latt4, GridDefaultSimd(Nd, vComplex::Nsimd()), GridDefaultMpi());
+
+    uint64_t NP = TmpGrid->RankCount();
+    uint64_t NN = TmpGrid->NodeCount();
+    NN_global = NN;
+    uint64_t SHM = NP / NN;
+
     grid_big_sep();
     std::cout << GridLogMessage << "Grid Default Decomposition patterns\n";
     grid_small_sep();
-    std::cout << GridLogMessage << "\tOpenMP threads : " << GridThread::GetThreads()
+    std::cout << GridLogMessage << "* OpenMP threads : " << GridThread::GetThreads()
               << std::endl;
-    std::cout << GridLogMessage
-              << "\tMPI tasks      : " << GridCmdVectorIntToString(GridDefaultMpi())
+
+    std::cout << GridLogMessage << "* MPI tasks      : " << GridCmdVectorIntToString(mpi)
               << std::endl;
-    std::cout << GridLogMessage << "\tvReal          : " << sizeof(vReal) * 8 << "bits ; "
+
+    std::cout << GridLogMessage << "* vReal          : " << sizeof(vReal) * 8 << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vReal::Nsimd()))
               << std::endl;
-    std::cout << GridLogMessage << "\tvRealF         : " << sizeof(vRealF) * 8
+    std::cout << GridLogMessage << "* vRealF         : " << sizeof(vRealF) * 8
               << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vRealF::Nsimd()))
               << std::endl;
-    std::cout << GridLogMessage << "\tvRealD         : " << sizeof(vRealD) * 8
+    std::cout << GridLogMessage << "* vRealD         : " << sizeof(vRealD) * 8
               << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vRealD::Nsimd()))
               << std::endl;
-    std::cout << GridLogMessage << "\tvComplex       : " << sizeof(vComplex) * 8
+    std::cout << GridLogMessage << "* vComplex       : " << sizeof(vComplex) * 8
               << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vComplex::Nsimd()))
               << std::endl;
-    std::cout << GridLogMessage << "\tvComplexF      : " << sizeof(vComplexF) * 8
+    std::cout << GridLogMessage << "* vComplexF      : " << sizeof(vComplexF) * 8
               << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexF::Nsimd()))
               << std::endl;
-    std::cout << GridLogMessage << "\tvComplexD      : " << sizeof(vComplexD) * 8
+    std::cout << GridLogMessage << "* vComplexD      : " << sizeof(vComplexD) * 8
               << "bits ; "
               << GridCmdVectorIntToString(GridDefaultSimd(4, vComplexD::Nsimd()))
               << std::endl;
+    std::cout << GridLogMessage << "* ranks          : " << NP << std::endl;
+    std::cout << GridLogMessage << "* nodes          : " << NN << std::endl;
+    std::cout << GridLogMessage << "* ranks/node     : " << SHM << std::endl;
+
+    for (unsigned int i = 0; i < mpi.size(); ++i)
+    {
+      tmp["mpi"].push_back(mpi[i]);
+    }
+    tmp["ranks"] = NP;
+    tmp["nodes"] = NN;
+    json_results["geometry"] = tmp;
   }
 
   static void Comms(void)
