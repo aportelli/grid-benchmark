@@ -144,7 +144,7 @@ class Benchmark
               << nmu << " dimensions" << std::endl;
     grid_small_sep();
     grid_printf("%5s %5s %15s %15s %15s %15s %15s\n", "L", "dir", "payload (B)",
-                "time (usec)", "rate (GB/s)", "std dev", "max");
+                "time (usec)", "rate (GB/s/node)", "std dev", "max");
 
     for (int lat = 16; lat <= maxlat; lat += 8)
     {
