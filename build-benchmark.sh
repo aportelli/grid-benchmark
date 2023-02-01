@@ -20,8 +20,12 @@ mkdir -p "${build_dir}"
 source "${env_dir}/env.sh"
 entry=$(jq ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
 env_script=$(echo "${entry}" | jq -r ".\"env-script\"")
-cd "${build_dir}" || return
 source "${env_dir}/${env_script}"
+cd "${script_dir}"
+if [ ! -f configure ]; then
+    ./bootstrap.sh
+fi
+cd "${build_dir}"
 if [ ! -f Makefile ]; then
     "${script_dir}/configure" --with-grid="${env_dir}/prefix/grid_${cfg}" \
                             --prefix="${env_dir}/prefix/gridbench_${cfg}"
