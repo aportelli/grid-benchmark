@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2050,SC2170
 
-#SBATCH -J benchmark-grid-16
+#SBATCH -J benchmark-grid-32
 #SBATCH -t 1:00:00
 #SBATCH --nodes=32
 #SBATCH --ntasks=128
@@ -48,7 +48,7 @@ mpirun -np "${SLURM_NTASKS}" -x LD_LIBRARY_PATH --bind-to none \
 	"${env_dir}/gpu-mpi-wrapper.sh" \
   "${app}" \
 	--json-out "${job_info_dir}/result.json" \
-	--mpi 2.4.4.4 \
+	--mpi 1.4.4.8 \
   --accelerator-threads 8 \
 	--threads 8 \
 	--shm 2048 &> "${job_info_dir}/log"
