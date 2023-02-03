@@ -258,7 +258,8 @@ class Benchmark
 
       Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
                             lat * mpi_layout[3]});
-      uint64_t vol = latt_size[0] * latt_size[1] * latt_size[2] * latt_size[3];
+      double vol =
+          static_cast<double>(latt_size[0]) * latt_size[1] * latt_size[2] * latt_size[3];
 
       GridCartesian Grid(latt_size, simd_layout, mpi_layout);
 
@@ -328,7 +329,8 @@ class Benchmark
 
       Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
                             lat * mpi_layout[3]});
-      int64_t vol = latt_size[0] * latt_size[1] * latt_size[2] * latt_size[3];
+      double vol =
+          static_cast<double>(latt_size[0]) * latt_size[1] * latt_size[2] * latt_size[3];
 
       GridCartesian Grid(latt_size, simd_layout, mpi_layout);
 
