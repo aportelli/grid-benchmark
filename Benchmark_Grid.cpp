@@ -168,6 +168,7 @@ class Benchmark
       }
 
       double dbytes;
+#define NWARMUP 50
 
       for (int dir = 0; dir < 8; dir++)
       {
@@ -176,6 +177,24 @@ class Benchmark
         {
 
           std::vector<double> times(Nloop);
+          for (int i = 0; i < NWARMUP; i++)
+          {
+            int xmit_to_rank;
+            int recv_from_rank;
+
+            if (dir == mu)
+            {
+              int comm_proc = 1;
+              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+            }
+            else
+            {
+              int comm_proc = mpi_layout[mu] - 1;
+              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+            }
+            Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
+                                (void *)&rbuf[dir][0], recv_from_rank, bytes);
+          }
           for (int i = 0; i < Nloop; i++)
           {
 
@@ -249,7 +268,6 @@ class Benchmark
     uint64_t NN;
     uint64_t lmax = 64;
 #define NLOOP (200 * lmax * lmax * lmax / lat / lat / lat)
-#define NWARMUP 50
 
     GridSerialRNG sRNG;
     sRNG.SeedFixedIntegers(std::vector<int>({45, 12, 81, 9}));
