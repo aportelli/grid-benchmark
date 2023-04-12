@@ -73,6 +73,8 @@ class Benchmark
         {local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
     GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(
         latt4, GridDefaultSimd(Nd, vComplex::Nsimd()), GridDefaultMpi());
+    Grid::Coordinate shm;
+    GlobalSharedMemory::GetShmDims(mpi, shm);
 
     uint64_t NP = TmpGrid->RankCount();
     uint64_t NN = TmpGrid->NodeCount();
@@ -85,7 +87,9 @@ class Benchmark
     std::cout << GridLogMessage << "* OpenMP threads : " << GridThread::GetThreads()
               << std::endl;
 
-    std::cout << GridLogMessage << "* MPI tasks      : " << GridCmdVectorIntToString(mpi)
+    std::cout << GridLogMessage << "* MPI layout     : " << GridCmdVectorIntToString(mpi)
+              << std::endl;
+    std::cout << GridLogMessage << "* Shm layout     : " << GridCmdVectorIntToString(shm)
               << std::endl;
 
     std::cout << GridLogMessage << "* vReal          : " << sizeof(vReal) * 8 << "bits ; "
@@ -118,6 +122,7 @@ class Benchmark
     for (unsigned int i = 0; i < mpi.size(); ++i)
     {
       tmp["mpi"].push_back(mpi[i]);
+      tmp["shm"].push_back(shm[i]);
     }
     tmp["ranks"] = NP;
     tmp["nodes"] = NN;
@@ -132,6 +137,8 @@ class Benchmark
 
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
+    Coordinate shm_layout;
+    GlobalSharedMemory::GetShmDims(mpi_layout, shm_layout);
 
     for (int mu = 0; mu < Nd; mu++)
       if (mpi_layout[mu] > 1)
@@ -143,8 +150,8 @@ class Benchmark
     std::cout << GridLogMessage << "Benchmarking threaded STENCIL halo exchange in "
               << nmu << " dimensions" << std::endl;
     grid_small_sep();
-    grid_printf("%5s %5s %15s %15s %15s %15s %15s\n", "L", "dir", "payload (B)",
-                "time (usec)", "rate (GB/s/node)", "std dev", "max");
+    grid_printf("%5s %5s %7s %15s %15s %15s %15s %15s\n", "L", "dir", "shm",
+                "payload (B)", "time (usec)", "rate (GB/s/node)", "std dev", "max");
 
     for (int lat = 16; lat <= maxlat; lat += 8)
     {
@@ -173,74 +180,80 @@ class Benchmark
       for (int dir = 0; dir < 8; dir++)
       {
         int mu = dir % 4;
-        if (mpi_layout[mu] > 1)
+        if (mpi_layout[mu] == 1) // skip directions that are not distributed
+          continue;
+        bool is_shm = mpi_layout[mu] == shm_layout[mu];
+        bool is_partial_shm = !is_shm && shm_layout[mu] != 1;
+
+        std::vector<double> times(Nloop);
+        for (int i = 0; i < NWARMUP; i++)
+        {
+          int xmit_to_rank;
+          int recv_from_rank;
+
+          if (dir == mu)
+          {
+            int comm_proc = 1;
+            Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+          }
+          else
+          {
+            int comm_proc = mpi_layout[mu] - 1;
+            Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+          }
+          Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank, (void *)&rbuf[dir][0],
+                              recv_from_rank, bytes);
+        }
+        for (int i = 0; i < Nloop; i++)
         {
 
-          std::vector<double> times(Nloop);
-          for (int i = 0; i < NWARMUP; i++)
+          dbytes = 0;
+          double start = usecond();
+          int xmit_to_rank;
+          int recv_from_rank;
+
+          if (dir == mu)
           {
-            int xmit_to_rank;
-            int recv_from_rank;
-
-            if (dir == mu)
-            {
-              int comm_proc = 1;
-              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-            }
-            else
-            {
-              int comm_proc = mpi_layout[mu] - 1;
-              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-            }
-            Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
-                                (void *)&rbuf[dir][0], recv_from_rank, bytes);
+            int comm_proc = 1;
+            Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
           }
-          for (int i = 0; i < Nloop; i++)
+          else
           {
-
-            dbytes = 0;
-            double start = usecond();
-            int xmit_to_rank;
-            int recv_from_rank;
-
-            if (dir == mu)
-            {
-              int comm_proc = 1;
-              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-            }
-            else
-            {
-              int comm_proc = mpi_layout[mu] - 1;
-              Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
-            }
-            Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank,
-                                (void *)&rbuf[dir][0], recv_from_rank, bytes);
-            dbytes += bytes;
-
-            double stop = usecond();
-            t_time[i] = stop - start; // microseconds
+            int comm_proc = mpi_layout[mu] - 1;
+            Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
           }
-          timestat.statistics(t_time);
+          Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank, (void *)&rbuf[dir][0],
+                              recv_from_rank, bytes);
+          dbytes += bytes;
 
-          dbytes = dbytes * ppn;
-          double bidibytes = 2. * dbytes;
-          double rate = bidibytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
-          double rate_err = rate * timestat.err / timestat.mean;
-          double rate_max = rate * timestat.mean / timestat.min;
-          grid_printf("%5d %5d %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir, bytes,
-                      timestat.mean, rate, rate_err, rate_max);
-          nlohmann::json tmp;
-          nlohmann::json tmp_rate;
-          tmp["L"] = lat;
-          tmp["dir"] = dir;
-          tmp["bytes"] = bytes;
-          tmp["time_usec"] = timestat.mean;
-          tmp_rate["mean"] = rate;
-          tmp_rate["error"] = rate_err;
-          tmp_rate["max"] = rate_max;
-          tmp["rate_GBps"] = tmp_rate;
-          json_results["comms"].push_back(tmp);
+          double stop = usecond();
+          t_time[i] = stop - start; // microseconds
         }
+        timestat.statistics(t_time);
+
+        dbytes = dbytes * ppn;
+        double bidibytes = 2. * dbytes;
+        double rate = bidibytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
+        double rate_err = rate * timestat.err / timestat.mean;
+        double rate_max = rate * timestat.mean / timestat.min;
+        grid_printf("%5d %5d %7s %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir,
+                    is_shm           ? "yes"
+                    : is_partial_shm ? "partial"
+                                     : "no",
+                    bytes, timestat.mean, rate, rate_err, rate_max);
+        nlohmann::json tmp;
+        nlohmann::json tmp_rate;
+        tmp["L"] = lat;
+        tmp["dir"] = dir;
+        tmp["shared_mem"] = is_shm;
+        tmp["partial_shared_mem"] = is_partial_shm;
+        tmp["bytes"] = bytes;
+        tmp["time_usec"] = timestat.mean;
+        tmp_rate["mean"] = rate;
+        tmp_rate["error"] = rate_err;
+        tmp_rate["max"] = rate_max;
+        tmp["rate_GBps"] = tmp_rate;
+        json_results["comms"].push_back(tmp);
       }
       for (int d = 0; d < 8; d++)
       {
