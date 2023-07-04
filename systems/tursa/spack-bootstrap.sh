@@ -4,7 +4,13 @@ set -euo pipefail
 
 gcc_spec='gcc@9.4.0'
 cuda_spec='cuda@11.4.0'
-hdf5_spec='hdf5@1.10.7'
+
+# hdf5 and fftw depend on OpenMPI, which we install manually. To make sure this
+# dependency is picked by spack, we specify the compiler here explicitly. For
+# most other packages we dont really care about the compiler (i.e. system
+# compiler versus ${gcc_spec})
+hdf5_spec="hdf5@1.10.7+cxx+threadsafe%${gcc_spec}"
+fftw_spec="fftw%${gcc_spec}"
 
 if (( $# != 1 )); then
     echo "usage: $(basename "$0") <env dir>" 1>&2
@@ -18,7 +24,7 @@ cd "${cwd}"
 
 # General configuration ########################################################
 # build with 128 tasks
-echo 'config:                                  
+echo 'config:
   build_jobs: 128
   build_stage:
     - $spack/var/spack/stage
@@ -38,25 +44,22 @@ rm external.yaml
 
 # Base compilers ###############################################################
 # configure system base
+
+spack env create base
+spack env activate base
 spack compiler find --scope site
 
-# install GCC, CUDA & LLVM
-spack install ${gcc_spec} ${cuda_spec} llvm
-
-spack load llvm
+# install GCC, CUDA
+spack add ${gcc_spec} ${cuda_spec}
+spack concretize
+spack env depfile -o Makefile.tmp
+make -j128 -f Makefile.tmp
 spack compiler find --scope site
-spack unload llvm
-
-spack load ${gcc_spec}
-spack compiler find --scope site
-spack unload ${gcc_spec}
 
 # Manual compilation of OpenMPI & UCX ##########################################
 # set build directories
 mkdir -p "${dir}"/build
 cd "${dir}"/build
-
-spack load ${gcc_spec} ${cuda_spec}
 
 cuda_path=$(spack find --format "{prefix}" cuda)
 gdrcopy_path=/mnt/lustre/tursafs1/apps/gdrcopy/2.3.1
@@ -124,8 +127,8 @@ mkdir build_gpu; cd build_gpu
              --with-cuda="${cuda_path}" --disable-getpwuid        \
              --with-verbs --with-slurm --enable-mpi-fortran=all   \
              --with-pmix=internal --with-libevent=internal
-make -j 128 
-make install 
+make -j 128
+make install
 cd ..
 
 # openmpi cpu build
@@ -141,60 +144,62 @@ make -j 128
 make install
 cd "${dir}"
 
+ucx_spec_gpu="ucx@1.12.0.GPU%${gcc_spec}"
+ucx_spec_cpu="ucx@1.12.0.CPU%${gcc_spec}"
+openmpi_spec_gpu="openmpi@4.1.1.GPU%${gcc_spec}"
+openmpi_spec_cpu="openmpi@4.1.1.CPU%${gcc_spec}"
+
 # Add externals to spack
 echo "packages:
   ucx:
     externals:
-    - spec: \"ucx@1.12.0.GPU%gcc@9.4.0\"
+    - spec: \"${ucx_spec_gpu}\"
       prefix: ${dir}/prefix/ucx_gpu
-    - spec: \"ucx@1.12.0.CPU%gcc@9.4.0\"
+    - spec: \"${ucx_spec_cpu}\"
       prefix: ${dir}/prefix/ucx_cpu
     buildable: False
   openmpi:
     externals:
-    - spec: \"openmpi@4.1.1.GPU%gcc@9.4.0\"
+    - spec: \"${openmpi_spec_gpu}\"
       prefix: ${dir}/prefix/ompi_gpu
-    - spec: \"openmpi@4.1.1.CPU%gcc@9.4.0\"
+    - spec: \"${openmpi_spec_cpu}\"
       prefix: ${dir}/prefix/ompi_cpu
     buildable: False" > spack.yaml
 
 spack config --scope site add -f spack.yaml
 rm spack.yaml
-spack install ucx@1.12.0.GPU%gcc@9.4.0 openmpi@4.1.1.GPU%gcc@9.4.0
-spack install ucx@1.12.0.CPU%gcc@9.4.0 openmpi@4.1.1.CPU%gcc@9.4.0
+spack env deactivate
 
 cd "${cwd}"
 
 # environments #################################################################
 dev_tools=("autoconf" "automake" "libtool" "jq" "git")
-ompi_gpu_hash=$(spack find --format "{hash}" openmpi@4.1.1.GPU)
-ompi_cpu_hash=$(spack find --format "{hash}" openmpi@4.1.1.CPU)
 
 spack env create grid-gpu
 spack env activate grid-gpu
-spack add ${gcc_spec} ${cuda_spec} "${dev_tools[@]}" 
-spack add ucx@1.12.0.GPU%gcc@9.4.0 openmpi@4.1.1.GPU%gcc@9.4.0
-spack add ${hdf5_spec}+cxx+threadsafe ^/"${ompi_gpu_hash}"
-spack add fftw ^/"${ompi_gpu_hash}"
-spack add openssl gmp mpfr c-lime
-spack install
+spack compiler find --scope site
+spack add ${gcc_spec} ${cuda_spec} ${ucx_spec_gpu} ${openmpi_spec_gpu}
+spack add ${hdf5_spec} ${fftw_spec}
+spack add openssl gmp mpfr c-lime "${dev_tools[@]}"
+spack concretize
+spack env depfile -o Makefile.tmp
+make -j128 -f Makefile.tmp
 spack env deactivate
 
 spack env create grid-cpu
 spack env activate grid-cpu
-spack add llvm "${dev_tools[@]}" 
-spack add ucx@1.12.0.CPU%gcc@9.4.0 openmpi@4.1.1.CPU%gcc@9.4.0
-spack add ${hdf5_spec}+cxx+threadsafe ^/"${ompi_cpu_hash}"
-spack add fftw ^/"${ompi_cpu_hash}"
-spack add openssl gmp mpfr c-lime
-spack install
+spack compiler find --scope site
+spack add ${gcc_spec} ${ucx_spec_cpu} ${openmpi_spec_cpu}
+spack add ${hdf5_spec} ${fftw_spec}
+spack add openssl gmp mpfr c-lime "${dev_tools[@]}"
+spack concretize
+spack env depfile -o Makefile.tmp
+make -j128 -f Makefile.tmp
 spack env deactivate
-
-spack install jq git
 
 # Final setup ##################################################################
 spack clean
-spack gc -y
+#spack gc -y  # "spack gc" tends to get hung up for unknown reasons
 
 # add more environment variables in module loading
 spack config --scope site add 'modules:prefix_inspections:lib:[LD_LIBRARY_PATH,LIBRARY_PATH]'
