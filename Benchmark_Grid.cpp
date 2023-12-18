@@ -525,8 +525,6 @@ class Benchmark
 
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
 
-        Dw.ZeroCounters();
-
         time_statistics timestat;
         std::vector<double> t_time(ncall);
         for (uint64_t i = 0; i < ncall; i++)
@@ -721,7 +719,6 @@ class Benchmark
         uint64_t ncall = 500;
 
         FGrid->Broadcast(0, &ncall, sizeof(ncall));
-        Ds.ZeroCounters();
 
         time_statistics timestat;
         std::vector<double> t_time(ncall);
