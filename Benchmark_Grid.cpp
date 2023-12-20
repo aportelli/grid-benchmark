@@ -264,6 +264,128 @@ class Benchmark
     return;
   }
 
+  static void Latency(void)
+  {
+    int Nloop = 200;
+    int nmu = 0;
+
+    Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
+    Coordinate mpi_layout = GridDefaultMpi();
+    Coordinate shm_layout;
+    GlobalSharedMemory::GetShmDims(mpi_layout, shm_layout);
+
+    for (int mu = 0; mu < Nd; mu++)
+      if (mpi_layout[mu] > 1)
+        nmu++;
+
+    std::vector<double> t_time(Nloop);
+    time_statistics timestat;
+
+    std::cout << GridLogMessage << "Benchmarking Latency to neighbors in " << nmu
+              << " dimensions" << std::endl;
+    grid_small_sep();
+    grid_printf("%5s %7s %15s %15s %15s\n", "dir", "shm", "time (usec)", "std dev",
+                "min");
+
+    int lat = 8; // dummy lattice size. Not really used.
+    Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
+                          lat * mpi_layout[3]});
+
+    GridCartesian Grid(latt_size, simd_layout, mpi_layout);
+    RealD Nrank = Grid._Nprocessors;
+    RealD Nnode = Grid.NodeCount();
+    RealD ppn = Nrank / Nnode;
+
+    std::vector<HalfSpinColourVectorD *> xbuf(8);
+    std::vector<HalfSpinColourVectorD *> rbuf(8);
+    uint64_t bytes = 8;
+    for (int d = 0; d < 8; d++)
+    {
+      xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+      rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+    }
+
+    double dbytes;
+#define NWARMUP 50
+
+    for (int dir = 0; dir < 8; dir++)
+    {
+      int mu = dir % 4;
+      if (mpi_layout[mu] == 1) // skip directions that are not distributed
+        continue;
+      bool is_shm = mpi_layout[mu] == shm_layout[mu];
+      bool is_partial_shm = !is_shm && shm_layout[mu] != 1;
+
+      std::vector<double> times(Nloop);
+      for (int i = 0; i < NWARMUP; i++)
+      {
+        int xmit_to_rank;
+        int recv_from_rank;
+
+        if (dir == mu)
+        {
+          int comm_proc = 1;
+          Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+        }
+        else
+        {
+          int comm_proc = mpi_layout[mu] - 1;
+          Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+        }
+        Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank, (void *)&rbuf[dir][0],
+                            recv_from_rank, bytes);
+      }
+      for (int i = 0; i < Nloop; i++)
+      {
+
+        dbytes = 0;
+        double start = usecond();
+        int xmit_to_rank;
+        int recv_from_rank;
+
+        if (dir == mu)
+        {
+          int comm_proc = 1;
+          Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+        }
+        else
+        {
+          int comm_proc = mpi_layout[mu] - 1;
+          Grid.ShiftedRanks(mu, comm_proc, xmit_to_rank, recv_from_rank);
+        }
+        Grid.SendToRecvFrom((void *)&xbuf[dir][0], xmit_to_rank, (void *)&rbuf[dir][0],
+                            recv_from_rank, bytes);
+        dbytes += bytes;
+
+        double stop = usecond();
+        t_time[i] = stop - start; // microseconds
+      }
+      timestat.statistics(t_time);
+
+      grid_printf("%5d %7s %15.2f %15.1f %15.2f\n", dir,
+                  is_shm           ? "yes"
+                  : is_partial_shm ? "partial"
+                                   : "no",
+                  timestat.mean, timestat.err, timestat.min);
+      nlohmann::json tmp;
+      nlohmann::json tmp_rate;
+      tmp["dir"] = dir;
+      tmp["shared_mem"] = is_shm;
+      tmp["partial_shared_mem"] = is_partial_shm;
+      tmp["time_usec"] = timestat.mean;
+      tmp["time_usec_error"] = timestat.err;
+      tmp["time_usec_max"] = timestat.min;
+      json_results["latency"].push_back(tmp);
+    }
+    for (int d = 0; d < 8; d++)
+    {
+      acceleratorFreeDevice(xbuf[d]);
+      acceleratorFreeDevice(rbuf[d]);
+    }
+
+    return;
+  }
+
   static void Memory(void)
   {
     const int Nvec = 8;
@@ -805,6 +927,7 @@ int main(int argc, char **argv)
   int do_su4 = 1;
   int do_memory = 1;
   int do_comms = 1;
+  int do_latency = 1;
   int do_flops = 1;
   int Ls = 1;
 
@@ -838,6 +961,14 @@ int main(int argc, char **argv)
     std::cout << GridLogMessage << " Communications benchmark " << std::endl;
     grid_big_sep();
     Benchmark::Comms();
+  }
+
+  if (do_latency)
+  {
+    grid_big_sep();
+    std::cout << GridLogMessage << " Latency benchmark " << std::endl;
+    grid_big_sep();
+    Benchmark::Latency();
   }
 
   if (do_flops)
