@@ -73,7 +73,7 @@ class Benchmark
         {local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
     GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(
         latt4, GridDefaultSimd(Nd, vComplex::Nsimd()), GridDefaultMpi());
-    Grid::Coordinate shm;
+    Grid::Coordinate shm(4, 1);
     GlobalSharedMemory::GetShmDims(mpi, shm);
 
     uint64_t NP = TmpGrid->RankCount();
@@ -137,7 +137,7 @@ class Benchmark
 
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
-    Coordinate shm_layout;
+    Coordinate shm_layout(Nd, 1);
     GlobalSharedMemory::GetShmDims(mpi_layout, shm_layout);
 
     for (int mu = 0; mu < Nd; mu++)
