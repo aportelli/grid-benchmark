@@ -264,7 +264,7 @@ class Benchmark
     return;
   }
 
-  static void PointToPoint(void)
+  static void Latency(void)
   {
     int Nloop = 200;
 
@@ -273,7 +273,7 @@ class Benchmark
 
     std::cout << GridLogMessage << "Benchmarking point-to-point latency" << std::endl;
     grid_small_sep();
-    grid_printf("from to      mean(usec)      err        min\n");
+    grid_printf("from to      mean(usec)           err           min\n");
 
     int lat = 8; // dummy lattice size. Not actually used.
     Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
@@ -291,7 +291,7 @@ class Benchmark
     int bytes = 8;
     void *buf_from = acceleratorAllocDevice(bytes);
     void *buf_to = acceleratorAllocDevice(bytes);
-    nlohmann::json json_p2p;
+    nlohmann::json json_latency;
     for (int from = 0; from < ranks; ++from)
       for (int to = 0; to < ranks; ++to)
       {
@@ -335,9 +335,9 @@ class Benchmark
         tmp["time_usec"] = timestat.mean;
         tmp["time_usec_error"] = timestat.err;
         tmp["time_usec_max"] = timestat.min;
-        json_p2p.push_back(tmp);
+        json_latency.push_back(tmp);
       }
-    json_results["latency"] = json_p2p;
+    json_results["latency"] = json_latency;
 
     acceleratorFreeDevice(buf_from);
     acceleratorFreeDevice(buf_to);
@@ -884,7 +884,7 @@ int main(int argc, char **argv)
   int do_su4 = 1;
   int do_memory = 1;
   int do_comms = 1;
-  int do_p2p = 1;
+  int do_latency = 1;
   int do_flops = 1;
   int Ls = 1;
 
@@ -920,12 +920,12 @@ int main(int argc, char **argv)
     Benchmark::Comms();
   }
 
-  if (do_p2p)
+  if (do_latency)
   {
     grid_big_sep();
-    std::cout << GridLogMessage << " Point-to-Point benchmark " << std::endl;
+    std::cout << GridLogMessage << " Latency benchmark " << std::endl;
     grid_big_sep();
-    Benchmark::PointToPoint();
+    Benchmark::Latency();
   }
 
   if (do_flops)
