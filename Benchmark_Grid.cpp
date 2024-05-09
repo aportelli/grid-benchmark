@@ -266,7 +266,8 @@ class Benchmark
 
   static void Latency(void)
   {
-    int Nloop = 200;
+    int Nwarmup = 100;
+    int Nloop = 1000;
 
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
@@ -302,7 +303,7 @@ class Benchmark
         time_statistics timestat;
         MPI_Status status;
 
-        for (int i = 0; i < Nloop; ++i)
+        for (int i = -Nwarmup; i < Nloop; ++i)
         {
           double start = usecond();
           if (from == me)
@@ -321,7 +322,8 @@ class Benchmark
             assert(err == MPI_SUCCESS);
           }
           double stop = usecond();
-          t_time[i] = stop - start;
+          if (i >= 0)
+            t_time[i] = stop - start;
         }
         // important: only the 'from' rank has a trustworthy time
         MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, Grid.communicator);
