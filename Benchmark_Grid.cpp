@@ -266,8 +266,8 @@ class Benchmark
 
   static void Latency(void)
   {
-    int Nwarmup = 100;
-    int Nloop = 1000;
+    int Nwarmup = 1000;
+    int Nloop = 10000;
 
     Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
     Coordinate mpi_layout = GridDefaultMpi();
@@ -310,26 +310,22 @@ class Benchmark
           {
             auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, Grid.communicator);
             assert(err == MPI_SUCCESS);
-            err = MPI_Recv(buf_to, bytes, MPI_CHAR, to, 0, Grid.communicator, &status);
-            assert(err == MPI_SUCCESS);
           }
           if (to == me)
           {
             auto err =
                 MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, Grid.communicator, &status);
             assert(err == MPI_SUCCESS);
-            err = MPI_Send(buf_from, bytes, MPI_CHAR, from, 0, Grid.communicator);
-            assert(err == MPI_SUCCESS);
           }
           double stop = usecond();
           if (i >= 0)
             t_time[i] = stop - start;
         }
-        // important: only the 'from' rank has a trustworthy time
+        // important: only 'from' and 'to' have meaningful timings. we use 'from's.
         MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, Grid.communicator);
 
         timestat.statistics(t_time);
-        grid_printf("%2d %2d %15.2f %15.1f %15.2f\n", from, to, timestat.mean,
+        grid_printf("%2d %2d %15.4f %15.3f %15.4f\n", from, to, timestat.mean,
                     timestat.err, timestat.min);
         nlohmann::json tmp;
         tmp["from"] = from;
