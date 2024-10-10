@@ -29,37 +29,41 @@ int NN_global;
 
 nlohmann::json json_results;
 
-// NOTE: Grid::GridClock is just a typedef to `std::chrono::high_resolution_clock`, but `Grid::usecond` rounds to microseconds (no idea why), so we need our own wrapper here.
+// NOTE: Grid::GridClock is just a typedef to
+// `std::chrono::high_resolution_clock`, but `Grid::usecond` rounds to
+// microseconds (no idea why, probably wasnt ever relevant before), so we need
+// our own wrapper here.
 double usecond_precise()
 {
   using namespace std::chrono;
-  auto nsecs = duration_cast<nanoseconds>(GridClock::now()-Grid::theProgramStart);
-  return nsecs.count()*1e-3;
+  auto nsecs = duration_cast<nanoseconds>(GridClock::now() - Grid::theProgramStart);
+  return nsecs.count() * 1e-3;
 }
 
-std::vector<std::string> get_mpi_hostnames() {
-    int world_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+std::vector<std::string> get_mpi_hostnames()
+{
+  int world_size;
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    char hostname[MPI_MAX_PROCESSOR_NAME];
-    int name_len = 0;
-    MPI_Get_processor_name(hostname, &name_len);
+  char hostname[MPI_MAX_PROCESSOR_NAME];
+  int name_len = 0;
+  MPI_Get_processor_name(hostname, &name_len);
 
-    // Allocate buffer to gather all hostnames
-    std::vector<char> all_hostnames(world_size * MPI_MAX_PROCESSOR_NAME);
+  // Allocate buffer to gather all hostnames
+  std::vector<char> all_hostnames(world_size * MPI_MAX_PROCESSOR_NAME);
 
-    // Use MPI_Allgather to gather all hostnames on all ranks
-    MPI_Allgather(hostname, MPI_MAX_PROCESSOR_NAME, MPI_CHAR,
-                  all_hostnames.data(), MPI_MAX_PROCESSOR_NAME, MPI_CHAR,
-                  MPI_COMM_WORLD);
+  // Use MPI_Allgather to gather all hostnames on all ranks
+  MPI_Allgather(hostname, MPI_MAX_PROCESSOR_NAME, MPI_CHAR, all_hostnames.data(),
+                MPI_MAX_PROCESSOR_NAME, MPI_CHAR, MPI_COMM_WORLD);
 
-    // Convert the gathered hostnames back into a vector of std::string
-    std::vector<std::string> hostname_list(world_size);
-    for (int i = 0; i < world_size; ++i) {
-        hostname_list[i] = std::string(&all_hostnames[i * MPI_MAX_PROCESSOR_NAME]);
-    }
+  // Convert the gathered hostnames back into a vector of std::string
+  std::vector<std::string> hostname_list(world_size);
+  for (int i = 0; i < world_size; ++i)
+  {
+    hostname_list[i] = std::string(&all_hostnames[i * MPI_MAX_PROCESSOR_NAME]);
+  }
 
-    return hostname_list;
+  return hostname_list;
 }
 
 struct time_statistics
@@ -302,25 +306,14 @@ class Benchmark
     int Nwarmup = 1000;
     int Nloop = 10000;
 
-    Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
-    Coordinate mpi_layout = GridDefaultMpi();
-
     std::cout << GridLogMessage << "Benchmarking point-to-point latency" << std::endl;
     grid_small_sep();
     grid_printf("from to      mean(usec)           err           min\n");
 
-    int lat = 8; // dummy lattice size. Not actually used.
-    Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
-                          lat * mpi_layout[3]});
-
-    GridCartesian Grid(latt_size, simd_layout, mpi_layout);
-
     int ranks;
     int me;
-    MPI_Comm_size(Grid.communicator, &ranks);
-    MPI_Comm_rank(Grid.communicator, &me);
-    assert(ranks == Grid._Nprocessors);
-    assert(me == Grid._processor);
+    MPI_Comm_size(MPI_COMM_WORLD, &ranks);
+    MPI_Comm_rank(MPI_COMM_WORLD, &me);
 
     int bytes = 8;
     void *buf_from = acceleratorAllocDevice(bytes);
@@ -341,21 +334,22 @@ class Benchmark
           double start = usecond_precise();
           if (from == me)
           {
-            auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, Grid.communicator);
+            auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, MPI_COMM_WORLD);
             assert(err == MPI_SUCCESS);
           }
           if (to == me)
           {
             auto err =
-                MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, Grid.communicator, &status);
+                MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, MPI_COMM_WORLD, &status);
             assert(err == MPI_SUCCESS);
           }
           double stop = usecond_precise();
           if (i >= 0)
             t_time[i] = stop - start;
         }
-        // important: only 'from' and 'to' have meaningful timings. we use 'from's.
-        MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, Grid.communicator);
+        // important: only 'from' and 'to' have meaningful timings. we use
+        // 'from's.
+        MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, MPI_COMM_WORLD);
 
         timestat.statistics(t_time);
         grid_printf("%2d %2d %15.4f %15.3f %15.4f\n", from, to, timestat.mean,
@@ -376,32 +370,30 @@ class Benchmark
 
   static void P2P(void)
   {
-    // buffer-size to benchmark. This number is the same as the largest one used in the "Comms()" benchmark.
-    // ( L=48, Ls=12, double-prec-complex, half-color-spin-vector. ). Mostly arbitrary choice, but nice to match it here
-    size_t bytes=127401984;
+    // IMPORTANT: The P2P benchmark uses "MPI_COMM_WORLD" communicator, which is
+    // not the quite the same as Grid.communicator. Practically speaking, the
+    // latter one contains the same MPI-ranks but in a different order. Grid
+    // does this make sure it can exploit ranks with shared memory (i.e.
+    // multiple ranks on the same node) as best as possible.
+
+    // buffer-size to benchmark. This number is the same as the largest one used
+    // in the "Comms()" benchmark. ( L=48, Ls=12, double-prec-complex,
+    // half-color-spin-vector. ). Mostly an arbitrary choice, but nice to match
+    // it here
+    size_t bytes = 127401984;
 
     int Nwarmup = 50;
     int Nloop = 200;
 
-    Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
-    Coordinate mpi_layout = GridDefaultMpi();
-
     std::cout << GridLogMessage << "Benchmarking point-to-point bandwidth" << std::endl;
     grid_small_sep();
-    grid_printf("from to      mean(usec)           err           min           bytes    rate (GiB/s)\n");
-
-    int lat = 8; // dummy lattice size. Not actually used.
-    Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
-                          lat * mpi_layout[3]});
-
-    GridCartesian Grid(latt_size, simd_layout, mpi_layout);
+    grid_printf("from to      mean(usec)           err           min           "
+                "bytes    rate (GiB/s)\n");
 
     int ranks;
     int me;
-    MPI_Comm_size(Grid.communicator, &ranks);
-    MPI_Comm_rank(Grid.communicator, &me);
-    assert(ranks == Grid._Nprocessors);
-    assert(me == Grid._processor);
+    MPI_Comm_size(MPI_COMM_WORLD, &ranks);
+    MPI_Comm_rank(MPI_COMM_WORLD, &me);
 
     void *buf_from = acceleratorAllocDevice(bytes);
     void *buf_to = acceleratorAllocDevice(bytes);
@@ -421,21 +413,22 @@ class Benchmark
           double start = usecond_precise();
           if (from == me)
           {
-            auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, Grid.communicator);
+            auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, MPI_COMM_WORLD);
             assert(err == MPI_SUCCESS);
           }
           if (to == me)
           {
             auto err =
-                MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, Grid.communicator, &status);
+                MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, MPI_COMM_WORLD, &status);
             assert(err == MPI_SUCCESS);
           }
           double stop = usecond_precise();
           if (i >= 0)
             t_time[i] = stop - start;
         }
-        // important: only 'from' and 'to' have meaningful timings. we use 'from's.
-        MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, Grid.communicator);
+        // important: only 'from' and 'to' have meaningful timings. we use
+        // 'from's.
+        MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, MPI_COMM_WORLD);
 
         timestat.statistics(t_time);
         double rate = bytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
@@ -1052,7 +1045,7 @@ int main(int argc, char **argv)
     Benchmark::Latency();
   }
 
-  if(do_p2p)
+  if (do_p2p)
   {
     grid_big_sep();
     std::cout << GridLogMessage << " Point-To-Point benchmark " << std::endl;
