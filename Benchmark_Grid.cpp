@@ -303,8 +303,8 @@ class Benchmark
 
   static void Latency(void)
   {
-    int Nwarmup = 1000;
-    int Nloop = 10000;
+    int Nwarmup = 500;
+    int Nloop = 5000;
 
     std::cout << GridLogMessage << "Benchmarking point-to-point latency" << std::endl;
     grid_small_sep();
@@ -382,8 +382,8 @@ class Benchmark
     // it here
     size_t bytes = 127401984;
 
-    int Nwarmup = 50;
-    int Nloop = 200;
+    int Nwarmup = 20;
+    int Nloop = 100;
 
     std::cout << GridLogMessage << "Benchmarking point-to-point bandwidth" << std::endl;
     grid_small_sep();
