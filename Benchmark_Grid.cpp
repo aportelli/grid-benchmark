@@ -1,7 +1,7 @@
 /*
 Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
 Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
-Copyright © 2022 Simon Buerger <simon.buerger@rwth-aachen.de>
+Copyright © 2024 Simon Buerger <simon.buerger@rwth-aachen.de>
 
 This is a fork of Benchmark_ITT.cpp from Grid
 
@@ -303,12 +303,12 @@ class Benchmark
 
   static void Latency(void)
   {
-    int Nwarmup = 500;
-    int Nloop = 5000;
+    int Nwarmup = 100;
+    int Nloop = 300;
 
     std::cout << GridLogMessage << "Benchmarking point-to-point latency" << std::endl;
     grid_small_sep();
-    grid_printf("from to      mean(usec)           err           min\n");
+    grid_printf("from to      mean(usec)           err           max\n");
 
     int ranks;
     int me;
@@ -353,13 +353,15 @@ class Benchmark
 
         timestat.statistics(t_time);
         grid_printf("%2d %2d %15.4f %15.3f %15.4f\n", from, to, timestat.mean,
-                    timestat.err, timestat.min);
+                    timestat.err, timestat.max);
         nlohmann::json tmp;
         tmp["from"] = from;
         tmp["to"] = to;
         tmp["time_usec"] = timestat.mean;
         tmp["time_usec_error"] = timestat.err;
-        tmp["time_usec_max"] = timestat.min;
+        tmp["time_usec_min"] = timestat.min;
+        tmp["time_usec_max"] = timestat.max;
+        tmp["time_usec_full"] = t_time;
         json_latency.push_back(tmp);
       }
     json_results["latency"] = json_latency;
@@ -434,6 +436,7 @@ class Benchmark
         double rate = bytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
         double rate_err = rate * timestat.err / timestat.mean;
         double rate_max = rate * timestat.mean / timestat.min;
+        double rate_min = rate * timestat.mean / timestat.max;
 
         grid_printf("%2d %2d %15.4f %15.3f %15.4f %15d %15.2f\n", from, to, timestat.mean,
                     timestat.err, timestat.min, bytes, rate);
@@ -444,11 +447,14 @@ class Benchmark
         tmp["bytes"] = bytes;
         tmp["time_usec"] = timestat.mean;
         tmp["time_usec_error"] = timestat.err;
-        tmp["time_usec_max"] = timestat.min;
+        tmp["time_usec_min"] = timestat.min;
+        tmp["time_usec_max"] = timestat.max;
+        tmp["time_usec_full"] = t_time;
         nlohmann::json tmp_rate;
         tmp_rate["mean"] = rate;
         tmp_rate["error"] = rate_err;
         tmp_rate["max"] = rate_max;
+        tmp_rate["min"] = rate_min;
         tmp["rate_GBps"] = tmp_rate;
 
         json_p2p.push_back(tmp);
@@ -981,11 +987,47 @@ int main(int argc, char **argv)
 {
   Grid_init(&argc, &argv);
 
+  int Ls = 1;
+  bool do_su4 = true;
+  bool do_memory = true;
+  bool do_comms = true;
+  bool do_flops = true;
+
+  // NOTE: these two take O((number of ranks)^2) time, which might be a lot, so they are
+  // off by default
+  bool do_latency = false;
+  bool do_p2p = false;
+
   std::string json_filename = ""; // empty indicates no json output
   for (int i = 0; i < argc; i++)
   {
-    if (std::string(argv[i]) == "--json-out")
+    auto arg = std::string(argv[i]);
+    if (arg == "--json-out")
       json_filename = argv[i + 1];
+    if (arg == "--benchmark-su4")
+      do_su4 = true;
+    if (arg == "--benchmark-memory")
+      do_memory = true;
+    if (arg == "--benchmark-comms")
+      do_comms = true;
+    if (arg == "--benchmark-flops")
+      do_flops = true;
+    if (arg == "--benchmark-latency")
+      do_latency = true;
+    if (arg == "--benchmark-p2p")
+      do_p2p = true;
+    if (arg == "--no-benchmark-su4")
+      do_su4 = false;
+    if (arg == "--no-benchmark-memory")
+      do_memory = false;
+    if (arg == "--no-benchmark-comms")
+      do_comms = false;
+    if (arg == "--no-benchmark-flops")
+      do_flops = false;
+    if (arg == "--no-benchmark-latency")
+      do_latency = false;
+    if (arg == "--no-benchmark-p2p")
+      do_p2p = false;
   }
 
   CartesianCommunicator::SetCommunicatorPolicy(
@@ -996,14 +1038,6 @@ int main(int argc, char **argv)
   LebesgueOrder::Block = std::vector<int>({2, 2, 2, 2});
 #endif
   Benchmark::Decomposition();
-
-  int do_su4 = 1;
-  int do_memory = 1;
-  int do_comms = 1;
-  int do_latency = 1;
-  int do_p2p = 1;
-  int do_flops = 1;
-  int Ls = 1;
 
   int sel = 4;
   std::vector<int> L_list({8, 12, 16, 24, 32});
