@@ -1,7 +1,7 @@
 /*
 Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
 Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
-Copyright © 2022 Simon Buerger <simon.buerger@rwth-aachen.de>
+Copyright © 2024 Simon Buerger <simon.buerger@rwth-aachen.de>
 
 This is a fork of Benchmark_ITT.cpp from Grid
 
@@ -28,6 +28,43 @@ using namespace Grid;
 int NN_global;
 
 nlohmann::json json_results;
+
+// NOTE: Grid::GridClock is just a typedef to
+// `std::chrono::high_resolution_clock`, but `Grid::usecond` rounds to
+// microseconds (no idea why, probably wasnt ever relevant before), so we need
+// our own wrapper here.
+double usecond_precise()
+{
+  using namespace std::chrono;
+  auto nsecs = duration_cast<nanoseconds>(GridClock::now() - Grid::theProgramStart);
+  return nsecs.count() * 1e-3;
+}
+
+std::vector<std::string> get_mpi_hostnames()
+{
+  int world_size;
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+  char hostname[MPI_MAX_PROCESSOR_NAME];
+  int name_len = 0;
+  MPI_Get_processor_name(hostname, &name_len);
+
+  // Allocate buffer to gather all hostnames
+  std::vector<char> all_hostnames(world_size * MPI_MAX_PROCESSOR_NAME);
+
+  // Use MPI_Allgather to gather all hostnames on all ranks
+  MPI_Allgather(hostname, MPI_MAX_PROCESSOR_NAME, MPI_CHAR, all_hostnames.data(),
+                MPI_MAX_PROCESSOR_NAME, MPI_CHAR, MPI_COMM_WORLD);
+
+  // Convert the gathered hostnames back into a vector of std::string
+  std::vector<std::string> hostname_list(world_size);
+  for (int i = 0; i < world_size; ++i)
+  {
+    hostname_list[i] = std::string(&all_hostnames[i * MPI_MAX_PROCESSOR_NAME]);
+  }
+
+  return hostname_list;
+}
 
 struct time_statistics
 {
@@ -262,6 +299,170 @@ class Benchmark
       }
     }
     return;
+  }
+
+  static void Latency(void)
+  {
+    int Nwarmup = 100;
+    int Nloop = 300;
+
+    std::cout << GridLogMessage << "Benchmarking point-to-point latency" << std::endl;
+    grid_small_sep();
+    grid_printf("from to      mean(usec)           err           max\n");
+
+    int ranks;
+    int me;
+    MPI_Comm_size(MPI_COMM_WORLD, &ranks);
+    MPI_Comm_rank(MPI_COMM_WORLD, &me);
+
+    int bytes = 8;
+    void *buf_from = acceleratorAllocDevice(bytes);
+    void *buf_to = acceleratorAllocDevice(bytes);
+    nlohmann::json json_latency;
+    for (int from = 0; from < ranks; ++from)
+      for (int to = 0; to < ranks; ++to)
+      {
+        if (from == to)
+          continue;
+
+        std::vector<double> t_time(Nloop);
+        time_statistics timestat;
+        MPI_Status status;
+
+        for (int i = -Nwarmup; i < Nloop; ++i)
+        {
+          double start = usecond_precise();
+          if (from == me)
+          {
+            auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, MPI_COMM_WORLD);
+            assert(err == MPI_SUCCESS);
+          }
+          if (to == me)
+          {
+            auto err =
+                MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, MPI_COMM_WORLD, &status);
+            assert(err == MPI_SUCCESS);
+          }
+          double stop = usecond_precise();
+          if (i >= 0)
+            t_time[i] = stop - start;
+        }
+        // important: only 'from' and 'to' have meaningful timings. we use
+        // 'from's.
+        MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, MPI_COMM_WORLD);
+
+        timestat.statistics(t_time);
+        grid_printf("%2d %2d %15.4f %15.3f %15.4f\n", from, to, timestat.mean,
+                    timestat.err, timestat.max);
+        nlohmann::json tmp;
+        tmp["from"] = from;
+        tmp["to"] = to;
+        tmp["time_usec"] = timestat.mean;
+        tmp["time_usec_error"] = timestat.err;
+        tmp["time_usec_min"] = timestat.min;
+        tmp["time_usec_max"] = timestat.max;
+        tmp["time_usec_full"] = t_time;
+        json_latency.push_back(tmp);
+      }
+    json_results["latency"] = json_latency;
+
+    acceleratorFreeDevice(buf_from);
+    acceleratorFreeDevice(buf_to);
+  }
+
+  static void P2P(void)
+  {
+    // IMPORTANT: The P2P benchmark uses "MPI_COMM_WORLD" communicator, which is
+    // not the quite the same as Grid.communicator. Practically speaking, the
+    // latter one contains the same MPI-ranks but in a different order. Grid
+    // does this make sure it can exploit ranks with shared memory (i.e.
+    // multiple ranks on the same node) as best as possible.
+
+    // buffer-size to benchmark. This number is the same as the largest one used
+    // in the "Comms()" benchmark. ( L=48, Ls=12, double-prec-complex,
+    // half-color-spin-vector. ). Mostly an arbitrary choice, but nice to match
+    // it here
+    size_t bytes = 127401984;
+
+    int Nwarmup = 20;
+    int Nloop = 100;
+
+    std::cout << GridLogMessage << "Benchmarking point-to-point bandwidth" << std::endl;
+    grid_small_sep();
+    grid_printf("from to      mean(usec)           err           min           "
+                "bytes    rate (GiB/s)\n");
+
+    int ranks;
+    int me;
+    MPI_Comm_size(MPI_COMM_WORLD, &ranks);
+    MPI_Comm_rank(MPI_COMM_WORLD, &me);
+
+    void *buf_from = acceleratorAllocDevice(bytes);
+    void *buf_to = acceleratorAllocDevice(bytes);
+    nlohmann::json json_p2p;
+    for (int from = 0; from < ranks; ++from)
+      for (int to = 0; to < ranks; ++to)
+      {
+        if (from == to)
+          continue;
+
+        std::vector<double> t_time(Nloop);
+        time_statistics timestat;
+        MPI_Status status;
+
+        for (int i = -Nwarmup; i < Nloop; ++i)
+        {
+          double start = usecond_precise();
+          if (from == me)
+          {
+            auto err = MPI_Send(buf_from, bytes, MPI_CHAR, to, 0, MPI_COMM_WORLD);
+            assert(err == MPI_SUCCESS);
+          }
+          if (to == me)
+          {
+            auto err =
+                MPI_Recv(buf_to, bytes, MPI_CHAR, from, 0, MPI_COMM_WORLD, &status);
+            assert(err == MPI_SUCCESS);
+          }
+          double stop = usecond_precise();
+          if (i >= 0)
+            t_time[i] = stop - start;
+        }
+        // important: only 'from' and 'to' have meaningful timings. we use
+        // 'from's.
+        MPI_Bcast(t_time.data(), Nloop, MPI_DOUBLE, from, MPI_COMM_WORLD);
+
+        timestat.statistics(t_time);
+        double rate = bytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
+        double rate_err = rate * timestat.err / timestat.mean;
+        double rate_max = rate * timestat.mean / timestat.min;
+        double rate_min = rate * timestat.mean / timestat.max;
+
+        grid_printf("%2d %2d %15.4f %15.3f %15.4f %15d %15.2f\n", from, to, timestat.mean,
+                    timestat.err, timestat.min, bytes, rate);
+
+        nlohmann::json tmp;
+        tmp["from"] = from;
+        tmp["to"] = to;
+        tmp["bytes"] = bytes;
+        tmp["time_usec"] = timestat.mean;
+        tmp["time_usec_error"] = timestat.err;
+        tmp["time_usec_min"] = timestat.min;
+        tmp["time_usec_max"] = timestat.max;
+        tmp["time_usec_full"] = t_time;
+        nlohmann::json tmp_rate;
+        tmp_rate["mean"] = rate;
+        tmp_rate["error"] = rate_err;
+        tmp_rate["max"] = rate_max;
+        tmp_rate["min"] = rate_min;
+        tmp["rate_GBps"] = tmp_rate;
+
+        json_p2p.push_back(tmp);
+      }
+    json_results["p2p"] = json_p2p;
+
+    acceleratorFreeDevice(buf_from);
+    acceleratorFreeDevice(buf_to);
   }
 
   static void Memory(void)
@@ -786,11 +987,47 @@ int main(int argc, char **argv)
 {
   Grid_init(&argc, &argv);
 
+  int Ls = 1;
+  bool do_su4 = true;
+  bool do_memory = true;
+  bool do_comms = true;
+  bool do_flops = true;
+
+  // NOTE: these two take O((number of ranks)^2) time, which might be a lot, so they are
+  // off by default
+  bool do_latency = false;
+  bool do_p2p = false;
+
   std::string json_filename = ""; // empty indicates no json output
   for (int i = 0; i < argc; i++)
   {
-    if (std::string(argv[i]) == "--json-out")
+    auto arg = std::string(argv[i]);
+    if (arg == "--json-out")
       json_filename = argv[i + 1];
+    if (arg == "--benchmark-su4")
+      do_su4 = true;
+    if (arg == "--benchmark-memory")
+      do_memory = true;
+    if (arg == "--benchmark-comms")
+      do_comms = true;
+    if (arg == "--benchmark-flops")
+      do_flops = true;
+    if (arg == "--benchmark-latency")
+      do_latency = true;
+    if (arg == "--benchmark-p2p")
+      do_p2p = true;
+    if (arg == "--no-benchmark-su4")
+      do_su4 = false;
+    if (arg == "--no-benchmark-memory")
+      do_memory = false;
+    if (arg == "--no-benchmark-comms")
+      do_comms = false;
+    if (arg == "--no-benchmark-flops")
+      do_flops = false;
+    if (arg == "--no-benchmark-latency")
+      do_latency = false;
+    if (arg == "--no-benchmark-p2p")
+      do_p2p = false;
   }
 
   CartesianCommunicator::SetCommunicatorPolicy(
@@ -801,12 +1038,6 @@ int main(int argc, char **argv)
   LebesgueOrder::Block = std::vector<int>({2, 2, 2, 2});
 #endif
   Benchmark::Decomposition();
-
-  int do_su4 = 1;
-  int do_memory = 1;
-  int do_comms = 1;
-  int do_flops = 1;
-  int Ls = 1;
 
   int sel = 4;
   std::vector<int> L_list({8, 12, 16, 24, 32});
@@ -838,6 +1069,22 @@ int main(int argc, char **argv)
     std::cout << GridLogMessage << " Communications benchmark " << std::endl;
     grid_big_sep();
     Benchmark::Comms();
+  }
+
+  if (do_latency)
+  {
+    grid_big_sep();
+    std::cout << GridLogMessage << " Latency benchmark " << std::endl;
+    grid_big_sep();
+    Benchmark::Latency();
+  }
+
+  if (do_p2p)
+  {
+    grid_big_sep();
+    std::cout << GridLogMessage << " Point-To-Point benchmark " << std::endl;
+    grid_big_sep();
+    Benchmark::P2P();
   }
 
   if (do_flops)
@@ -898,6 +1145,8 @@ int main(int argc, char **argv)
     tmp_flops["comparison_point_Gflops"] = 0.5 * (dwf4[sel] + dwf4[selm1]) / NN;
     json_results["flops"] = tmp_flops;
   }
+
+  json_results["hostnames"] = get_mpi_hostnames();
 
   if (!json_filename.empty())
   {
