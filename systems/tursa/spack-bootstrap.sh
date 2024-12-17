@@ -80,7 +80,7 @@ mkdir -p build_gpu; cd build_gpu
              --enable-devel-headers --enable-examples --enable-optimizations   \
              --with-gdrcopy=${gdrcopy_path} --with-verbs --disable-logging     \
              --disable-debug --disable-assertions --enable-cma                 \
-             --with-knem=/opt/knem-1.1.4.90mlnx1/ --with-rdmacm                \
+             --with-knem=/opt/knem-1.1.4.90mlnx2/ --with-rdmacm                \
              --without-rocm --without-ugni --without-java                      \
              --enable-compiler-opt=3 --with-cuda="${cuda_path}" --without-cm   \
              --with-rc --with-ud --with-dc --with-mlx5-dv --with-dm            \
@@ -96,7 +96,7 @@ mkdir -p build_cpu; cd build_cpu
              --enable-devel-headers --enable-examples --enable-optimizations   \
              --with-verbs --disable-logging --disable-debug                    \
              --disable-assertions --enable-mt --enable-cma                     \
-             --with-knem=/opt/knem-1.1.4.90mlnx1/ --with-rdmacm                \
+              --with-knem=/opt/knem-1.1.4.90mlnx2/--with-rdmacm                \
              --without-rocm --without-ugni --without-java                      \
              --enable-compiler-opt=3 --without-cm --without-ugni --with-rc     \
              --with-ud --with-dc --with-mlx5-dv --with-dm --enable-mt --without-go
@@ -122,7 +122,7 @@ mkdir build_gpu; cd build_gpu
 ../configure --prefix="${dir}"/prefix/ompi_gpu --without-xpmem    \
              --with-ucx="${dir}"/prefix/ucx_gpu                   \
              --with-ucx-libdir="${dir}"/prefix/ucx_gpu/lib        \
-             --with-knem=/opt/knem-1.1.4.90mlnx1/                 \
+             --with-knem=/opt/knem-1.1.4.90mlnx2/                 \
              --enable-mca-no-build=btl-uct                        \
              --with-cuda="${cuda_path}" --disable-getpwuid        \
              --with-verbs --with-slurm --enable-mpi-fortran=all   \
@@ -136,7 +136,7 @@ mkdir build_cpu; cd build_cpu
 ../configure --prefix="${dir}"/prefix/ompi_cpu --without-xpmem    \
              --with-ucx="${dir}"/prefix/ucx_cpu                   \
              --with-ucx-libdir="${dir}"/prefix/ucx_cpu/lib        \
-             --with-knem=/opt/knem-1.1.4.90mlnx1/                 \
+             --with-knem=/opt/knem-1.1.4.90mlnx2/                 \
              --enable-mca-no-build=btl-uct --disable-getpwuid     \
              --with-verbs --with-slurm --enable-mpi-fortran=all   \
              --with-pmix=internal --with-libevent=internal
