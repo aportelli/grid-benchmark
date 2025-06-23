@@ -1032,11 +1032,7 @@ int main(int argc, char **argv)
 
   CartesianCommunicator::SetCommunicatorPolicy(
       CartesianCommunicator::CommunicatorPolicySequential);
-#ifdef KNL
-  LebesgueOrder::Block = std::vector<int>({8, 2, 2, 2});
-#else
-  LebesgueOrder::Block = std::vector<int>({2, 2, 2, 2});
-#endif
+
   Benchmark::Decomposition();
 
   int sel = 4;
