@@ -273,7 +273,7 @@ class Benchmark
         double rate = bidibytes / (timestat.mean / 1.e6) / 1024. / 1024. / 1024.;
         double rate_err = rate * timestat.err / timestat.mean;
         double rate_max = rate * timestat.mean / timestat.min;
-        grid_printf("%5d %5d %7s %15d %15.2f %15.2f %15.1f %15.2f\n", lat, dir,
+        grid_printf("%5d %5d %7s %15llu %15.2f %15.2f %15.1f %15.2f\n", lat, dir,
                     is_shm           ? "yes"
                     : is_partial_shm ? "partial"
                                      : "no",
@@ -438,7 +438,7 @@ class Benchmark
         double rate_max = rate * timestat.mean / timestat.min;
         double rate_min = rate * timestat.mean / timestat.max;
 
-        grid_printf("%2d %2d %15.4f %15.3f %15.4f %15d %15.2f\n", from, to, timestat.mean,
+        grid_printf("%2d %2d %15.4f %15.3f %15.4f %15zu %15.2f\n", from, to, timestat.mean,
                     timestat.err, timestat.min, bytes, rate);
 
         nlohmann::json tmp;
