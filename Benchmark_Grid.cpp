@@ -1,23 +1,23 @@
 /*
-Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
-Copyright © 2022 Antonin Portelli <antonin.portelli@me.com>
-Copyright © 2024 Simon Buerger <simon.buerger@rwth-aachen.de>
-
-This is a fork of Benchmark_ITT.cpp from Grid
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright © 2015 Peter Boyle <paboyle@ph.ed.ac.uk>
+ * Copyright © 2024 Simon Buerger <simon.buerger@rwth-aachen.de>
+ * Copyright © 2022-2025 Antonin Portelli <antonin.portelli@me.com>
+ *
+ * This is a fork of Benchmark_ITT.cpp from Grid
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Common.hpp"
 #include "json.hpp"
@@ -438,8 +438,8 @@ class Benchmark
         double rate_max = rate * timestat.mean / timestat.min;
         double rate_min = rate * timestat.mean / timestat.max;
 
-        grid_printf("%2d %2d %15.4f %15.3f %15.4f %15zu %15.2f\n", from, to, timestat.mean,
-                    timestat.err, timestat.min, bytes, rate);
+        grid_printf("%2d %2d %15.4f %15.3f %15.4f %15zu %15.2f\n", from, to,
+                    timestat.mean, timestat.err, timestat.min, bytes, rate);
 
         nlohmann::json tmp;
         tmp["from"] = from;
@@ -741,10 +741,10 @@ class Benchmark
         for (int mu = 0; mu < Nd; mu++)
           volume = volume * latt4[mu];
 
-          // Nc=3 gives
-          // 1344= 3*(2*8+6)*2*8 + 8*3*2*2 + 3*4*2*8
-          // 1344 = Nc* (6+(Nc-1)*8)*2*Nd + Nd*Nc*2*2  + Nd*Nc*Ns*2
-          //	double flops=(1344.0*volume)/2;
+        // Nc=3 gives
+        // 1344= 3*(2*8+6)*2*8 + 8*3*2*2 + 3*4*2*8
+        // 1344 = Nc* (6+(Nc-1)*8)*2*Nd + Nd*Nc*2*2  + Nd*Nc*Ns*2
+        //	double flops=(1344.0*volume)/2;
 #if 0
 	double fps = Nc* (6+(Nc-1)*8)*Ns*Nd + Nd*Nc*Ns  + Nd*Nc*Ns*2;
 #else
