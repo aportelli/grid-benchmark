@@ -3,12 +3,18 @@
 
 set -euo pipefail
 
-if (( $# != 2 )); then
-    echo "usage: $(basename "$0") <environment directory> <config>" 1>&2
+if (( $# != 3 )); then
+    echo "usage: $(basename "$0") <environment directory> <config> <njobs>" 1>&2
     exit 1
 fi
 env_dir=$1
 cfg=$2
+njobs=$3
+
+if [ ! -d "${env_dir}" ]; then
+  echo "error: environment directory '${env_dir}' does not exist." 1>&2
+  exit 1
+fi
 
 call_dir=$(pwd -P)
 cd "${env_dir}"
@@ -20,23 +26,25 @@ if [ -d "${build_dir}" ]; then
     exit 1
 fi
 mkdir -p "${build_dir}"
-source "${env_dir}/env.sh"
-entry=$(jq ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+source "${env_dir}/env-base.sh"
+entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
 IFS=" " read -r -a args <<< "$(echo "${entry}" | jq -r ".\"config-options\"")"
-env_script=$(echo "${entry}" | jq -r ".\"env-script\"")
+env_script=$(echo "${entry}" | jq -er ".\"env-script\"")
 cd "${build_dir}" || return
-source "${env_dir}/${env_script}"
+if [ -n "${env_script}" ]; then
+    source "${env_dir}/${env_script}"
+fi
 extra_env=$(mktemp)
-echo "${entry}" | jq -r '.env|to_entries|map("export \(.key)='\''\(.value|tostring)'\''")|.[]' > "${extra_env}"
-commit=$(echo "${entry}" | jq -r ".commit")
+echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"
+commit=$(echo "${entry}" | jq -er ".commit")
 git clone https://github.com/paboyle/Grid.git "${build_dir}"
 cd "${build_dir}"
 git checkout "${commit}"
 ./bootstrap.sh
 mkdir build; cd build
 source "${extra_env}"
-../configure --prefix="${env_dir}/prefix/grid_${cfg}" "${args[@]}"
-make -j128
+../configure --prefix="${env_dir}/prefix/grid_${cfg}" --enable-gparity=no "${args[@]}"
+make -j"${njobs}"
 make install
 rm -rf "${extra_env}"
 cd "${call_dir}"

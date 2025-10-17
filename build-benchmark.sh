@@ -3,24 +3,31 @@
 
 set -euo pipefail
 
-if (( $# != 2 )); then
-    echo "usage: $(basename "$0") <environment directory> <config>" 1>&2
+if (( $# != 3 )); then
+    echo "usage: $(basename "$0") <environment directory> <config> <njobs>" 1>&2
     exit 1
 fi
 env_dir=$1
 cfg=$2
+njobs=$3
 
 call_dir=$(pwd -P)
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE:-$0}")")"
+echo "${script_dir}"
 cd "${env_dir}"
 env_dir=$(pwd -P)
 cd "${call_dir}"
 build_dir="${env_dir}/build/Grid-benchmarks/${cfg}"
 mkdir -p "${build_dir}"
-source "${env_dir}/env.sh"
-entry=$(jq ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
-env_script=$(echo "${entry}" | jq -r ".\"env-script\"")
-source "${env_dir}/${env_script}"
+source "${env_dir}/env-base.sh"
+entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+env_script=$(echo "${entry}" | jq -er ".\"env-script\"")
+if [ -n "${env_script}" ]; then
+    source "${env_dir}/${env_script}"
+fi
+extra_env=$(mktemp)
+echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"
+source "${extra_env}"
 cd "${script_dir}"
 if [ ! -f configure ]; then
     ./bootstrap.sh
@@ -30,6 +37,6 @@ if [ ! -f Makefile ]; then
     "${script_dir}/configure" --with-grid="${env_dir}/prefix/grid_${cfg}" \
                             --prefix="${env_dir}/prefix/gridbench_${cfg}"
 fi
-make -j 128
+make -j "${njobs}"
 make install
 cd "${call_dir}"

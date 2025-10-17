@@ -1,0 +1,17 @@
+{
+  "configs": [
+    {
+      "name": "cpu",
+      "env-script": "env-cpu.sh",
+      "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+      "config-options": "--enable-simd=NEONv8 --enable-comms=mpi-auto",
+      "env": {
+        "CC": "clang",
+        "CXX": "clang++",
+        "CXXFLAGS": "-std=c++17 -march=native -mtune=native",
+        "LDFLAGS": "-Wl,-rpath -Wl,${CONDA_PREFIX}/lib"
+      },
+      "pixi-env": "cpu-apple-silicon"
+    }
+  ]
+}

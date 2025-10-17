@@ -1,0 +1,69 @@
+[workspace]
+authors = ["Antonin Portelli <antonin.poprtelli@ed.ac.uk>"]
+channels = ["conda-forge"]
+name = "grid-benchmark"
+platforms = ["linux-64", "linux-aarch64", "osx-arm64"]
+version = "0.1.0"
+
+[activation.env]
+LIBRARY_PATH = "$CONDA_PREFIX/lib"
+LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
+INCLUDE = "$CONDA_PREFIX/include"
+C_INCLUDE_PATH = "$CONDA_PREFIX/include"
+CPLUS_INCLUDE_PATH = "$CONDA_PREFIX/include"
+
+[dependencies]
+sqlite = "*"
+jq = "*"
+autoconf = "*"
+automake = "*"
+libtool = "*"
+cmake = "*"
+
+[feature.apple-silicon]
+platforms = ["osx-arm64"]
+
+[feature.apple-silicon.dependencies]
+openmpi = "*"
+compilers = "*"
+
+[feature.cuda]
+system-requirements = { cuda = "12" }
+platforms = ["linux-64", "linux-aarch64"]
+
+[feature.linux]
+platforms = ["linux-64", "linux-aarch64"]
+
+[feature.linux.dependencies]
+libunwind = "*"
+compilers = "*"
+gcc = "12.*"
+
+[feature.llvm20.dependencies]
+clang = "20.*"
+clangxx = "20.*"
+clang-tools = "20.*"
+clangdev = "20.*"
+libclang = "20.*"
+llvm-openmp = "20.*"
+
+[feature.llvm19.dependencies]
+clang = "19.*"
+clangxx = "19.*"
+clang-tools = "19.*"
+clangdev = "19.*"
+libclang = "19.*"
+llvm-openmp = "19.*"
+
+[feature.grid.dependencies]
+openssl = "*"
+gmp = "*"
+mpfr = "*"
+hdf5 = "*"
+fftw = "*"
+zlib = "*"
+
+[environments]
+gpu-nvidia = ["default", "grid", "cuda", "linux"]
+cpu-linux = ["default", "grid", "llvm20", "linux"]
+cpu-apple-silicon = ["default", "grid", "llvm19", "apple-silicon"]
