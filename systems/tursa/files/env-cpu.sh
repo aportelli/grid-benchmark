@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-spack env activate grid-cpu
-spack env status
+module load openmpi/4.1.5-gcc9-cpu

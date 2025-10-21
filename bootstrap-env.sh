@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+config_dir="${HOME}/.config/grid-benchmark"
+
 if (( $# != 2 )); then
     echo "usage: $(basename "$0") <environment directory> <system>" 1>&2
     exit 1
@@ -35,7 +37,7 @@ cp "${script_dir}/pixi.toml" "${dir}"
 cd "${dir}"
 $pixi_log install
 export PATH="${dir}/.pixi/envs/default/bin${PATH}"
-cp "${script_dir}/env-base.sh" "${script_dir}/env-pixi.sh" "${dir}"
+cp "${script_dir}/env-base.sh" "${script_dir}/env-pixi.sh" "${script_dir}/env.sh" "${dir}"
 
 echo "-- install system specific files (system: ${sys})"
 cp "${script_dir}/systems/${sys}/files"/* "${dir}"
@@ -59,6 +61,10 @@ cd "${lime_dir}"
 mkdir build && cd build
 ../configure --prefix="${dir}/prefix/lime" CFLAGS='-fPIE'
 make -j && make install
+
+echo "-- save environment directory in '${config_dir}/grid-env'"
+mkdir -p "${config_dir}"
+echo "${dir}" > "${config_dir}/grid-env"
 
 echo "-- done!"
 cd "${call_dir}"

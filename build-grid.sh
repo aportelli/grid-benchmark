@@ -26,14 +26,10 @@ if [ -d "${build_dir}" ]; then
     exit 1
 fi
 mkdir -p "${build_dir}"
-source "${env_dir}/env-base.sh"
 entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
 IFS=" " read -r -a args <<< "$(echo "${entry}" | jq -r ".\"config-options\"")"
-env_script=$(echo "${entry}" | jq -er ".\"env-script\"")
+source "${env_dir}/env.sh" "${cfg}"
 cd "${build_dir}" || return
-if [ -n "${env_script}" ]; then
-    source "${env_dir}/${env_script}"
-fi
 extra_env=$(mktemp)
 echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"
 commit=$(echo "${entry}" | jq -er ".commit")
@@ -43,8 +39,12 @@ git checkout "${commit}"
 ./bootstrap.sh
 mkdir build; cd build
 source "${extra_env}"
-../configure --prefix="${env_dir}/prefix/grid_${cfg}" --enable-gparity=no "${args[@]}"
-make -j"${njobs}"
-make install
+../configure --prefix="${env_dir}/prefix/grid_${cfg}" --enable-gparity=no \
+    --enable-fermion-reps=no --enable-zmobius=no "${args[@]}"
+make grid-config
+make -j"${njobs}" -C Grid
+make install -C Grid
+mkdir -p "${env_dir}/prefix/grid_${cfg}/bin"
+cp ./grid-config "${env_dir}/prefix/grid_${cfg}/bin"
 rm -rf "${extra_env}"
 cd "${call_dir}"

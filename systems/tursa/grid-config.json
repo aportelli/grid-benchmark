@@ -3,20 +3,21 @@
     {
       "name": "gpu",
       "env-script": "env-gpu.sh",
-      "commit": "796abfad80625d81bb16af7ff6ec612a836f17d8",
-      "config-options": "--enable-comms=mpi --enable-simd=GPU --enable-alloc-align=4k --enable-accelerator-cshift --enable-shm=nvlink --enable-gen-simd-width=64 --enable-accelerator=cuda --disable-unified --enable-gparity=no --enable-fermion-reps=no",
+      "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+      "config-options": "--enable-comms=mpi --enable-simd=GPU --enable-alloc-align=4k --enable-shm=nvlink --enable-gen-simd-width=64 --enable-accelerator=cuda --disable-unified",
       "env": {
-        "CXX": "nvcc",
+        "CC": "nvcc -x cu",
+        "CXX": "nvcc -std=c++17 -x cu",
         "LDFLAGS": "-cudart shared",
-        "CXXFLAGS": "-ccbin mpicxx -gencode arch=compute_80,code=sm_80 -std=c++14 -cudart shared"
+        "CXXFLAGS": "-ccbin mpicxx -gencode arch=compute_80,code=sm_80 -cudart shared"
       },
       "pixi-env": "gpu-nvidia"
     },
     {
       "name": "cpu",
       "env-script": "env-cpu.sh",
-      "commit": "796abfad80625d81bb16af7ff6ec612a836f17d8",
-      "config-options": "--enable-comms=mpi-auto --enable-simd=AVX2 --enable-alloc-align=4k --enable-shm=shmget --enable-gparity=no --enable-fermion-reps=no",
+      "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+      "config-options": "--enable-comms=mpi-auto --enable-simd=AVX2 --enable-alloc-align=4k --enable-shm=shmget",
       "env": {
         "CXX": "clang++",
         "MPICXX": "mpicxx"

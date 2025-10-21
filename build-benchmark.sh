@@ -19,12 +19,8 @@ env_dir=$(pwd -P)
 cd "${call_dir}"
 build_dir="${env_dir}/build/Grid-benchmarks/${cfg}"
 mkdir -p "${build_dir}"
-source "${env_dir}/env-base.sh"
+source "${env_dir}/env.sh" "${cfg}"
 entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
-env_script=$(echo "${entry}" | jq -er ".\"env-script\"")
-if [ -n "${env_script}" ]; then
-    source "${env_dir}/${env_script}"
-fi
 extra_env=$(mktemp)
 echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"
 source "${extra_env}"

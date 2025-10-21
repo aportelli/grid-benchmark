@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-spack env activate grid-gpu
-spack env status
+module load openmpi/4.1.5-gcc9-cuda12 ucx/1.15.0-gcc9-cuda12 cuda/12.3
