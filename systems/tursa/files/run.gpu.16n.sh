@@ -18,14 +18,13 @@
 set -euo pipefail
 
 # load environment #############################################################
-env_cfg="${HOME}/.config/lattice-benchmarks/grid-env"
+env_cfg="${HOME}/.config/grid-benchmark/grid-env"
 if [ ! -f "${env_cfg}" ]; then
-	echo "error: ${env_cfg} does not exists, did you execute 'source env.sh' with your user account?"
+	echo "error: ${env_cfg} does not exists"
 	exit 1
 fi
 env_dir="$(readlink -f "$(cat "${env_cfg}")")"
-source "${env_dir}/env.sh"      # load base Spack environment
-source "${env_dir}/env-gpu.sh"  # load GPU-sepcific packages
+source "${env_dir}/env.sh" gpu  # load environment
 source "${env_dir}/ompi-gpu.sh" # set GPU-specific OpenMPI variables
 
 # application and parameters ###################################################
@@ -36,12 +35,17 @@ job_info_dir=job/${SLURM_JOB_NAME}.${SLURM_JOB_ID}
 mkdir -p "${job_info_dir}"
 
 date                         > "${job_info_dir}/start-date"
+echo "epoch $(date '+%s')" >> "${job_info_dir}/start-date"
 set                          > "${job_info_dir}/env"
 ldd "${app}"                 > "${job_info_dir}/ldd"
 md5sum "${app}"              > "${job_info_dir}/app-hash"
 readelf -a "${app}"          > "${job_info_dir}/elf"
 echo "${SLURM_JOB_NODELIST}" > "${job_info_dir}/nodes"
 cp "${BASH_SOURCE[0]}"       "${job_info_dir}/script"
+
+# start GPU telemetry ##########################################################
+tmp=$(mktemp)
+coproc nvidia-smi dmon -o DT &> "${tmp}"
 
 # run! #########################################################################
 mpirun -np "${SLURM_NTASKS}" -x LD_LIBRARY_PATH --bind-to none \
@@ -53,8 +57,13 @@ mpirun -np "${SLURM_NTASKS}" -x LD_LIBRARY_PATH --bind-to none \
 	--threads 8 \
 	--shm 2048 &> "${job_info_dir}/log"
 
+# process telemetry data #######################################################
+kill -INT "${COPROC_PID}"
+"${env_dir}/dmon-to-db.sh" "${tmp}" "${job_info_dir}/telemetry.db" 'nvidia_smi'
+
 # if we reach that point the application exited successfully ###################
 touch "${job_info_dir}/success"
 date > "${job_info_dir}/end-date"
+echo "epoch $(date '+%s')" >> "${job_info_dir}/end-date"
 
 ################################################################################

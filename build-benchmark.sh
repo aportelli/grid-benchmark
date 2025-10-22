@@ -13,7 +13,6 @@ njobs=$3
 
 call_dir=$(pwd -P)
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE:-$0}")")"
-echo "${script_dir}"
 cd "${env_dir}"
 env_dir=$(pwd -P)
 cd "${call_dir}"
@@ -21,9 +20,6 @@ build_dir="${env_dir}/build/Grid-benchmarks/${cfg}"
 mkdir -p "${build_dir}"
 source "${env_dir}/env.sh" "${cfg}"
 entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
-extra_env=$(mktemp)
-echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"
-source "${extra_env}"
 cd "${script_dir}"
 if [ ! -f configure ]; then
     ./bootstrap.sh

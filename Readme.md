@@ -1,6 +1,6 @@
 # Grid benchmarks
 
-This folder contains benchmarks for the [Grid](https://github.com/aportelli/) library.
+This folder contains benchmarks for the [Grid](https://github.com/paboyle/Grid) library.
 The benchmarks can be summarised as follows
 
 - `Benchmark_Grid`: This benchmark measure floating point performances for various fermion
@@ -11,65 +11,88 @@ performed for a fixed range of problem sizes.
 ## TL;DR
 Build and install Grid, all dependencies, and the benchmark with
 ```bash
-systems/<system>/bootstrap-env.sh <env_dir> # build dependencies, takes a long time
+./bootstrap-env.sh <env_dir> <system>       # create benchmark environment
 ./build-grid.sh <env_dir> <config>          # build Grid
 ./build-benchmark.sh <env_dir> <config>     # build benchmarks
 ```
 where `<env_dir>` is an arbitrary directory where every product will be stored, `<system>`
-is a sub-directory of `systems` containing system-specific scripts 
+is a sub-directory of `systems` containing system-specific configuration files 
 (an existing preset or your own), and finally `<config>` is the name of a build config
 in `systems/<system>/grid-config.json`. After a successful execution the benchmark binaries
 will be in `<env_dir>/prefix/gridbench_<config>`.
 
-## Environment setup
-A complete runtime environnement can be deploy using scripts from this repository. System-specific scripts are in the `systems` directory.
 
-You should first deploy the environment for the specific system you are using, for example
-```bash
-systems/tursa/bootstrap-env.sh ./env
-```
-will deploy the relevant environment for the [Tursa](https://www.epcc.ed.ac.uk/hpc-services/dirac-tursa-gpu) supercomputer in `./env`. This step might compile from source a large set
-of packages, and take some time to complete.
 
-After that, the environment directory (`./env` in the example above) will contain a `env.sh` file that need to be sourced to activate the environment
-```bash
-source ./env/env.sh
-```
-Additional scripts `env-*.sh` can be sourced after to activate more specific environments,
-this should be done after sourcing `env.sh` as above.
+## Developing configurations for additional systems
 
-## Building the benchmarks
-The environnement directory contains a `grid-config.json` file specifying compilation flag
-configurations for Grid (please see Grid's repository for documentation). All entries have 
-the form
+### System-specific directory
+You can create a configuration for a new system by creating a new subdirectory in the
+`systems` directory that should at least contains:
+- a `grid-config.json` file according to the specification described below;
+- a `files` directory containing any files that need to be copied to the environment directory
+
+### Configuration file
+The system directory must contain a `grid-config.json` file specifying compilation flag
+configurations for Grid. This file must contain a single `"configs"` JSON array, with all
+elements of the form
 ```json
 {
   "name": "foo",          // name of the configuration
-  "env-script": "bar.sh", // script to source before building 
-                          // (path relative to the environment directory)
+  "env-script": "bar.sh", // additional script to source before building 
+                          // (e.g. to load modules, path absolute or relative to the 
+                          // environment directory, ignored if empty)
   "commit": "...",        // Grid commit to use 
                           // (anything that can be an argument of git checkout)
   "config-options": "..." // options to pass to the configure script,
   "env" : {               // environment variables
     "VAR": "value"        // export VAR="value" before building
   }
+  "pixi-env": "..."       // Pixi environment to use for this configuration
 }
 ```
-Grid can then be built with
+Grid's dependencies are managed with [Pixi](https://pixi.sh/latest/) environments defined
+in the [`pixi.toml`](pixi.toml) file. The following environments are available:
+- `gpu-nvidia`: NVIDIA GPU Linux build
+- `gpu-amd`: AMD GPU Linux build (TODO)
+- `cpu-linux`: CPU Linux build with LLVM
+- `cpu-apple-silicon`: Apple Silicon build on macOS
+and one of these strings must be used as a value for `"pixi-env"` above.
+
+Please refer to [Grid's repository](https://github.com/paboyle/Grid) 
+for documentation
+
+### Environment setup
+One a complete system folder has been created as above, the associated environment can be
+deployed with
+```bash
+./bootstrap-env.sh ./env <system>
 ```
-./build-grid.sh <env_dir> <config>
+where `<system>` is the name of the system directory in `systems`. Here, `./env` was
+picked as an example of deployment location, but any writable path can be used. This
+script will install Pixi and deploy the relevant environments in `./env`, as well as copy
+all the files present in the system `files` directory. After successful completion,
+`./env` will contain a `env.sh` file that can be sourced to activate a given environment 
+```bash
+source ./env/env.sh <config>
 ```
-where `<env_dir>` is the environment directory and `<config>` is the build config name in 
-`grid-config.json`. Similarly, the benchmarks can then be built with
-```
-./build-grid <env_dir> <config>
-```
+wherer `<config>` must be a value of a `"name"` field from the `grid-config.json` file.
+This script will:
+  1. make the embedded Pixi path available
+  2. activate the Pixi environment specified in `"pixi-env"`
+  3. source the (optional) additional script specified in `"env-script"`
+The procedure above is executed in the scripts `build-grid.sh` and `build-benchmark.sh`,
+which can be used to build Grid and the benchmark as described above.
 
 ## Running the benchmarks
 After building the benchmarks as above you can find the binaries in 
 `<env_dir>/prefix/gridbench_<config>`. Depending on the system selected, the environment
-directory might also contain batch script examples. More information about the benchmarks
-is provided below.
+directory might also contain batch script examples. Each HPC system tends to have its own specific runtime characteristics, and it is not possible to automatise
+determining the best runtime environment to run the Grid benchmark. Example of known supercomputing
+environments can be found
+- in the [`systems`](systems) directory of this repository
+- in the [`systems`](https://github.com/paboyle/Grid/tree/develop/systems) directory of the Grid repository
+
+More information about the benchmark results is provided below.
 
 ### `Benchmark_Grid`
 This benchmark performs flop/s measurement for typical lattice QCD sparse matrices, as
