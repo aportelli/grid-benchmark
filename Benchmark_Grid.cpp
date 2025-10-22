@@ -168,6 +168,7 @@ class Benchmark
 
   static void Comms(void)
   {
+    const int Nwarmup = 50;
     int Nloop = 200;
     int nmu = 0;
     int maxlat = 48;
@@ -212,7 +213,6 @@ class Benchmark
       }
 
       double dbytes;
-#define NWARMUP 50
 
       for (int dir = 0; dir < 8; dir++)
       {
@@ -223,7 +223,7 @@ class Benchmark
         bool is_partial_shm = !is_shm && shm_layout[mu] != 1;
 
         std::vector<double> times(Nloop);
-        for (int i = 0; i < NWARMUP; i++)
+        for (int i = 0; i < Nwarmup; i++)
         {
           int xmit_to_rank;
           int recv_from_rank;
@@ -467,6 +467,7 @@ class Benchmark
 
   static void Memory(void)
   {
+    const int Nwarmup = 50;
     const int Nvec = 8;
     typedef Lattice<iVector<vReal, Nvec>> LatticeVec;
     typedef iVector<vReal, Nvec> Vec;
@@ -510,7 +511,7 @@ class Benchmark
 
       uint64_t Nloop = NLOOP;
 
-      for (int i = 0; i < NWARMUP; i++)
+      for (int i = 0; i < Nwarmup; i++)
       {
         z = a * x - y;
       }
@@ -539,6 +540,7 @@ class Benchmark
 
   static void SU4(void)
   {
+    const int Nwarmup = 50;
     const int Nc4 = 4;
     typedef Lattice<iMatrix<vComplexF, Nc4>> LatticeSU4;
 
@@ -577,7 +579,7 @@ class Benchmark
 
       uint64_t Nloop = NLOOP;
 
-      for (int i = 0; i < NWARMUP; i++)
+      for (int i = 0; i < Nwarmup; i++)
       {
         z = x * y;
       }
