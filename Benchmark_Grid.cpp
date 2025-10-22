@@ -603,6 +603,7 @@ class Benchmark
     }
   };
 
+  template<typename Action>
   static double DWF(int Ls, int L)
   {
     RealD mass = 0.1;
@@ -648,7 +649,7 @@ class Benchmark
 
     ///////// Lattice Init ////////////
     GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(
-        latt4, GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
+        latt4, GridDefaultSimd(Nd, Action::Simd::Nsimd()), GridDefaultMpi());
     GridRedBlackCartesian *UrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(UGrid);
     GridCartesian *FGrid = SpaceTimeGrid::makeFiveDimGrid(Ls, UGrid);
     GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
@@ -662,9 +663,8 @@ class Benchmark
     RNG5.SeedFixedIntegers(seeds5);
     std::cout << GridLogMessage << "Initialised RNGs" << std::endl;
 
-    typedef DomainWallFermionF Action;
     typedef typename Action::FermionField Fermion;
-    typedef LatticeGaugeFieldF Gauge;
+    typedef typename Action::GaugeField   Gauge;
 
     ///////// Source preparation ////////////
     Gauge Umu(UGrid);
@@ -1039,8 +1039,10 @@ int main(int argc, char **argv)
   std::vector<int> L_list({8, 12, 16, 24, 32});
   int selm1 = sel - 1;
 
-  std::vector<double> wilson;
-  std::vector<double> dwf4;
+  std::vector<double> wilsonf;
+  std::vector<double> dwf4f;
+  std::vector<double> wilsond;
+  std::vector<double> dwf4d;
   std::vector<double> staggered;
 
   if (do_memory)
@@ -1087,19 +1089,36 @@ int main(int argc, char **argv)
   {
     Ls = 1;
     grid_big_sep();
-    std::cout << GridLogMessage << " Wilson dslash 4D vectorised" << std::endl;
+    std::cout << GridLogMessage << " fp32 Wilson dslash 4D vectorised" << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      wilson.push_back(Benchmark::DWF(Ls, L_list[l]));
+      wilsonf.push_back(Benchmark::DWF<DomainWallFermionF>(Ls, L_list[l]));
+    }
+
+    Ls = 1;
+    grid_big_sep();
+    std::cout << GridLogMessage << " fp64 Wilson dslash 4D vectorised" << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      wilsond.push_back(Benchmark::DWF<DomainWallFermionD>(Ls, L_list[l]));
     }
 
     Ls = 12;
     grid_big_sep();
-    std::cout << GridLogMessage << " Domain wall dslash 4D vectorised" << std::endl;
+    std::cout << GridLogMessage << " fp32 Domain wall dslash 4D vectorised" << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      double result = Benchmark::DWF(Ls, L_list[l]);
-      dwf4.push_back(result);
+      double result = Benchmark::DWF<DomainWallFermionF>(Ls, L_list[l]);
+      dwf4f.push_back(result);
+    }
+
+    Ls = 12;
+    grid_big_sep();
+    std::cout << GridLogMessage << " fp64 Domain wall dslash 4D vectorised" << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::DWF<DomainWallFermionD>(Ls, L_list[l]);
+      dwf4d.push_back(result);
     }
 
     grid_big_sep();
@@ -1116,29 +1135,33 @@ int main(int argc, char **argv)
     grid_big_sep();
     std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
     grid_big_sep();
-    grid_printf("%5s %12s %12s %12s\n", "L", "Wilson", "DWF", "Staggered");
+    grid_printf("%5s %12s %12s %12s %12s %12s\n", "L", "WilsonF", "WilsonD", "DWFF", "DWFD", "Staggered");
     nlohmann::json tmp_flops;
     for (int l = 0; l < L_list.size(); l++)
     {
-      grid_printf("%5d %12.2f %12.2f %12.2f\n", L_list[l], wilson[l] / NN, dwf4[l] / NN,
+      grid_printf("%5d %12.2f %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
+                  wilsonf[l] / NN, wilsond[l] / NN,
+                  dwf4f[l] / NN, dwf4d[l] / NN,
                   staggered[l] / NN);
 
       nlohmann::json tmp;
       tmp["L"] = L_list[l];
-      tmp["Gflops_wilson"] = wilson[l] / NN;
-      tmp["Gflops_dwf4"] = dwf4[l] / NN;
+      tmp["Gflops_wilsonf"] = wilsonf[l] / NN;
+      tmp["Gflops_dwf4f"] = dwf4f[l] / NN;
+      tmp["Gflops_wilsond"] = wilsond[l] / NN;
+      tmp["Gflops_dwf4d"] = dwf4d[l] / NN;
       tmp["Gflops_staggered"] = staggered[l] / NN;
       tmp_flops["results"].push_back(tmp);
     }
     grid_big_sep();
     std::cout << GridLogMessage
-              << " Comparison point     result: " << 0.5 * (dwf4[sel] + dwf4[selm1]) / NN
+              << " Comparison point     result: " << 0.5 * (dwf4f[sel] + dwf4f[selm1]) / NN
               << " Gflop/s per node" << std::endl;
-    std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4[sel] / NN << "+"
-              << dwf4[selm1] / NN << ") " << std::endl;
+    std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4f[sel] / NN << "+"
+              << dwf4f[selm1] / NN << ") " << std::endl;
     std::cout << std::setprecision(3);
     grid_big_sep();
-    tmp_flops["comparison_point_Gflops"] = 0.5 * (dwf4[sel] + dwf4[selm1]) / NN;
+    tmp_flops["comparison_point_Gflops"] = 0.5 * (dwf4f[sel] + dwf4f[selm1]) / NN;
     json_results["flops"] = tmp_flops;
   }
 
