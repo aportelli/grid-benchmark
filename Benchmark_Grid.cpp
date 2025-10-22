@@ -482,13 +482,11 @@ class Benchmark
 
     uint64_t NN;
     uint64_t lmax = 64;
-#define NLOOP (200 * lmax * lmax * lmax / lat / lat / lat)
 
     GridSerialRNG sRNG;
     sRNG.SeedFixedIntegers(std::vector<int>({45, 12, 81, 9}));
     for (int lat = 8; lat <= lmax; lat += 8)
     {
-
       Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
                             lat * mpi_layout[3]});
       double vol =
@@ -509,7 +507,7 @@ class Benchmark
       y = Zero();
       double a = 2.0;
 
-      uint64_t Nloop = NLOOP;
+      const uint64_t Nloop = (200 * lmax * lmax * lmax / lat / lat / lat);
 
       for (int i = 0; i < Nwarmup; i++)
       {
@@ -577,7 +575,7 @@ class Benchmark
       LatticeSU4 y(&Grid);
       y = Zero();
 
-      uint64_t Nloop = NLOOP;
+      const uint64_t Nloop = (200 * lmax * lmax * lmax / lat / lat / lat);
 
       for (int i = 0; i < Nwarmup; i++)
       {
