@@ -1043,12 +1043,12 @@ int main(int argc, char **argv)
   std::vector<double> dwf4;
   std::vector<double> staggered;
 
-  auto runBenchmark = [](const std::string& name, void(*fn)(void))
+  auto runBenchmark = [](const std::string& name, const std::function<void(void)>& fn)
   {
     grid_big_sep();
     std::cout << GridLogMessage << " " << name << " benchmark " << std::endl;
     grid_big_sep();
-    (*fn)();
+    fn();
   };
 
   if (do_memory)  runBenchmark("Memory",         &Benchmark::Memory);
