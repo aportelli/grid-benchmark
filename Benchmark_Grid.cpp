@@ -168,6 +168,7 @@ class Benchmark
 
   static void Comms(void)
   {
+    const int Nwarmup = 50;
     int Nloop = 200;
     int nmu = 0;
     int maxlat = 48;
@@ -212,7 +213,6 @@ class Benchmark
       }
 
       double dbytes;
-#define NWARMUP 50
 
       for (int dir = 0; dir < 8; dir++)
       {
@@ -223,7 +223,7 @@ class Benchmark
         bool is_partial_shm = !is_shm && shm_layout[mu] != 1;
 
         std::vector<double> times(Nloop);
-        for (int i = 0; i < NWARMUP; i++)
+        for (int i = 0; i < Nwarmup; i++)
         {
           int xmit_to_rank;
           int recv_from_rank;
@@ -467,6 +467,7 @@ class Benchmark
 
   static void Memory(void)
   {
+    const int Nwarmup = 50;
     const int Nvec = 8;
     typedef Lattice<iVector<vReal, Nvec>> LatticeVec;
     typedef iVector<vReal, Nvec> Vec;
@@ -481,13 +482,11 @@ class Benchmark
 
     uint64_t NN;
     uint64_t lmax = 64;
-#define NLOOP (200 * lmax * lmax * lmax / lat / lat / lat)
 
     GridSerialRNG sRNG;
     sRNG.SeedFixedIntegers(std::vector<int>({45, 12, 81, 9}));
     for (int lat = 8; lat <= lmax; lat += 8)
     {
-
       Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
                             lat * mpi_layout[3]});
       double vol =
@@ -508,9 +507,9 @@ class Benchmark
       y = Zero();
       double a = 2.0;
 
-      uint64_t Nloop = NLOOP;
+      const uint64_t Nloop = (200 * lmax * lmax * lmax / lat / lat / lat);
 
-      for (int i = 0; i < NWARMUP; i++)
+      for (int i = 0; i < Nwarmup; i++)
       {
         z = a * x - y;
       }
@@ -539,6 +538,7 @@ class Benchmark
 
   static void SU4(void)
   {
+    const int Nwarmup = 50;
     const int Nc4 = 4;
     typedef Lattice<iMatrix<vComplexF, Nc4>> LatticeSU4;
 
@@ -575,9 +575,9 @@ class Benchmark
       LatticeSU4 y(&Grid);
       y = Zero();
 
-      uint64_t Nloop = NLOOP;
+      const uint64_t Nloop = (200 * lmax * lmax * lmax / lat / lat / lat);
 
-      for (int i = 0; i < NWARMUP; i++)
+      for (int i = 0; i < Nwarmup; i++)
       {
         z = x * y;
       }
