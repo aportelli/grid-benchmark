@@ -1036,7 +1036,7 @@ int main(int argc, char **argv)
   Benchmark::Decomposition();
 
   int sel = 4;
-  std::vector<int> L_list({8, 12, 16, 24, 32});
+  std::vector<int> L_list({8, 12, 16, 24, 32, 48});
   int selm1 = sel - 1;
 
   std::vector<double> wilson;
