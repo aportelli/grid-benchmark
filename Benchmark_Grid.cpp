@@ -1043,45 +1043,19 @@ int main(int argc, char **argv)
   std::vector<double> dwf4;
   std::vector<double> staggered;
 
-  if (do_memory)
+  auto runBenchmark = [](const std::string& name, const std::function<void(void)>& fn)
   {
     grid_big_sep();
-    std::cout << GridLogMessage << " Memory benchmark " << std::endl;
+    std::cout << GridLogMessage << " " << name << " benchmark " << std::endl;
     grid_big_sep();
-    Benchmark::Memory();
-  }
+    fn();
+  };
 
-  if (do_su4)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " SU(4) benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::SU4();
-  }
-
-  if (do_comms)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " Communications benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::Comms();
-  }
-
-  if (do_latency)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " Latency benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::Latency();
-  }
-
-  if (do_p2p)
-  {
-    grid_big_sep();
-    std::cout << GridLogMessage << " Point-To-Point benchmark " << std::endl;
-    grid_big_sep();
-    Benchmark::P2P();
-  }
+  if (do_memory)  runBenchmark("Memory",         &Benchmark::Memory);
+  if (do_su4)     runBenchmark("SU(4)",          &Benchmark::SU4);
+  if (do_comms)   runBenchmark("Communications", &Benchmark::Comms);
+  if (do_latency) runBenchmark("Latency",        &Benchmark::Latency);
+  if (do_p2p)     runBenchmark("Point-To-Point", &Benchmark::P2P);
 
   if (do_flops)
   {
