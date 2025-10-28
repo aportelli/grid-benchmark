@@ -1,0 +1,17 @@
+{
+  "configs": [
+    {
+      "name": "gpu",
+      "env-script": "env-gpu.sh",
+      "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+      "config-options": "--enable-comms=mpi-auto --enable-simd=GPU --enable-alloc-align=4k --enable-shm=nvlink --enable-gen-simd-width=64 --enable-accelerator=hip --disable-unified",
+      "env": {
+        "CXX": "hipcc",
+        "MPICXX": "mpicxx",
+        "LDFLAGS": "-L/opt/cray/pe/mpich/8.1.23/ofi/gnu/9.1/lib -lmpi -L/opt/cray/pe/mpich/8.1.23/gtl/lib -lmpi_gtl_hsa -lamdhip64 -fopenmp",
+        "CXXFLAGS": "-fPIC -fopenmp --offload-arch=gfx90a -I/opt/rocm/include/ -I/opt/cray/pe/mpich/8.1.23/ofi/gnu/9.1/include"
+      },
+      "pixi-env": "gpu-amd"
+    }
+  ]
+}

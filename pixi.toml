@@ -31,6 +31,9 @@ compilers = "*"
 system-requirements = { cuda = "12" }
 platforms = ["linux-64", "linux-aarch64"]
 
+[feature.rocm]
+platforms = ["linux-64", "linux-aarch64"]
+
 [feature.linux]
 platforms = ["linux-64", "linux-aarch64"]
 
@@ -65,5 +68,6 @@ zlib = "*"
 
 [environments]
 gpu-nvidia = ["default", "grid", "cuda", "linux"]
+gpu-amd = ["default", "grid", "rocm", "linux"]
 cpu-linux = ["default", "grid", "llvm20", "linux"]
 cpu-apple-silicon = ["default", "grid", "llvm19", "apple-silicon"]
