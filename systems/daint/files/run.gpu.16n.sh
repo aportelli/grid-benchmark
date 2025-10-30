@@ -54,7 +54,7 @@ srun --uenv=prgenv-gnu/25.6:v2 --view=default \
   "${app}" \
 	--json-out "${job_info_dir}/result.json" \
 	--mpi 1.4.4.4 \
-  --accelerator-threads 8 --comms-overlap --shm 4096 --shm-mpi 1\
+  --accelerator-threads 8 --comms-overlap --shm 8192 --shm-mpi 1\
 	--threads 72 &> "${job_info_dir}/log"
 
 # process telemetry data #######################################################
