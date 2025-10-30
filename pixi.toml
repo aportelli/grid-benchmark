@@ -34,11 +34,16 @@ platforms = ["linux-64", "linux-aarch64"]
 [feature.rocm]
 platforms = ["linux-64", "linux-aarch64"]
 
+[feature.x86]
+platforms = ["linux-64"]
+
+[feature.x86.dependencies]
+libunwind = "*"
+
 [feature.linux]
 platforms = ["linux-64", "linux-aarch64"]
 
 [feature.linux.dependencies]
-libunwind = "*"
 compilers = "*"
 gcc = "12.*"
 
@@ -68,6 +73,7 @@ zlib = "*"
 
 [environments]
 gpu-nvidia = ["default", "grid", "cuda", "linux"]
+gpu-nvidia-x86 = ["default", "grid", "cuda", "linux", "x86"]
 gpu-amd = ["default", "grid", "rocm", "linux"]
 cpu-linux = ["default", "grid", "llvm20", "linux"]
 cpu-apple-silicon = ["default", "grid", "llvm19", "apple-silicon"]

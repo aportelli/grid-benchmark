@@ -11,6 +11,19 @@ env_dir=$1
 cfg=$2
 njobs=$3
 
+if [ ! -d "${env_dir}" ]; then
+  echo "error: environment directory '${env_dir}' does not exist." 1>&2
+  exit 1
+fi
+if [ -f "${env_dir}/shell-wrapper.sh" ]; then
+    if [ ! "${_grid_wrapped_+x}" ]; then
+        echo "error: this envrionment requires to use a shell wrapper, please run" 1>&2
+        echo '' 1>&2
+        echo "${env_dir}/shell-wrapper.sh $0 $*" 1>&2
+        exit 1
+    fi
+fi
+
 call_dir=$(pwd -P)
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE:-$0}")")"
 cd "${env_dir}"
@@ -25,6 +38,8 @@ if [ ! -f configure ]; then
     ./bootstrap.sh
 fi
 cd "${build_dir}"
+CXX="$("${env_dir}/prefix/grid_${cfg}/bin/grid-config" --cxx)"
+export CXX
 if [ ! -f Makefile ]; then
     "${script_dir}/configure" --with-grid="${env_dir}/prefix/grid_${cfg}" \
                             --prefix="${env_dir}/prefix/gridbench_${cfg}"

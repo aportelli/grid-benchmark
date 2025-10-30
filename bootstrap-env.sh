@@ -21,6 +21,14 @@ if [ ! -d "${script_dir}/systems/${sys}" ]; then
     echo "error: system directory '${sys}' does not exist"
     exit 1
 fi
+if [ -f "${script_dir}/systems/${sys}/files/shell-wrapper.sh" ]; then
+    if [ ! "${_grid_wrapped_+x}" ]; then
+        echo "error: system '${sys}' requires to use a shell wrapper, please run" 1>&2
+        echo '' 1>&2
+        echo "systems/${sys}/files/shell-wrapper.sh $0 $*" 1>&2
+        exit 1
+    fi
+fi
 
 mkdir -p "${dir}"
 cd "${dir}"; dir=$(pwd -P); cd "${call_dir}"
