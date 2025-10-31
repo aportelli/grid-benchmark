@@ -21,6 +21,7 @@
 
 #include "Common.hpp"
 #include "json.hpp"
+#include "instantiation/instantiations.hpp"
 #include <Grid/Grid.h>
 
 #include <cxxabi.h>
@@ -960,6 +961,8 @@ int main(int argc, char **argv)
   std::vector<double> wilsond;
   std::vector<double> dwf4f;
   std::vector<double> dwf4d;
+  std::vector<double> SU4dwf4f;
+  std::vector<double> SU4dwf4d;
   std::vector<double> staggered;
 
   if (do_memory)
@@ -1036,6 +1039,22 @@ int main(int argc, char **argv)
     }
 
     grid_big_sep();
+    std::cout << GridLogMessage << " fp32 SU(4) Domain wall dslash 4D vectorised" << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::DoeFlops<DomainWallFermion<SU4FundWilsonImplF>>(Ls, L_list[l]);
+      SU4dwf4f.push_back(result);
+    }
+
+    grid_big_sep();
+    std::cout << GridLogMessage << " fp64 SU(4) Domain wall dslash 4D vectorised" << std::endl;
+    for (int l = 0; l < L_list.size(); l++)
+    {
+      double result = Benchmark::DoeFlops<DomainWallFermion<SU4FundWilsonImplD>>(Ls, L_list[l]);
+      SU4dwf4d.push_back(result);
+    }
+
+    grid_big_sep();
     std::cout << GridLogMessage << " fp32 Improved Staggered dslash 4D vectorised"
               << std::endl;
     for (int l = 0; l < L_list.size(); l++)
@@ -1049,21 +1068,24 @@ int main(int argc, char **argv)
     grid_big_sep();
     std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
     grid_big_sep();
-    grid_printf("%5s %12s %12s %12s %12s %12s\n", "L", "WilsonF", "WilsonD", "DWFF", "DWFD", "Staggered");
+    grid_printf("%5s %12s %12s %12s %12s %12s %12s %12s\n", "L", "WilsonF", "WilsonD", "DWFF", "DWFD", "DWFF-SU4", "DWFD-SU4", "Staggered");
     nlohmann::json tmp_flops;
     for (int l = 0; l < L_list.size(); l++)
     {
-      grid_printf("%5d %12.2f %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
+      grid_printf("%5d %12.2f %12.2f %12.2f %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
                   wilsonf[l] / NN, wilsond[l] / NN,
                   dwf4f[l] / NN, dwf4d[l] / NN,
+                  SU4dwf4f[l] / NN, SU4dwf4d[l] / NN,
                   staggered[l] / NN);
 
       nlohmann::json tmp;
       tmp["L"] = L_list[l];
+      tmp["Gflops_wilsond"] = wilsond[l] / NN;
       tmp["Gflops_wilsonf"] = wilsonf[l] / NN;
       tmp["Gflops_dwf4f"] = dwf4f[l] / NN;
-      tmp["Gflops_wilsond"] = wilsond[l] / NN;
       tmp["Gflops_dwf4d"] = dwf4d[l] / NN;
+      tmp["Gflops_SU4dwf4f"] = SU4dwf4f[l] / NN;
+      tmp["Gflops_SU4dwf4d"] = SU4dwf4d[l] / NN;
       tmp["Gflops_staggered"] = staggered[l] / NN;
       tmp_flops["results"].push_back(tmp);
     }
