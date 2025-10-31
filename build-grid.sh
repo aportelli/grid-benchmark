@@ -15,6 +15,14 @@ if [ ! -d "${env_dir}" ]; then
   echo "error: environment directory '${env_dir}' does not exist." 1>&2
   exit 1
 fi
+if [ -f "${env_dir}/shell-wrapper.sh" ]; then
+    if [ ! "${_grid_wrapped_+x}" ]; then
+        echo "error: this envrionment requires to use a shell wrapper, please run" 1>&2
+        echo '' 1>&2
+        echo "${env_dir}/shell-wrapper.sh $0 $*" 1>&2
+        exit 1
+    fi
+fi
 
 call_dir=$(pwd -P)
 cd "${env_dir}"

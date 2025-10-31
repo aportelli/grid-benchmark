@@ -1,0 +1,32 @@
+{
+  "configs": [
+    {
+      "name": "gpu",
+      "env-script": "",
+      "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+      "config-options": "--enable-comms=mpi-auto --enable-simd=GPU --enable-alloc-align=4k --enable-shm=nvlink --enable-gen-simd-width=64 --enable-accelerator=cuda --disable-unified --without-unwind",
+      "env": {
+        "CXX": "nvcc",
+        "MPICXX": "mpicxx",
+        "LDFLAGS": "-cudart shared",
+        "LIBS": "-ldl",
+        "CXXFLAGS": "-ccbin mpicxx -gencode arch=compute_90,code=sm_90 -cudart shared --compiler-options -fPIC -DEIGEN_DONT_VECTORIZE -lcublas"
+      },
+      "pixi-env": "gpu-nvidia"
+    },
+    {
+      "name": "gpu-uvm",
+      "env-script": "",
+      "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+      "config-options": "--enable-comms=mpi-auto --enable-simd=GPU --enable-alloc-align=4k --enable-shm=nvlink --enable-gen-simd-width=64 --enable-accelerator=cuda --enable-unified=yes --without-unwind",
+      "env": {
+        "CXX": "nvcc",
+        "MPICXX": "mpicxx",
+        "LDFLAGS": "-cudart shared",
+        "LIBS": "-ldl",
+        "CXXFLAGS": "-ccbin mpicxx -gencode arch=compute_90,code=sm_90 -cudart shared --compiler-options -fPIC -DEIGEN_DONT_VECTORIZE -lcublas"
+      },
+      "pixi-env": "gpu-nvidia"
+    }
+  ]
+}
