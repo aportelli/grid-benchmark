@@ -998,6 +998,7 @@ int main(int argc, char **argv)
   bool do_latency = false;
   bool do_p2p = false;
 
+  int maxL = 48;
   std::string json_filename = ""; // empty indicates no json output
   for (int i = 0; i < argc; i++)
   {
@@ -1028,6 +1029,41 @@ int main(int argc, char **argv)
       do_latency = false;
     if (arg == "--no-benchmark-p2p")
       do_p2p = false;
+    if (arg == "--max-L")
+    {
+      // Make sure there's another argument to parse
+      if (i == (argc - 1))
+      {
+        std::cout << GridLogError << "No argument provided for --max-L" << std::endl;
+        exit(EXIT_FAILURE);
+      }
+
+      // Check that the argument is convertible to an int
+      ++i;
+      std::string arg2 = std::string(argv[i]);
+      try
+      {
+        maxL = stoi(arg2);
+      }
+      catch (const std::invalid_argument &e)
+      {
+        std::cerr << GridLogError << "Invalid argument for maxL: " << arg2 << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      catch (const std::out_of_range &e)
+      {
+        std::cerr << GridLogError << "Argument for maxL is out of range: " << arg2
+                  << std::endl;
+        exit(EXIT_FAILURE);
+      }
+
+      // Check limits on L
+      if (maxL < 32)
+      {
+        std::cerr << GridLogError << "maxL must be at least 32" << std::endl;
+        exit(EXIT_FAILURE);
+      }
+    }
   }
 
   CartesianCommunicator::SetCommunicatorPolicy(
@@ -1035,9 +1071,42 @@ int main(int argc, char **argv)
 
   Benchmark::Decomposition();
 
+  // Generate DeoFlops local volumes
   int sel = 4;
-  std::vector<int> L_list({8, 12, 16, 24, 32, 48});
   int selm1 = sel - 1;
+  std::vector<int> L_list({8, 12, 16, 24});
+  for (int curL = 16; curL < maxL; curL *= 2)
+  {
+    if (curL * 2 <= maxL)
+      L_list.push_back(curL * 2);
+    if (curL * 3 <= maxL)
+      L_list.push_back(curL * 3);
+  }
+
+  // Error check: make sure input maxL is a member of the local
+  // volume list.
+  if (L_list.back() != maxL)
+  {
+    int lowerL, higherL;
+    if (L_list.size() % 2) // 2^n*2 < L < 2^n*3
+    {
+      int refL = L_list[L_list.size() - 3];
+      lowerL = refL * 2;
+      higherL = refL * 3;
+    }
+    else // 2^n*3 < L < 2^(n+1)*2
+    {
+      int refL = L_list[L_list.size() - 4];
+      lowerL = refL * 3;
+      higherL = refL * 4;
+    }
+
+    std::cout
+        << GridLogError
+        << "maxL must decompose to 2^n 3^m, for n>0 and m={0,1}. Nearest valid maxLs are "
+        << lowerL << " and " << higherL << "." << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   std::vector<double> wilson;
   std::vector<double> dwf4;
