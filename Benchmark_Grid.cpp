@@ -23,6 +23,18 @@
 #include "json.hpp"
 #include <Grid/Grid.h>
 
+#include <cxxabi.h>
+
+template<typename T>
+std::string getClassName()
+{
+  int status;
+  char* name = abi::__cxa_demangle(typeid(T).name(),0,0,&status);
+  std::string out{name};
+  free(name);
+  return out.substr(0, out.find("<"));
+}
+
 using namespace Grid;
 
 int NN_global;
@@ -604,11 +616,89 @@ class Benchmark
   };
 
   template<typename Action>
-  static double DWF(int Ls, int L)
+  struct ActionFactory
   {
-    RealD mass = 0.1;
-    RealD M5 = 1.8;
+    typedef typename Action::GaugeField GaugeField;
+    static auto create(GaugeField& Umu, GridCartesian* Grid4D, GridRedBlackCartesian* RbGrid4D, GridCartesian* Grid5D, GridRedBlackCartesian* RbGrid5D)
+    {
+      static_assert(!std::is_same_v<Action,Action>, "create is not defined for provided Action");
+    }
+  };
 
+  template<typename Impl>
+  struct ActionFactory<DomainWallFermion<Impl>>
+  {
+    typedef DomainWallFermion<Impl> Action;
+    typedef typename Action::GaugeField GaugeField;
+    static auto create(GaugeField& Umu, GridCartesian* Grid4D, GridRedBlackCartesian* RbGrid4D, GridCartesian* Grid5D, GridRedBlackCartesian* RbGrid5D)
+    {
+      RealD mass = 0.1;
+      RealD M5 = 1.8;
+      return Action(Umu, *Grid5D, *RbGrid5D, *Grid4D, *RbGrid4D, mass, M5);
+    }
+    static double fps()
+    {
+      // Nc=3 gives
+      // 1344= 3*(2*8+6)*2*8 + 8*3*2*2 + 3*4*2*8
+      // 1344 = Nc* (6+(Nc-1)*8)*2*Nd + Nd*Nc*2*2  + Nd*Nc*Ns*2
+      //	double flops=(1344.0*volume)/2;
+      int Nc_ = Action::Dimension;
+      #if 0
+        double fps = Nc* (6+(Nc-1)*8)*Ns*Nd + Nd*Nc*Ns  + Nd*Nc*Ns*2;
+      #else
+        return  Nc_ * (6 + (Nc_ - 1) * 8) * Ns * Nd + 2 * Nd * Nc_ * Ns + 2 * Nd * Nc_ * Ns * 2;
+      #endif
+    }
+    static std::string name() { return "DWF"; }
+  };
+
+  template<typename Impl>
+  struct ActionFactory<ImprovedStaggeredFermion<Impl>>
+  {
+    typedef ImprovedStaggeredFermion<Impl> Action;
+    typedef typename Action::GaugeField GaugeField;
+    static auto create(GaugeField& Umu, GridCartesian* Grid4D, GridRedBlackCartesian* RbGrid4D, GridCartesian* Grid5D, GridRedBlackCartesian* RbGrid5D)
+    {
+      RealD mass = 0.1;
+      RealD c1 = 9.0 / 8.0;
+      RealD c2 = -1.0 / 24.0;
+      RealD u0 = 1.0;
+      typename Action::ImplParams params;
+      return Action(Umu, Umu, *Grid4D, *RbGrid4D, mass, c1, c2, u0, params);
+    }
+    static double fps()
+    {
+      constexpr int Nc_ = Action::Dimension;
+      if constexpr (Nc_ != 3)
+      {
+        static_assert(!std::is_same_v<Action,Action>, "Nc!=3 is not supported for ImprovedStaggered");
+      }
+      return 1146.0;
+    }
+    static std::string name() { return "ImprovedStaggered"; }
+  };
+
+  template<typename Action>
+  static std::string actionPrec()
+  {
+    typedef typename Action::Simd::Real Real_t;
+    if constexpr (std::is_same_v<Real_t, float>)
+    {
+      return "SINGLE";
+    }
+    else if constexpr (std::is_same_v<Real_t, double>)
+    {
+      return "DOUBLE";
+    }
+    else
+    {
+      static_assert(!std::is_same_v<Action,Action>, "Unknown precision for provided action");
+    }
+  }
+
+  template<typename Action>
+  static double DoeFlops(int Ls, int L)
+  {
     double gflops;
     double gflops_best = 0;
     double gflops_worst = 0;
@@ -633,12 +723,12 @@ class Benchmark
 
     ///////// Welcome message ////////////
     grid_big_sep();
-    std::cout << GridLogMessage << "Benchmark DWF on " << L << "^4 local volume "
+    std::cout << GridLogMessage << "Benchmark " << ActionFactory<Action>::name() << " on " << L << "^4 local volume "
               << std::endl;
-    std::cout << GridLogMessage << "* Nc             : " << Nc << std::endl;
+    std::cout << GridLogMessage << "* Nc             : " << Action::Dimension << std::endl;
     std::cout << GridLogMessage
               << "* Global volume  : " << GridCmdVectorIntToString(latt4) << std::endl;
-    std::cout << GridLogMessage << "* Ls             : " << Ls << std::endl;
+    if (Ls > 0) std::cout << GridLogMessage << "* Ls             : " << Ls << std::endl;
     std::cout << GridLogMessage << "* ranks          : " << NP << std::endl;
     std::cout << GridLogMessage << "* nodes          : " << NN << std::endl;
     std::cout << GridLogMessage << "* ranks/node     : " << SHM << std::endl;
@@ -651,8 +741,19 @@ class Benchmark
     GridCartesian *UGrid = SpaceTimeGrid::makeFourDimGrid(
         latt4, GridDefaultSimd(Nd, Action::Simd::Nsimd()), GridDefaultMpi());
     GridRedBlackCartesian *UrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(UGrid);
-    GridCartesian *FGrid = SpaceTimeGrid::makeFiveDimGrid(Ls, UGrid);
-    GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
+    GridCartesian *FGrid;
+    GridRedBlackCartesian *FrbGrid;
+
+    if (Ls > 0)
+    {
+      FGrid   = SpaceTimeGrid::makeFiveDimGrid(Ls, UGrid);
+      FrbGrid = SpaceTimeGrid::makeFiveDimRedBlackGrid(Ls, UGrid);
+    }
+    else
+    {
+      FGrid   = UGrid;
+      FrbGrid = UrbGrid;
+    }
 
     ///////// RNG Init ////////////
     std::vector<int> seeds4({1, 2, 3, 4});
@@ -660,7 +761,16 @@ class Benchmark
     GridParallelRNG RNG4(UGrid);
     RNG4.SeedFixedIntegers(seeds4);
     GridParallelRNG RNG5(FGrid);
-    RNG5.SeedFixedIntegers(seeds5);
+    GridParallelRNG* FRNG;
+    if (Ls > 0)
+    {
+      FRNG = &RNG4;
+    }
+    else
+    {
+      RNG5.SeedFixedIntegers(seeds5);
+      FRNG = &RNG5;
+    }
     std::cout << GridLogMessage << "Initialised RNGs" << std::endl;
 
     typedef typename Action::FermionField Fermion;
@@ -668,15 +778,15 @@ class Benchmark
 
     ///////// Source preparation ////////////
     Gauge Umu(UGrid);
-    SU<Nc>::HotConfiguration(RNG4, Umu);
+    SU<Action::Dimension>::HotConfiguration(RNG4, Umu);
     Fermion src(FGrid);
-    random(RNG5, src);
+    random(*FRNG, src);
     Fermion src_e(FrbGrid);
     Fermion src_o(FrbGrid);
     Fermion r_e(FrbGrid);
     Fermion r_o(FrbGrid);
     Fermion r_eo(FGrid);
-    Action Dw(Umu, *FGrid, *FrbGrid, *UGrid, *UrbGrid, mass, M5);
+    Action action = ActionFactory<Action>::create(Umu, UGrid, UrbGrid, FGrid, FrbGrid);
 
     {
 
@@ -687,70 +797,61 @@ class Benchmark
       std::string fmt("G/S/C ; G/O/C ; G/S/S ; G/O/S ");
 
       controls Cases[] = {
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsThenCompute,
+          {Action::Kernels::OptGeneric, Action::Kernels::CommsThenCompute,
            CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsAndCompute,
+          {Action::Kernels::OptGeneric, Action::Kernels::CommsAndCompute,
            CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsThenCompute,
+          {Action::Kernels::OptGeneric, Action::Kernels::CommsThenCompute,
            CartesianCommunicator::CommunicatorPolicySequential},
-          {WilsonKernelsStatic::OptGeneric, WilsonKernelsStatic::CommsAndCompute,
+          {Action::Kernels::OptGeneric, Action::Kernels::CommsAndCompute,
            CartesianCommunicator::CommunicatorPolicySequential}};
 
       for (int c = 0; c < num_cases; c++)
       {
 
-        WilsonKernelsStatic::Comms = Cases[c].CommsOverlap;
-        WilsonKernelsStatic::Opt = Cases[c].Opt;
+        Action::Kernels::Comms = Cases[c].CommsOverlap;
+        Action::Kernels::Opt = Cases[c].Opt;
         CartesianCommunicator::SetCommunicatorPolicy(Cases[c].CommsAsynch);
 
         grid_small_sep();
-        if (WilsonKernelsStatic::Opt == WilsonKernelsStatic::OptGeneric)
-          std::cout << GridLogMessage << "* Using GENERIC Nc WilsonKernels" << std::endl;
-        if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsAndCompute)
+        if (Action::Kernels::Opt == Action::Kernels::OptGeneric)
+          std::cout << GridLogMessage << "* Using GENERIC Nc " << getClassName<typename Action::Kernels>() << std::endl;
+        if (Action::Kernels::Comms == Action::Kernels::CommsAndCompute)
           std::cout << GridLogMessage << "* Using Overlapped Comms/Compute" << std::endl;
-        if (WilsonKernelsStatic::Comms == WilsonKernelsStatic::CommsThenCompute)
+        if (Action::Kernels::Comms == Action::Kernels::CommsThenCompute)
           std::cout << GridLogMessage << "* Using sequential Comms/Compute" << std::endl;
-        std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
+        std::cout << GridLogMessage << "* " << actionPrec<Action>() << " precision " << std::endl;
         grid_small_sep();
 
         int nwarm = 10;
         double t0 = usecond();
-        FGrid->Barrier();
+        action.FermionGrid()->Barrier();
         for (int i = 0; i < nwarm; i++)
         {
-          Dw.DhopEO(src_o, r_e, DaggerNo);
+          action.DhopEO(src_o, r_e, DaggerNo);
         }
-        FGrid->Barrier();
+        action.FermionGrid()->Barrier();
         double t1 = usecond();
         uint64_t ncall = 500;
 
-        FGrid->Broadcast(0, &ncall, sizeof(ncall));
+        action.FermionGrid()->Broadcast(0, &ncall, sizeof(ncall));
 
         time_statistics timestat;
         std::vector<double> t_time(ncall);
         for (uint64_t i = 0; i < ncall; i++)
         {
           t0 = usecond();
-          Dw.DhopEO(src_o, r_e, DaggerNo);
+          action.DhopEO(src_o, r_e, DaggerNo);
           t1 = usecond();
           t_time[i] = t1 - t0;
         }
-        FGrid->Barrier();
+        action.FermionGrid()->Barrier();
 
-        double volume = Ls;
+        double volume = Ls > 0? Ls : 1;
         for (int mu = 0; mu < Nd; mu++)
           volume = volume * latt4[mu];
 
-        // Nc=3 gives
-        // 1344= 3*(2*8+6)*2*8 + 8*3*2*2 + 3*4*2*8
-        // 1344 = Nc* (6+(Nc-1)*8)*2*Nd + Nd*Nc*2*2  + Nd*Nc*Ns*2
-        //	double flops=(1344.0*volume)/2;
-#if 0
-	double fps = Nc* (6+(Nc-1)*8)*Ns*Nd + Nd*Nc*Ns  + Nd*Nc*Ns*2;
-#else
-        double fps =
-            Nc * (6 + (Nc - 1) * 8) * Ns * Nd + 2 * Nd * Nc * Ns + 2 * Nd * Nc * Ns * 2;
-#endif
+        double fps   = ActionFactory<Action>::fps();
         double flops = (fps * volume) / 2.;
         double gf_hi, gf_lo, gf_err;
 
@@ -781,194 +882,11 @@ class Benchmark
       }
 
       grid_small_sep();
-      std::cout << GridLogMessage << L << "^4 x " << Ls
+      std::cout << GridLogMessage << L << "^4"
                 << " Deo Best  Gflop/s        =   " << gflops_best << " ; "
                 << gflops_best / NN << " per node " << std::endl;
-      std::cout << GridLogMessage << L << "^4 x " << Ls
+      std::cout << GridLogMessage << L << "^4"
                 << " Deo Worst Gflop/s        =   " << gflops_worst << " ; "
-                << gflops_worst / NN << " per node " << std::endl;
-      std::cout << GridLogMessage << fmt << std::endl;
-      std::cout << GridLogMessage;
-
-      for (int i = 0; i < gflops_all.size(); i++)
-      {
-        std::cout << gflops_all[i] / NN << " ; ";
-      }
-      std::cout << std::endl;
-    }
-    return gflops_best;
-  }
-
-  static double Staggered(int L)
-  {
-    double gflops;
-    double gflops_best = 0;
-    double gflops_worst = 0;
-    std::vector<double> gflops_all;
-
-    ///////////////////////////////////////////////////////
-    // Set/Get the layout & grid size
-    ///////////////////////////////////////////////////////
-    int threads = GridThread::GetThreads();
-    Coordinate mpi = GridDefaultMpi();
-    assert(mpi.size() == 4);
-    Coordinate local({L, L, L, L});
-    Coordinate latt4(
-        {local[0] * mpi[0], local[1] * mpi[1], local[2] * mpi[2], local[3] * mpi[3]});
-
-    GridCartesian *TmpGrid = SpaceTimeGrid::makeFourDimGrid(
-        latt4, GridDefaultSimd(Nd, vComplex::Nsimd()), GridDefaultMpi());
-    uint64_t NP = TmpGrid->RankCount();
-    uint64_t NN = TmpGrid->NodeCount();
-    NN_global = NN;
-    uint64_t SHM = NP / NN;
-
-    ///////// Welcome message ////////////
-    grid_big_sep();
-    std::cout << GridLogMessage << "Benchmark ImprovedStaggered on " << L
-              << "^4 local volume " << std::endl;
-    std::cout << GridLogMessage
-              << "* Global volume  : " << GridCmdVectorIntToString(latt4) << std::endl;
-    std::cout << GridLogMessage << "* ranks          : " << NP << std::endl;
-    std::cout << GridLogMessage << "* nodes          : " << NN << std::endl;
-    std::cout << GridLogMessage << "* ranks/node     : " << SHM << std::endl;
-    std::cout << GridLogMessage << "* ranks geom     : " << GridCmdVectorIntToString(mpi)
-              << std::endl;
-    std::cout << GridLogMessage << "* Using " << threads << " threads" << std::endl;
-    grid_big_sep();
-
-    ///////// Lattice Init ////////////
-    GridCartesian *FGrid = SpaceTimeGrid::makeFourDimGrid(
-        latt4, GridDefaultSimd(Nd, vComplexF::Nsimd()), GridDefaultMpi());
-    GridRedBlackCartesian *FrbGrid = SpaceTimeGrid::makeFourDimRedBlackGrid(FGrid);
-
-    ///////// RNG Init ////////////
-    std::vector<int> seeds4({1, 2, 3, 4});
-    GridParallelRNG RNG4(FGrid);
-    RNG4.SeedFixedIntegers(seeds4);
-    std::cout << GridLogMessage << "Initialised RNGs" << std::endl;
-
-    RealD mass = 0.1;
-    RealD c1 = 9.0 / 8.0;
-    RealD c2 = -1.0 / 24.0;
-    RealD u0 = 1.0;
-
-    typedef ImprovedStaggeredFermionF Action;
-    typedef typename Action::FermionField Fermion;
-    typedef LatticeGaugeFieldF Gauge;
-
-    Gauge Umu(FGrid);
-    SU<Nc>::HotConfiguration(RNG4, Umu);
-
-    typename Action::ImplParams params;
-    Action Ds(Umu, Umu, *FGrid, *FrbGrid, mass, c1, c2, u0, params);
-
-    ///////// Source preparation ////////////
-    Fermion src(FGrid);
-    random(RNG4, src);
-    Fermion src_e(FrbGrid);
-    Fermion src_o(FrbGrid);
-    Fermion r_e(FrbGrid);
-    Fermion r_o(FrbGrid);
-    Fermion r_eo(FGrid);
-
-    {
-
-      pickCheckerboard(Even, src_e, src);
-      pickCheckerboard(Odd, src_o, src);
-
-      const int num_cases = 4;
-      std::string fmt("G/S/C ; G/O/C ; G/S/S ; G/O/S ");
-
-      controls Cases[] = {
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsThenCompute,
-           CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsAndCompute,
-           CartesianCommunicator::CommunicatorPolicyConcurrent},
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsThenCompute,
-           CartesianCommunicator::CommunicatorPolicySequential},
-          {StaggeredKernelsStatic::OptGeneric, StaggeredKernelsStatic::CommsAndCompute,
-           CartesianCommunicator::CommunicatorPolicySequential}};
-
-      for (int c = 0; c < num_cases; c++)
-      {
-
-        StaggeredKernelsStatic::Comms = Cases[c].CommsOverlap;
-        StaggeredKernelsStatic::Opt = Cases[c].Opt;
-        CartesianCommunicator::SetCommunicatorPolicy(Cases[c].CommsAsynch);
-
-        grid_small_sep();
-        if (StaggeredKernelsStatic::Opt == StaggeredKernelsStatic::OptGeneric)
-          std::cout << GridLogMessage << "* Using GENERIC Nc StaggeredKernels"
-                    << std::endl;
-        if (StaggeredKernelsStatic::Comms == StaggeredKernelsStatic::CommsAndCompute)
-          std::cout << GridLogMessage << "* Using Overlapped Comms/Compute" << std::endl;
-        if (StaggeredKernelsStatic::Comms == StaggeredKernelsStatic::CommsThenCompute)
-          std::cout << GridLogMessage << "* Using sequential Comms/Compute" << std::endl;
-        std::cout << GridLogMessage << "* SINGLE precision " << std::endl;
-        grid_small_sep();
-
-        int nwarm = 10;
-        double t0 = usecond();
-        FGrid->Barrier();
-        for (int i = 0; i < nwarm; i++)
-        {
-          Ds.DhopEO(src_o, r_e, DaggerNo);
-        }
-        FGrid->Barrier();
-        double t1 = usecond();
-        uint64_t ncall = 500;
-
-        FGrid->Broadcast(0, &ncall, sizeof(ncall));
-
-        time_statistics timestat;
-        std::vector<double> t_time(ncall);
-        for (uint64_t i = 0; i < ncall; i++)
-        {
-          t0 = usecond();
-          Ds.DhopEO(src_o, r_e, DaggerNo);
-          t1 = usecond();
-          t_time[i] = t1 - t0;
-        }
-        FGrid->Barrier();
-
-        double volume = 1;
-        for (int mu = 0; mu < Nd; mu++)
-          volume = volume * latt4[mu];
-        double flops = (1146.0 * volume) / 2.;
-        double gf_hi, gf_lo, gf_err;
-
-        timestat.statistics(t_time);
-        gf_hi = flops / timestat.min / 1000.;
-        gf_lo = flops / timestat.max / 1000.;
-        gf_err = flops / timestat.min * timestat.err / timestat.mean / 1000.;
-
-        gflops = flops / timestat.mean / 1000.;
-        gflops_all.push_back(gflops);
-        if (gflops_best == 0)
-          gflops_best = gflops;
-        if (gflops_worst == 0)
-          gflops_worst = gflops;
-        if (gflops > gflops_best)
-          gflops_best = gflops;
-        if (gflops < gflops_worst)
-          gflops_worst = gflops;
-
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo Gflop/s =   " << gflops << " (" << gf_err << ") " << gf_lo
-                  << "-" << gf_hi << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo Gflop/s per rank   " << gflops / NP << std::endl;
-        std::cout << GridLogMessage << std::fixed << std::setprecision(1)
-                  << "Deo Gflop/s per node   " << gflops / NN << std::endl;
-      }
-
-      grid_small_sep();
-      std::cout << GridLogMessage << L
-                << "^4  Deo Best  Gflop/s        =   " << gflops_best << " ; "
-                << gflops_best / NN << " per node " << std::endl;
-      std::cout << GridLogMessage << L
-                << "^4  Deo Worst Gflop/s        =   " << gflops_worst << " ; "
                 << gflops_worst / NN << " per node " << std::endl;
       std::cout << GridLogMessage << fmt << std::endl;
       std::cout << GridLogMessage;
@@ -987,7 +905,6 @@ int main(int argc, char **argv)
 {
   Grid_init(&argc, &argv);
 
-  int Ls = 1;
   bool do_su4 = true;
   bool do_memory = true;
   bool do_comms = true;
@@ -1040,8 +957,8 @@ int main(int argc, char **argv)
   int selm1 = sel - 1;
 
   std::vector<double> wilsonf;
-  std::vector<double> dwf4f;
   std::vector<double> wilsond;
+  std::vector<double> dwf4f;
   std::vector<double> dwf4d;
   std::vector<double> staggered;
 
@@ -1085,48 +1002,45 @@ int main(int argc, char **argv)
     Benchmark::P2P();
   }
 
+  int Ls = 12;
   if (do_flops)
   {
-    Ls = 1;
     grid_big_sep();
     std::cout << GridLogMessage << " fp32 Wilson dslash 4D vectorised" << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      wilsonf.push_back(Benchmark::DWF<DomainWallFermionF>(Ls, L_list[l]));
+      wilsonf.push_back(Benchmark::DoeFlops<DomainWallFermionF>(1, L_list[l]));
     }
 
-    Ls = 1;
     grid_big_sep();
     std::cout << GridLogMessage << " fp64 Wilson dslash 4D vectorised" << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      wilsond.push_back(Benchmark::DWF<DomainWallFermionD>(Ls, L_list[l]));
+      wilsond.push_back(Benchmark::DoeFlops<DomainWallFermionD>(1, L_list[l]));
     }
 
-    Ls = 12;
     grid_big_sep();
     std::cout << GridLogMessage << " fp32 Domain wall dslash 4D vectorised" << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      double result = Benchmark::DWF<DomainWallFermionF>(Ls, L_list[l]);
+      double result = Benchmark::DoeFlops<DomainWallFermionF>(Ls, L_list[l]);
       dwf4f.push_back(result);
     }
 
-    Ls = 12;
     grid_big_sep();
     std::cout << GridLogMessage << " fp64 Domain wall dslash 4D vectorised" << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      double result = Benchmark::DWF<DomainWallFermionD>(Ls, L_list[l]);
+      double result = Benchmark::DoeFlops<DomainWallFermionD>(Ls, L_list[l]);
       dwf4d.push_back(result);
     }
 
     grid_big_sep();
-    std::cout << GridLogMessage << " Improved Staggered dslash 4D vectorised"
+    std::cout << GridLogMessage << " fp32 Improved Staggered dslash 4D vectorised"
               << std::endl;
     for (int l = 0; l < L_list.size(); l++)
     {
-      double result = Benchmark::Staggered(L_list[l]);
+      double result = Benchmark::DoeFlops<ImprovedStaggeredFermionF>(0, L_list[l]);
       staggered.push_back(result);
     }
 
