@@ -16,3 +16,5 @@ Makefile.in
 /build
 /job
 /json.hpp
+/*.out
+/*.err

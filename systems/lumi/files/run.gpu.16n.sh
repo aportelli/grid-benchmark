@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2050,SC2170
 
-#SBATCH -J benchmark-grid-1
+#SBATCH -J benchmark-grid-16
 #SBATCH -t 1:00:00
-#SBATCH --nodes=1
+#SBATCH --nodes=16
 #SBATCH --ntasks-per-node=8
 #SBATCH --cpus-per-task=7
 #SBATCH --gpus-per-node=8
@@ -57,7 +57,7 @@ CPU_BIND="${CPU_BIND},7e00000000,7e0000000000"
 srun -n "${SLURM_NTASKS}" --cpu-bind=${CPU_BIND} "${env_dir}/gpu-mpi-wrapper.sh" \
   "${app}" \
 	--json-out "${job_info_dir}/result.json" \
-	--mpi 1.1.2.4 --accelerator-threads 8 --threads 7 \
+	--mpi 2.4.4.4 --accelerator-threads 8 --threads 7 \
 	--comms-concurrent --comms-overlap --dslash-unroll \
 	--shm 8192 --shm-mpi 1 &> "${job_info_dir}/log"
 
