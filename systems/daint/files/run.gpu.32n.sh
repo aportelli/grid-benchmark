@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2050,SC2170
 
-#SBATCH -J benchmark-grid-16
+#SBATCH -J benchmark-grid-32
 #SBATCH -t 1:00:00
-#SBATCH --nodes=16
-#SBATCH --ntasks=64
+#SBATCH --nodes=32
+#SBATCH --ntasks=128
 #SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=72
 #SBATCH --gpus-per-task=1
@@ -52,8 +52,8 @@ coproc nvidia-smi dmon -o DT &> "${tmp}"
 srun --uenv=prgenv-gnu/25.6:v2 --view=default \
 	"${env_dir}/gpu-mpi-wrapper.sh" \
   "${app}" \
-	--json-out "${job_info_dir}/result.json"  \
-	--mpi 1.4.4.4 \
+	--json-out "${job_info_dir}/result.json" \
+	--mpi 2.4.4.4 \
   --accelerator-threads 8 --comms-overlap --shm 8192 --shm-mpi 1 \
 	--threads 72 &> "${job_info_dir}/log"
 
