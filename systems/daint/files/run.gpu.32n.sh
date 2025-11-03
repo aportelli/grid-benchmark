@@ -4,7 +4,6 @@
 #SBATCH -J benchmark-grid-32
 #SBATCH -t 1:00:00
 #SBATCH --nodes=32
-#SBATCH --ntasks=128
 #SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=72
 #SBATCH --gpus-per-task=1
