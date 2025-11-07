@@ -1073,37 +1073,41 @@ int main(int argc, char **argv)
       runDeo("fp64 Domain wall dslash 4d vectorised", Ls, dwf4_fp64, &Benchmark::DoeFlops<DomainWallFermionD>);
       runDeo("fp64 Improved Staggered dslash 4d vectorised", 0, staggered_fp64, &Benchmark::DoeFlops<ImprovedStaggeredFermionD>);
     }
-    else
-    {
-      wilson_fp64   .assign(L_list.size(), 0.);
-      dwf4_fp64     .assign(L_list.size(), 0.);
-      staggered_fp64.assign(L_list.size(), 0.);
-    }
 
     int NN = NN_global;
 
-    grid_big_sep();
-    std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
-    grid_big_sep();
-    grid_printf("%5s %12s %12s %12s %12s %12s %12s\n", "L", "Wilson FP32", "Wilson FP64", "DWF FP32", "DWF FP64", "Staggered FP32", "Staggered FP64");
     nlohmann::json tmp_flops;
-    for (int l = 0; l < L_list.size(); l++)
+    auto OutputDeoResults = [&NN, &tmp_flops, &L_list, &Ls]
+      (const char* const precision,
+       const std::vector<double>& wilson,
+       const std::vector<double>& dwf4,
+       const std::vector<double>& staggered)
     {
-      grid_printf("%5d %12.2f %12.2f %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
-                  wilson_fp32[l] / NN, wilson_fp64[l] / NN,
-                  dwf4_fp32[l] / NN, dwf4_fp64[l] / NN,
-                  staggered_fp32[l] / NN, staggered_fp64[l] / NN);
 
-      nlohmann::json tmp;
-      tmp["L"] = L_list[l];
-      tmp["Gflops_wilson_fp32"] = wilson_fp32[l] / NN;
-      tmp["Gflops_wilson_fp64"] = wilson_fp64[l] / NN;
-      tmp["Gflops_dwf4_fp32"] = dwf4_fp32[l] / NN;
-      tmp["Gflops_dwf4_fp64"] = dwf4_fp64[l] / NN;
-      tmp["Gflops_staggered_fp32"] = staggered_fp32[l] / NN;
-      tmp["Gflops_staggered_fp64"] = staggered_fp64[l] / NN;
-      tmp_flops["results"].push_back(tmp);
-    }
+      grid_big_sep();
+      std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
+      std::cout << GridLogMessage << " * PRECISION: " << precision << std::endl;
+      grid_big_sep();
+      grid_printf("%5s %12s %12s %12s\n", "L", "Wilson", "DWF", "Staggered");
+      for (int l = 0; l < L_list.size(); l++)
+      {
+        grid_printf("%5d %12.2f %12.2f %12.2f\n", L_list[l],
+                    wilson[l] / NN, dwf4[l] / NN, staggered[l] / NN);
+
+        nlohmann::json tmp;
+        tmp["L"] = L_list[l];
+        tmp["Precision"] = precision;
+        tmp["Gflops_wilson"] = wilson[l] / NN;
+        tmp["Gflops_dwf4"] = dwf4[l] / NN;
+        tmp["Gflops_staggered"] = staggered[l] / NN;
+        tmp_flops["results"].push_back(tmp);
+      }
+    };
+
+    OutputDeoResults("FP32", wilson_fp32, dwf4_fp32, staggered_fp32);
+    if (do_fp64)
+      OutputDeoResults("FP64", wilson_fp64, dwf4_fp64, staggered_fp64);
+
     grid_big_sep();
     std::cout << GridLogMessage
               << " Comparison point     result: " << 0.5 * (dwf4_fp32[sel] + dwf4_fp32[selm1]) / NN
