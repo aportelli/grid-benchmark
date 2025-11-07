@@ -909,6 +909,7 @@ int main(int argc, char **argv)
   bool do_memory = true;
   bool do_comms = true;
   bool do_flops = true;
+  bool do_fp64 = true;
 
   // NOTE: these two take O((number of ranks)^2) time, which might be a lot, so they are
   // off by default
@@ -934,6 +935,8 @@ int main(int argc, char **argv)
       do_latency = true;
     if (arg == "--benchmark-p2p")
       do_p2p = true;
+    if (arg == "--benchmark-deo-fp64")
+      do_fp64 = true;
     if (arg == "--no-benchmark-su4")
       do_su4 = false;
     if (arg == "--no-benchmark-memory")
@@ -946,6 +949,8 @@ int main(int argc, char **argv)
       do_latency = false;
     if (arg == "--no-benchmark-p2p")
       do_p2p = false;
+    if (arg == "--no-benchmark-deo-fp64")
+      do_fp64 = false;
     if (arg == "--max-L")
     {
       // Make sure there's another argument to parse
@@ -1025,11 +1030,12 @@ int main(int argc, char **argv)
     exit(EXIT_FAILURE);
   }
 
-  std::vector<double> wilsonf;
-  std::vector<double> wilsond;
-  std::vector<double> dwf4f;
-  std::vector<double> dwf4d;
-  std::vector<double> staggered;
+  std::vector<double> wilson_fp32;
+  std::vector<double> wilson_fp64;
+  std::vector<double> dwf4_fp32;
+  std::vector<double> dwf4_fp64;
+  std::vector<double> staggered_fp32;
+  std::vector<double> staggered_fp64;
 
   auto runBenchmark = [](const std::string& name, const std::function<void(void)>& fn)
   {
@@ -1048,43 +1054,30 @@ int main(int argc, char **argv)
   int Ls = 12;
   if (do_flops)
   {
-    grid_big_sep();
-    std::cout << GridLogMessage << " fp32 Wilson dslash 4D vectorised" << std::endl;
-    for (int l = 0; l < L_list.size(); l++)
+    auto runDeo = [&L_list](const std::string& msg, int Ls, std::vector<double>& results, std::function<double(int,int)> fn)
     {
-      wilsonf.push_back(Benchmark::DoeFlops<DomainWallFermionF>(1, L_list[l]));
-    }
+      grid_big_sep();
+      std::cout << GridLogMessage << " " << msg << std::endl;
+      for (int l = 0; l < L_list.size(); l++)
+      {
+        results.push_back(fn(Ls, L_list[l]));
+      }
+    };
 
-    grid_big_sep();
-    std::cout << GridLogMessage << " fp64 Wilson dslash 4D vectorised" << std::endl;
-    for (int l = 0; l < L_list.size(); l++)
+    runDeo("fp32 Wilson dslash 4d vectorised", 1, wilson_fp32, &Benchmark::DoeFlops<DomainWallFermionF>);
+    runDeo("fp32 Domain wall dslash 4d vectorised", Ls, dwf4_fp32, &Benchmark::DoeFlops<DomainWallFermionF>);
+    runDeo("fp32 Improved Staggered dslash 4d vectorised", 0, staggered_fp32, &Benchmark::DoeFlops<ImprovedStaggeredFermionF>);
+    if (do_fp64)
     {
-      wilsond.push_back(Benchmark::DoeFlops<DomainWallFermionD>(1, L_list[l]));
+      runDeo("fp64 Wilson dslash 4d vectorised", 1, wilson_fp64, &Benchmark::DoeFlops<DomainWallFermionD>);
+      runDeo("fp64 Domain wall dslash 4d vectorised", Ls, dwf4_fp64, &Benchmark::DoeFlops<DomainWallFermionD>);
+      runDeo("fp64 Improved Staggered dslash 4d vectorised", 0, staggered_fp64, &Benchmark::DoeFlops<ImprovedStaggeredFermionD>);
     }
-
-    grid_big_sep();
-    std::cout << GridLogMessage << " fp32 Domain wall dslash 4D vectorised" << std::endl;
-    for (int l = 0; l < L_list.size(); l++)
+    else
     {
-      double result = Benchmark::DoeFlops<DomainWallFermionF>(Ls, L_list[l]);
-      dwf4f.push_back(result);
-    }
-
-    grid_big_sep();
-    std::cout << GridLogMessage << " fp64 Domain wall dslash 4D vectorised" << std::endl;
-    for (int l = 0; l < L_list.size(); l++)
-    {
-      double result = Benchmark::DoeFlops<DomainWallFermionD>(Ls, L_list[l]);
-      dwf4d.push_back(result);
-    }
-
-    grid_big_sep();
-    std::cout << GridLogMessage << " fp32 Improved Staggered dslash 4D vectorised"
-              << std::endl;
-    for (int l = 0; l < L_list.size(); l++)
-    {
-      double result = Benchmark::DoeFlops<ImprovedStaggeredFermionF>(0, L_list[l]);
-      staggered.push_back(result);
+      wilson_fp64   .assign(L_list.size(), 0.);
+      dwf4_fp64     .assign(L_list.size(), 0.);
+      staggered_fp64.assign(L_list.size(), 0.);
     }
 
     int NN = NN_global;
@@ -1092,33 +1085,34 @@ int main(int argc, char **argv)
     grid_big_sep();
     std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
     grid_big_sep();
-    grid_printf("%5s %12s %12s %12s %12s %12s\n", "L", "WilsonF", "WilsonD", "DWFF", "DWFD", "Staggered");
+    grid_printf("%5s %12s %12s %12s %12s %12s %12s\n", "L", "Wilson FP32", "Wilson FP64", "DWF FP32", "DWF FP64", "Staggered FP32", "Staggered FP64");
     nlohmann::json tmp_flops;
     for (int l = 0; l < L_list.size(); l++)
     {
-      grid_printf("%5d %12.2f %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
-                  wilsonf[l] / NN, wilsond[l] / NN,
-                  dwf4f[l] / NN, dwf4d[l] / NN,
-                  staggered[l] / NN);
+      grid_printf("%5d %12.2f %12.2f %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
+                  wilson_fp32[l] / NN, wilson_fp64[l] / NN,
+                  dwf4_fp32[l] / NN, dwf4_fp64[l] / NN,
+                  staggered_fp32[l] / NN, staggered_fp64[l] / NN);
 
       nlohmann::json tmp;
       tmp["L"] = L_list[l];
-      tmp["Gflops_wilsonf"] = wilsonf[l] / NN;
-      tmp["Gflops_dwf4f"] = dwf4f[l] / NN;
-      tmp["Gflops_wilsond"] = wilsond[l] / NN;
-      tmp["Gflops_dwf4d"] = dwf4d[l] / NN;
-      tmp["Gflops_staggered"] = staggered[l] / NN;
+      tmp["Gflops_wilson_fp32"] = wilson_fp32[l] / NN;
+      tmp["Gflops_wilson_fp64"] = wilson_fp64[l] / NN;
+      tmp["Gflops_dwf4_fp32"] = dwf4_fp32[l] / NN;
+      tmp["Gflops_dwf4_fp64"] = dwf4_fp64[l] / NN;
+      tmp["Gflops_staggered_fp32"] = staggered_fp32[l] / NN;
+      tmp["Gflops_staggered_fp64"] = staggered_fp64[l] / NN;
       tmp_flops["results"].push_back(tmp);
     }
     grid_big_sep();
     std::cout << GridLogMessage
-              << " Comparison point     result: " << 0.5 * (dwf4f[sel] + dwf4f[selm1]) / NN
+              << " Comparison point     result: " << 0.5 * (dwf4_fp32[sel] + dwf4_fp32[selm1]) / NN
               << " Gflop/s per node" << std::endl;
-    std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4f[sel] / NN << "+"
-              << dwf4f[selm1] / NN << ") " << std::endl;
+    std::cout << GridLogMessage << " Comparison point is 0.5*(" << dwf4_fp32[sel] / NN << "+"
+              << dwf4_fp32[selm1] / NN << ") " << std::endl;
     std::cout << std::setprecision(3);
     grid_big_sep();
-    tmp_flops["comparison_point_Gflops"] = 0.5 * (dwf4f[sel] + dwf4f[selm1]) / NN;
+    tmp_flops["comparison_point_Gflops"] = 0.5 * (dwf4_fp32[sel] + dwf4_fp32[selm1]) / NN;
     json_results["flops"] = tmp_flops;
   }
 
