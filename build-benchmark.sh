@@ -17,7 +17,7 @@ if [ ! -d "${env_dir}" ]; then
 fi
 if [ -f "${env_dir}/shell-wrapper.sh" ]; then
     if [ ! "${_grid_wrapped_+x}" ]; then
-        echo "error: this envrionment requires to use a shell wrapper, please run" 1>&2
+        echo "error: this environment requires a shell wrapper, please run" 1>&2
         echo '' 1>&2
         echo "${env_dir}/shell-wrapper.sh $0 $*" 1>&2
         exit 1
