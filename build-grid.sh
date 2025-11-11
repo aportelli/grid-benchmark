@@ -33,10 +33,21 @@ if [ -d "${build_dir}" ]; then
     echo "error: directory '${build_dir}' exists"
     exit 1
 fi
-mkdir -p "${build_dir}"
-entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+
+entry=$(jq ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+if [ -z "$entry" ]; then
+  echo "error: config \"${cfg}\" does not exist for system." 1>&2
+  configs=$(jq -r ".configs[]|.name" "${env_dir}"/grid-config.json)
+  echo "available configs:" 1>&2
+  for cfgname in ${configs[@]}; do
+    echo "  ${cfgname}" 1>&2
+  done
+  exit 1
+fi
+
 IFS=" " read -r -a args <<< "$(echo "${entry}" | jq -r ".\"config-options\"")"
 source "${env_dir}/env.sh" "${cfg}"
+mkdir -p "${build_dir}"
 cd "${build_dir}" || return
 extra_env=$(mktemp)
 echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"

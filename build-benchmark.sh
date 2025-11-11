@@ -30,13 +30,23 @@ cd "${env_dir}"
 env_dir=$(pwd -P)
 cd "${call_dir}"
 build_dir="${env_dir}/build/Grid-benchmarks/${cfg}"
-mkdir -p "${build_dir}"
 source "${env_dir}/env.sh" "${cfg}"
-entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+entry=$(jq ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+if [ -z "$entry" ]; then
+  echo "error: config \"${cfg}\" does not exist for system." 1>&2
+  configs=$(jq -r ".configs[]|.name" "${env_dir}"/grid-config.json)
+  echo "available configs:" 1>&2
+  for cfgname in ${configs[@]}; do
+    echo "  ${cfgname}" 1>&2
+  done
+  exit 1
+fi
+
 cd "${script_dir}"
 if [ ! -f configure ]; then
     ./bootstrap.sh
 fi
+mkdir -p "${build_dir}"
 cd "${build_dir}"
 CXX="$("${env_dir}/prefix/grid_${cfg}/bin/grid-config" --cxx)"
 export CXX
