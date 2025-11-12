@@ -2,7 +2,7 @@
   "configs": [
     {
       "name": "cpu",
-      "env-script": "env-cpu.sh",
+      "env-script": "",
       "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
       "config-options": "--enable-simd=NEONv8 --enable-comms=mpi-auto",
       "env": {
