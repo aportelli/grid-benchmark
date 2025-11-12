@@ -44,7 +44,7 @@ echo "-- install default environment"
 cp "${script_dir}/pixi.toml" "${dir}"
 cd "${dir}"
 $pixi_log install
-export PATH="${dir}/.pixi/envs/default/bin${PATH}"
+export PATH="${dir}/.pixi/envs/default/bin:${PATH}"
 cp "${script_dir}/env-base.sh" "${script_dir}/env-pixi.sh" "${script_dir}/env.sh" "${dir}"
 
 echo "-- install system specific files (system: ${sys})"

@@ -17,7 +17,7 @@ if [ ! -d "${env_dir}" ]; then
 fi
 if [ -f "${env_dir}/shell-wrapper.sh" ]; then
     if [ ! "${_grid_wrapped_+x}" ]; then
-        echo "error: this envrionment requires to use a shell wrapper, please run" 1>&2
+        echo "error: this environment requires a shell wrapper, please run" 1>&2
         echo '' 1>&2
         echo "${env_dir}/shell-wrapper.sh $0 $*" 1>&2
         exit 1
@@ -33,10 +33,21 @@ if [ -d "${build_dir}" ]; then
     echo "error: directory '${build_dir}' exists"
     exit 1
 fi
-mkdir -p "${build_dir}"
-entry=$(jq -e ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+
+entry=$(jq ".configs[]|select(.name==\"${cfg}\")" "${env_dir}"/grid-config.json)
+if [ -z "$entry" ]; then
+  echo "error: config \"${cfg}\" does not exist for system." 1>&2
+  configs=$(jq -r ".configs[]|.name" "${env_dir}"/grid-config.json)
+  echo "available configs:" 1>&2
+  for cfgname in ${configs[@]}; do
+    echo "  ${cfgname}" 1>&2
+  done
+  exit 1
+fi
+
 IFS=" " read -r -a args <<< "$(echo "${entry}" | jq -r ".\"config-options\"")"
 source "${env_dir}/env.sh" "${cfg}"
+mkdir -p "${build_dir}"
 cd "${build_dir}" || return
 extra_env=$(mktemp)
 echo "${entry}" | jq -er '.env|to_entries|map("export \(.key)=\"\(.value|tostring)\"")|.[]' > "${extra_env}"
