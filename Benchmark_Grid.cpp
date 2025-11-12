@@ -697,7 +697,7 @@ class Benchmark
   }
 
   template<typename Action>
-  static double DoeFlops(int Ls, int L)
+  static double DeoFlops(int Ls, int L)
   {
     double gflops;
     double gflops_best = 0;
@@ -1152,14 +1152,14 @@ int main(int argc, char **argv)
       }
     };
 
-    runDeo("fp32 Wilson dslash 4d vectorised", 1, wilson_fp32, &Benchmark::DoeFlops<DomainWallFermionF>);
-    runDeo("fp32 Domain wall dslash 4d vectorised", Ls, dwf4_fp32, &Benchmark::DoeFlops<DomainWallFermionF>);
-    runDeo("fp32 Improved Staggered dslash 4d vectorised", 0, staggered_fp32, &Benchmark::DoeFlops<ImprovedStaggeredFermionF>);
+    runDeo("fp32 Wilson dslash 4d vectorised", 1, wilson_fp32, &Benchmark::DeoFlops<DomainWallFermionF>);
+    runDeo("fp32 Domain wall dslash 4d vectorised", Ls, dwf4_fp32, &Benchmark::DeoFlops<DomainWallFermionF>);
+    runDeo("fp32 Improved Staggered dslash 4d vectorised", 0, staggered_fp32, &Benchmark::DeoFlops<ImprovedStaggeredFermionF>);
     if (do_fp64)
     {
-      runDeo("fp64 Wilson dslash 4d vectorised", 1, wilson_fp64, &Benchmark::DoeFlops<DomainWallFermionD>);
-      runDeo("fp64 Domain wall dslash 4d vectorised", Ls, dwf4_fp64, &Benchmark::DoeFlops<DomainWallFermionD>);
-      runDeo("fp64 Improved Staggered dslash 4d vectorised", 0, staggered_fp64, &Benchmark::DoeFlops<ImprovedStaggeredFermionD>);
+      runDeo("fp64 Wilson dslash 4d vectorised", 1, wilson_fp64, &Benchmark::DeoFlops<DomainWallFermionD>);
+      runDeo("fp64 Domain wall dslash 4d vectorised", Ls, dwf4_fp64, &Benchmark::DeoFlops<DomainWallFermionD>);
+      runDeo("fp64 Improved Staggered dslash 4d vectorised", 0, staggered_fp64, &Benchmark::DeoFlops<ImprovedStaggeredFermionD>);
     }
 
     int NN = NN_global;
