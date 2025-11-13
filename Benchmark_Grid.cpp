@@ -22,6 +22,7 @@
 #include "Common.hpp"
 #include "json.hpp"
 #include <Grid/Grid.h>
+#include "instantiation/instantiations.hpp"
 
 #include <cxxabi.h>
 
@@ -1115,6 +1116,8 @@ int main(int argc, char **argv)
   std::vector<double> wilson_fp64;
   std::vector<double> dwf4_fp32;
   std::vector<double> dwf4_fp64;
+  std::vector<double> dwf4_su4_fp32;
+  std::vector<double> dwf4_su4_fp64;
   std::vector<double> staggered_fp32;
   std::vector<double> staggered_fp64;
 
@@ -1154,11 +1157,13 @@ int main(int argc, char **argv)
 
     runDeo("fp32 Wilson dslash 4d vectorised", 1, wilson_fp32, &Benchmark::DeoFlops<DomainWallFermionF>);
     runDeo("fp32 Domain wall dslash 4d vectorised", Ls, dwf4_fp32, &Benchmark::DeoFlops<DomainWallFermionF>);
+    runDeo("fp32 SU(4) Domain wall dslash 4d vectorised", Ls, dwf4_su4_fp32, &Benchmark::DeoFlops<DomainWallFermionSU4F>);
     runDeo("fp32 Improved Staggered dslash 4d vectorised", 0, staggered_fp32, &Benchmark::DeoFlops<ImprovedStaggeredFermionF>);
     if (do_fp64)
     {
       runDeo("fp64 Wilson dslash 4d vectorised", 1, wilson_fp64, &Benchmark::DeoFlops<DomainWallFermionD>);
       runDeo("fp64 Domain wall dslash 4d vectorised", Ls, dwf4_fp64, &Benchmark::DeoFlops<DomainWallFermionD>);
+      runDeo("fp64 SU(4) Domain wall dslash 4d vectorised", Ls, dwf4_su4_fp64, &Benchmark::DeoFlops<DomainWallFermionSU4D>);
       runDeo("fp64 Improved Staggered dslash 4d vectorised", 0, staggered_fp64, &Benchmark::DeoFlops<ImprovedStaggeredFermionD>);
     }
 
@@ -1169,6 +1174,7 @@ int main(int argc, char **argv)
       (const char* const precision,
        const std::vector<double>& wilson,
        const std::vector<double>& dwf4,
+       const std::vector<double>& dwf4_su4,
        const std::vector<double>& staggered)
     {
 
@@ -1176,25 +1182,26 @@ int main(int argc, char **argv)
       std::cout << GridLogMessage << "Gflop/s/node Summary table Ls=" << Ls << std::endl;
       std::cout << GridLogMessage << " * PRECISION: " << precision << std::endl;
       grid_big_sep();
-      grid_printf("%5s %12s %12s %12s\n", "L", "Wilson", "DWF", "Staggered");
+      grid_printf("%5s %12s %12s %12s %12s\n", "L", "Wilson", "DWF", "SU(4) DWF", "Staggered");
       for (int l = 0; l < L_list.size(); l++)
       {
-        grid_printf("%5d %12.2f %12.2f %12.2f\n", L_list[l],
-                    wilson[l] / NN, dwf4[l] / NN, staggered[l] / NN);
+        grid_printf("%5d %12.2f %12.2f %12.2f %12.2f\n", L_list[l],
+                    wilson[l] / NN, dwf4[l] / NN, dwf4_su4[l] / NN, staggered[l] / NN);
 
         nlohmann::json tmp;
         tmp["L"] = L_list[l];
         tmp["Precision"] = precision;
         tmp["Gflops_wilson"] = wilson[l] / NN;
         tmp["Gflops_dwf4"] = dwf4[l] / NN;
+        tmp["Gflops_dwf4_su4"] = dwf4_su4[l] / NN;
         tmp["Gflops_staggered"] = staggered[l] / NN;
         tmp_flops["results"].push_back(tmp);
       }
     };
 
-    OutputDeoResults("FP32", wilson_fp32, dwf4_fp32, staggered_fp32);
+    OutputDeoResults("FP32", wilson_fp32, dwf4_fp32, dwf4_su4_fp32, staggered_fp32);
     if (do_fp64)
-      OutputDeoResults("FP64", wilson_fp64, dwf4_fp64, staggered_fp64);
+      OutputDeoResults("FP64", wilson_fp64, dwf4_fp64, dwf4_su4_fp64, staggered_fp64);
 
     grid_big_sep();
     std::cout << GridLogMessage
