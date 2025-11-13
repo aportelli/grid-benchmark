@@ -1,0 +1,16 @@
+{
+    "configs": [
+      {
+        "name": "cpu",
+        "env-script": "",
+        "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",
+        "config-options": "--enable-comms=mpi-auto --enable-simd=AVX2 --enable-alloc-align=4k --enable-shm=shmget",
+        "env": {
+          "CXX": "clang++",
+          "MPICXX": "mpicxx"
+        },
+        "pixi-env": "cpu-linux"
+      }
+    ]
+  }
+  
