@@ -1,5 +1,5 @@
 [workspace]
-authors = ["Antonin Portelli <antonin.poprtelli@ed.ac.uk>"]
+authors = ["Antonin Portelli <antonin.portelli@ed.ac.uk>", "Ryan Hill <ryan.hill@ed.ac.uk>"]
 channels = ["conda-forge"]
 name = "grid-benchmark"
 platforms = ["linux-64", "linux-aarch64", "osx-arm64"]
