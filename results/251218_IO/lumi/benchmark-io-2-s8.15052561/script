@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1091,SC2050,SC2170
+
+#SBATCH -J benchmark-io-2
+#SBATCH -t 1:00:00
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=8
+#SBATCH --cpus-per-task=7
+#SBATCH --gpus-per-node=8
+#SBATCH --partition=standard-g
+#SBATCH --exclusive
+#SBATCH --mem=0
+#SBATCH --output=%x.%j.out
+#SBATCH --error=%x.%j.err
+
+set -euo pipefail
+
+# load environment #############################################################
+env_cfg="${HOME}/.config/grid-benchmark/grid-env"
+if [ ! -f "${env_cfg}" ]; then
+	echo "error: ${env_cfg} does not exists"
+	exit 1
+fi
+env_dir="$(readlink -f "$(cat "${env_cfg}")")"
+source "${env_dir}/env.sh" gpu  # load environment
+
+# application and parameters ###################################################
+app="${env_dir}/prefix/gridbench_gpu/bin/Benchmark_IO"
+
+# collect job information ######################################################
+job_info_dir=job/${SLURM_JOB_NAME}.${SLURM_JOB_ID}
+mkdir -p "${job_info_dir}"
+
+date                         > "${job_info_dir}/start-date"
+echo "epoch $(date '+%s')" >> "${job_info_dir}/start-date"
+set                          > "${job_info_dir}/env"
+ldd "${app}"                 > "${job_info_dir}/ldd"
+md5sum "${app}"              > "${job_info_dir}/app-hash"
+readelf -a "${app}"          > "${job_info_dir}/elf"
+echo "${SLURM_JOB_NODELIST}" > "${job_info_dir}/nodes"
+cp "${BASH_SOURCE[0]}"       "${job_info_dir}/script"
+
+# start GPU telemetry ##########################################################
+tmp=$(mktemp)
+coproc "${env_dir}/telemetry.sh" > "${tmp}"
+
+# run! #########################################################################
+export OMP_NUM_THREADS=7
+export MPICH_GPU_SUPPORT_ENABLED=1
+export MPICH_SMP_SINGLE_COPY_MODE=XPMEM
+
+CPU_BIND="mask_cpu:7e000000000000,7e00000000000000"
+CPU_BIND="${CPU_BIND},7e0000,7e000000"
+CPU_BIND="${CPU_BIND},7e,7e00"
+CPU_BIND="${CPU_BIND},7e00000000,7e0000000000"
+
+srun -n "${SLURM_NTASKS}" --cpu-bind=${CPU_BIND} "${env_dir}/gpu-mpi-wrapper.sh" \
+  "${app}" \
+	--json-out "${job_info_dir}/result.json" \
+	--mpi 1.1.4.4 --accelerator-threads 8 --threads 7 \
+	--comms-concurrent --comms-overlap --dslash-unroll \
+	--shm 8192 --shm-mpi 1 &> "${job_info_dir}/log"
+
+# process telemetry data #######################################################
+kill -INT "${COPROC_PID}"
+"${env_dir}/telemetry-to-db.sh" "${tmp}" "${job_info_dir}/telemetry.db" 'rocm_smi'
+
+# if we reach that point the application exited successfully ###################
+touch "${job_info_dir}/success"
+date > "${job_info_dir}/end-date"
+echo "epoch $(date '+%s')" >> "${job_info_dir}/end-date"
+
+################################################################################
