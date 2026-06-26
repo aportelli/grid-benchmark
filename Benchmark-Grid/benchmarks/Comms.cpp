@@ -13,6 +13,7 @@ void Benchmark::Comms(nlohmann::json& json_results)
   int Nloop = 200;
   int nmu = 0;
   int maxlat = 48;
+  int Ls = 12;
 
   Coordinate simd_layout = GridDefaultSimd(Nd, vComplexD::Nsimd());
   Coordinate mpi_layout = GridDefaultMpi();
@@ -31,10 +32,20 @@ void Benchmark::Comms(nlohmann::json& json_results)
   grid_small_sep();
   grid_printf("%5s %5s %7s %15s %15s %15s %15s %15s\n", "L", "dir", "shm",
               "payload (B)", "time (usec)", "rate (GB/s/node)", "std dev", "max");
+  
+  uint64_t max_bytes = maxlat * maxlat * maxlat * Ls * sizeof(HalfSpinColourVectorD);
+
+  // locates xbuf with maximum bytes upfront
+  std::vector<HalfSpinColourVectorD *> xbuf(8);
+  std::vector<HalfSpinColourVectorD *> rbuf(8);
+  for (int d = 0; d < 8; d++)
+  {
+    xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(max_bytes);
+    rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(max_bytes);
+  }
 
   for (int lat = 16; lat <= maxlat; lat += 8)
   {
-    int Ls = 12;
 
     Coordinate latt_size({lat * mpi_layout[0], lat * mpi_layout[1], lat * mpi_layout[2],
                           lat * mpi_layout[3]});
@@ -44,13 +55,11 @@ void Benchmark::Comms(nlohmann::json& json_results)
     RealD Nnode = Grid.NodeCount();
     RealD ppn = Nrank / Nnode;
 
-    std::vector<HalfSpinColourVectorD *> xbuf(8);
-    std::vector<HalfSpinColourVectorD *> rbuf(8);
     uint64_t bytes = lat * lat * lat * Ls * sizeof(HalfSpinColourVectorD);
     for (int d = 0; d < 8; d++)
     {
-      xbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
-      rbuf[d] = (HalfSpinColourVectorD *)acceleratorAllocDevice(bytes);
+      acceleratorMemSet(xbuf[d], 0, bytes);
+      acceleratorMemSet(rbuf[d], 0, bytes);
     }
 
     double dbytes;
@@ -133,11 +142,11 @@ void Benchmark::Comms(nlohmann::json& json_results)
       tmp["rate_GBps"] = tmp_rate;
       json_results["comms"].push_back(tmp);
     }
-    for (int d = 0; d < 8; d++)
-    {
-      acceleratorFreeDevice(xbuf[d]);
-      acceleratorFreeDevice(rbuf[d]);
-    }
+  }
+  for (int d = 0; d < 8; d++)
+  {
+    acceleratorFreeDevice(xbuf[d]);
+    acceleratorFreeDevice(rbuf[d]);
   }
   return;
 }
