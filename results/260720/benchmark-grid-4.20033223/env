@@ -1,0 +1,448 @@
+APP2_STATE=25.09.0
+BASH=/usr/bin/bash
+BASHOPTS=checkwinsize:cmdhist:complete_fullquote:extquote:force_fignore:hostcomplete:interactive_comments:progcomp:promptvars:sourcepath
+BASH_ALIASES=()
+BASH_ARGC=()
+BASH_ARGV=()
+BASH_CMDS=()
+BASH_ENV=/opt/cray/pe/lmod/lmod/init/bash
+BASH_LINENO=([0]="0")
+BASH_SOURCE=([0]="/var/spool/slurmd/job20033223/slurm_script")
+BASH_VERSINFO=([0]="4" [1]="4" [2]="23" [3]="1" [4]="release" [5]="x86_64-suse-linux-gnu")
+BASH_VERSION='4.4.23(1)-release'
+CC_X86_64=/opt/cray/pe/cce/20.0.0/cce/x86_64
+CMAKE_PREFIX_PATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4:/appl/lumi/SW/system/EB/lumi-tools/26.06
+COLORTERM=1
+COMPILERRT_PATH_X86_64=/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/lib/clang/20/lib/linux
+CONDA_DEFAULT_ENV=grid-benchmark:gpu-amd
+CONDA_PREFIX=/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd
+CPATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/include
+CPLUS_INCLUDE_PATH=:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include
+CPU=x86_64
+CRAYLIBS_AARCH64=/opt/cray/pe/cce/20.0.0/cce/aarch64/lib
+CRAYLIBS_X86_64=/opt/cray/pe/cce/20.0.0/cce/x86_64/lib
+CRAYPAT_LD_LIBRARY_PATH=/opt/cray/pe/perftools/25.09.0/lib64
+CRAYPAT_OPTS_EXECUTABLE=libexec64/opts
+CRAYPAT_ROOT=/opt/cray/pe/perftools/25.09.0
+CRAYPE_DIR=/opt/cray/pe/craype/2.7.35
+CRAYPE_LINK_TYPE=dynamic
+CRAYPE_NETWORK_TARGET=ofi
+CRAYPE_VERSION=2.7.35
+CRAY_ACCEL_TARGET=amd_gfx90a
+CRAY_ACCEL_VENDOR=amd
+CRAY_AMD_COMPILER_PREFIX=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4
+CRAY_AMD_COMPILER_VERSION=6.4.4
+CRAY_BINUTILS_BIN=/opt/cray/pe/cce/20.0.0/binutils/x86_64/bin
+CRAY_BINUTILS_BIN_AARCH64=/opt/cray/pe/cce/20.0.0/binutils/cross/x86_64-aarch64/aarch64-linux-gnu/bin
+CRAY_BINUTILS_BIN_X86_64=/opt/cray/pe/cce/20.0.0/binutils/x86_64/bin
+CRAY_BINUTILS_ROOT=/opt/cray/pe/cce/20.0.0/binutils/x86_64/x86_64-pc-linux-gnu/../
+CRAY_BINUTILS_ROOT_AARCH64=/opt/cray/pe/cce/20.0.0/binutils/cross/x86_64-aarch64/aarch64-linux-gnu/../
+CRAY_BINUTILS_ROOT_X86_64=/opt/cray/pe/cce/20.0.0/binutils/x86_64/x86_64-pc-linux-gnu/../
+CRAY_BINUTILS_VERSION=/opt/cray/pe/cce/20.0.0
+CRAY_CCE_CLANGSHARE=/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/share
+CRAY_CCE_SHARE=/opt/cray/pe/cce/20.0.0/cce/x86_64/share
+CRAY_CC_VERSION=20.0.0
+CRAY_CPU_TARGET=x86-trento
+CRAY_CXX_IPA_LIBS=/opt/cray/pe/cce/20.0.0/cce/x86_64/lib/libcray-c++-rts.a
+CRAY_CXX_IPA_LIBS_AARCH64=/opt/cray/pe/cce/20.0.0/cce/aarch64/lib/libcray-c++-rts.a
+CRAY_CXX_IPA_LIBS_X86_64=/opt/cray/pe/cce/20.0.0/cce/x86_64/lib/libcray-c++-rts.a
+CRAY_DSMML_BASEDIR=/opt/cray/pe/dsmml/0.3.1
+CRAY_DSMML_DIR=/opt/cray/pe/dsmml/0.3.1/dsmml
+CRAY_DSMML_PREFIX=/opt/cray/pe/dsmml/0.3.1/dsmml
+CRAY_DSMML_ROOTDIR=/opt/cray/pe/dsmml/0.3.1
+CRAY_DSMML_VER=0.3.1
+CRAY_DSMML_VERSION=0.3.1
+CRAY_FTN_VERSION=20.0.0
+CRAY_LD_LIBRARY_PATH=/opt/cray/pe/perftools/25.09.0/lib64:/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/lib:/opt/cray/pe/mpich/9.0.1/gtl/lib:/opt/cray/pe/libsci/25.09.0/CRAYCLANG/20.0/x86_64/lib:/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/lib:/opt/cray/pe/cce/20.0.0/cce/x86_64/lib:/opt/cray/pe/dsmml/0.3.1/dsmml/lib
+CRAY_LIBSCI_BASE_DIR=/opt/cray/pe/libsci/25.09.0
+CRAY_LIBSCI_PREFIX=/opt/cray/pe/libsci/25.09.0/CRAYCLANG/20.0/x86_64
+CRAY_LIBSCI_PREFIX_DIR=/opt/cray/pe/libsci/25.09.0/CRAYCLANG/20.0/x86_64
+CRAY_LIBSCI_VERSION=25.09.0
+CRAY_LMOD_COMPILER=crayclang/20.0
+CRAY_LMOD_CPU=x86-trento/1.0
+CRAY_LMOD_MPI=cray-mpich/8.0
+CRAY_LMOD_NET=ofi/1.0
+CRAY_MPICH_BASEDIR=/opt/cray/pe/mpich/9.0.1/ofi
+CRAY_MPICH_DIR=/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0
+CRAY_MPICH_PREFIX=/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0
+CRAY_MPICH_ROOTDIR=/opt/cray/pe/mpich/9.0.1
+CRAY_MPICH_VER=9.0.1
+CRAY_MPICH_VERSION=9.0.1
+CRAY_PERFTOOLS_PREFIX=/opt/cray/pe/perftools/25.09.0
+CRAY_PERFTOOLS_VERSION=25.09.0
+CRAY_PE_CCE_VARIANT=CC=Clang:FTN=Classic
+CRAY_PE_USE_CLANG=/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/bin/clang
+CRAY_ROCM_DIR=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4
+CRAY_ROCM_INCLUDE_OPTS='-I /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/include -I /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/rocprofiler -I /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/include/roctracer -I /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/include/hip -D__HIP_PLATFORM_AMD__'
+CRAY_ROCM_POST_LINK_OPTS='-L /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib -L /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler -L /appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/include/roctracer -lamdhip64'
+CRAY_ROCM_PREFIX=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4
+CRAY_ROCM_VERSION=6.4.4
+CRAY_TCMALLOC_MEMFS_FORCE=1
+CRAY_XPMEM_INCLUDE_OPTS=-I/usr/include
+CRAY_XPMEM_POST_LINK_OPTS=-L/usr/lib64
+CSHEDIT=emacs
+C_INCLUDE_PATH=:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/327001355/bus
+DIRSTACK=()
+DYLD_FALLBACK_LIBRARY_PATH=/opt/rocm-6.4.4/lib/llvm/lib:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler-systems:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/roctracer:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib:/opt/cray/libfabric/1.22.0/lib64:/opt/rocm-6.4.4/lib/llvm/lib:/opt/cray/pe/papi/7.2.0.2/lib64:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/lib
+EBDEVELLUMIMINTOOLS=/appl/lumi/SW/system/EB/lumi-tools/26.06/easybuild/lumi-tools-26.06-easybuild-devel
+EBDEVELROCM=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/easybuild/rocm-6.4.4-easybuild-devel
+EBROOTLUMIMINTOOLS=/appl/lumi/SW/system/EB/lumi-tools/26.06
+EBROOTROCM=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4
+EBVERSIONLUMIMINTOOLS=26.06
+EBVERSIONROCM=6.4.4
+ENVIRONMENT=BATCH
+EUID=327001355
+FPATH=/opt/cray/pe/lmod/lmod/init/ksh_funcs
+FTN_X86_64=/opt/cray/pe/cce/20.0.0/cce/x86_64
+GCC_AARCH64=/opt/gcc-cross-aarch64//aarch64
+GCC_X86_64=/usr
+GPG_TTY=/dev/pts/29
+GRIDENVDIR=/pfs/lustrep1/projappl/project_465003160/software/grid-env
+GRID_CURRENT_ENV=gpu-amd
+GROUPS=()
+G_BROKEN_FILENAMES=1
+G_FILENAME_ENCODING=@locale,UTF-8,ISO-8859-15,CP1252
+HIP_LIB_PATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib
+HISTSIZE=1000
+HOME=/users/blackmat
+HOST=uan03
+HOSTNAME=nid005943
+HOSTTYPE=x86_64
+HYDRA_BOOTSTRAP=slurm
+HYDRA_LAUNCHER_EXTRA_ARGS=--external-launcher
+IFS=$' \t\n'
+INCLUDE=:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/include:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/include
+INCLUDE_PATH_AARCH64=/opt/cray/pe/cce/20.0.0/cce/aarch64/include/craylibs
+INCLUDE_PATH_X86_64=/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/lib/clang/20/include:/opt/cray/pe/cce/20.0.0/cce/x86_64/include/craylibs
+I_MPI_HYDRA_BOOTSTRAP=slurm
+I_MPI_HYDRA_BOOTSTRAP_EXEC_EXTRA_ARGS=--external-launcher
+JAVA_BINDIR=/usr/lib64/jvm/java-11-openjdk-11/bin
+JAVA_HOME=/usr/lib64/jvm/java-11-openjdk-11
+JDK_HOME=/usr/lib64/jvm/java-11-openjdk-11
+JRE_HOME=/usr/lib64/jvm/java-11-openjdk-11
+LANG=en_US.UTF-8
+LD_LIBRARY_PATH=/opt/rocm-6.4.4/lib/llvm/lib:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler-systems:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/roctracer:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib:/opt/cray/libfabric/1.22.0/lib64:/opt/rocm-6.4.4/lib/llvm/lib:/opt/cray/pe/papi/7.2.0.2/lib64:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/lib
+LESS='-M -I -R'
+LESSCLOSE='lessclose.sh %s %s'
+LESSKEY=/etc/lesskey.bin
+LESSOPEN='lessopen.sh %s'
+LESS_ADVANCED_PREPROCESSOR=no
+LIBGL_DEBUG=quiet
+LIBRARY_PATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib::/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/lib:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/lib
+LINKER_AARCH64=/opt/cray/pe/cce/20.0.0/binutils/cross/x86_64-aarch64/aarch64-linux-gnu/bin/ld
+LINKER_X86_64=/opt/cray/pe/cce/20.0.0/binutils/x86_64/x86_64-pc-linux-gnu/bin/ld
+LLVM_SYMBOLIZER_PATH=/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/bin/llvm-symbolizer
+LMOD_ADMIN_FILE=/appl/lumi/LUMI-SoftwareStack/LMOD/admin.list
+LMOD_AVAIL_STYLE='<label>:PEhierarchy:system'
+LMOD_CMD=/opt/cray/pe/lmod/lmod/libexec/lmod
+LMOD_DIR=/opt/cray/pe/lmod/lmod/libexec
+LMOD_FAMILY_COMPILER=cce
+LMOD_FAMILY_COMPILER_VERSION=20.0.0
+LMOD_FAMILY_CRAYPE=craype
+LMOD_FAMILY_CRAYPE_ACCEL=craype-accel-amd-gfx90a
+LMOD_FAMILY_CRAYPE_ACCEL_VERSION=false
+LMOD_FAMILY_CRAYPE_CPU=craype-x86-trento
+LMOD_FAMILY_CRAYPE_CPU_VERSION=false
+LMOD_FAMILY_CRAYPE_NETWORK=craype-network-ofi
+LMOD_FAMILY_CRAYPE_NETWORK_VERSION=false
+LMOD_FAMILY_CRAYPE_VERSION=2.7.35
+LMOD_FAMILY_LIBSCI=cray-libsci
+LMOD_FAMILY_LIBSCI_VERSION=25.09.0
+LMOD_FAMILY_LUMI_PARTITION=partition
+LMOD_FAMILY_LUMI_PARTITION_VERSION=G
+LMOD_FAMILY_LUMI_SOFTWARESTACK=LUMI
+LMOD_FAMILY_LUMI_SOFTWARESTACK_VERSION=25.09
+LMOD_FAMILY_MPI=cray-mpich
+LMOD_FAMILY_MPI_VERSION=9.0.1
+LMOD_FAMILY_PRGENV=PrgEnv-cray
+LMOD_FAMILY_PRGENV_VERSION=8.6.0
+LMOD_MODULERCFILE=/appl/lumi/mgmt/LMOD/ModuleRC/LUMIstack_25.09_modulerc.lua:/appl/lumi/LUMI-SoftwareStack/LMOD/LUMIstack_modulerc.lua:/appl/lumi/LUMI-SoftwareStack/LMOD/CrayEnv_modulerc.lua:/appl/lumi/LUMI-SoftwareStack/LMOD/modulerc.lua
+LMOD_PACKAGE_PATH=/appl/lumi/LUMI-SoftwareStack/LMOD
+LMOD_PKG=/opt/cray/pe/lmod/lmod
+LMOD_RC=/appl/lumi/LUMI-SoftwareStack/LMOD/lmodrc.lua
+LMOD_ROOT=/opt/cray/pe/lmod
+LMOD_SETTARG_FULL_SUPPORT=no
+LMOD_SYSTEM_DEFAULT_MODULES=craype-x86-rome:craype-network-ofi:perftools-base:xpmem:PrgEnv-cray:init-lumi
+LMOD_VERSION=8.7.55
+LMOD_sys=Linux
+LOADEDMODULES=cray-dsmml/0.3.1:PrgEnv-cray/8.6.0:ModuleLabel/label:lumi-tools/26.06:init-lumi/0.2:craype/2.7.35:cce/20.0.0:cray-libsci/25.09.0:cray-mpich/9.0.1:perftools-base/25.09.0:LUMI/25.09:craype-x86-trento:craype-accel-amd-gfx90a:libfabric/1.22.0:craype-network-ofi:xpmem/2.11.5-1.3_g73ade43320bc:partition/G:rocm/6.4.4
+LOGNAME=blackmat
+LUMI_LMOD_FAMILY_COMPILER=cce
+LUMI_LMOD_FAMILY_COMPILER_VERSION=20.0.0
+LUMI_LMOD_FAMILY_CRAYPE=craype
+LUMI_LMOD_FAMILY_CRAYPE_ACCEL=craype-accel-amd-gfx90a
+LUMI_LMOD_FAMILY_CRAYPE_ACCEL_VERSION=false
+LUMI_LMOD_FAMILY_CRAYPE_CPU=craype-x86-trento
+LUMI_LMOD_FAMILY_CRAYPE_CPU_VERSION=false
+LUMI_LMOD_FAMILY_CRAYPE_NETWORK=craype-network-ofi
+LUMI_LMOD_FAMILY_CRAYPE_NETWORK_VERSION=false
+LUMI_LMOD_FAMILY_CRAYPE_VERSION=2.7.35
+LUMI_LMOD_FAMILY_LIBSCI=cray-libsci
+LUMI_LMOD_FAMILY_LIBSCI_VERSION=25.09.0
+LUMI_LMOD_FAMILY_LUMI_PARTITION=partition
+LUMI_LMOD_FAMILY_LUMI_PARTITION_VERSION=G
+LUMI_LMOD_FAMILY_LUMI_SOFTWARESTACK=LUMI
+LUMI_LMOD_FAMILY_LUMI_SOFTWARESTACK_VERSION=25.09
+LUMI_LMOD_FAMILY_MPI=cray-mpich
+LUMI_LMOD_FAMILY_MPI_VERSION=9.0.1
+LUMI_LMOD_FAMILY_PRGENV=PrgEnv-cray
+LUMI_LMOD_FAMILY_PRGENV_VERSION=8.6.0
+LUMI_MODULEPATH_ROOT=/appl/lumi/modules
+LUMI_STACK_CPE_VERSION=25.09
+LUMI_STACK_NAME=LUMI
+LUMI_STACK_NAME_VERSION=LUMI/25.09
+LUMI_STACK_PARTITION=G
+LUMI_STACK_VERSION=25.09
+LUMI_VISIBILITYHOOKDATAFILE=CPEmodules_25_09
+LUMI_VISIBILITYHOOKDATAPATH='/appl/lumi/mgmt/LMOD/VisibilityHookData/?.lua'
+MACHTYPE=x86_64-suse-linux
+MAIL=/var/spool/mail/blackmat
+MANPATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/share/man:/opt/cray/libfabric/1.22.0/share/man:/opt/cray/pe/perftools/25.09.0/man:/opt/cray/pe/papi/7.2.0.2/share/pdoc/man:/opt/cray/pe/mpich/9.0.1/ofi/man:/opt/cray/pe/mpich/9.0.1/man/mpich:/opt/cray/pe/libsci/25.09.0/share/man:/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/share/man:/opt/cray/pe/cce/20.0.0/man:/opt/cray/pe/craype/2.7.35/man:/appl/lumi/SW/system/EB/lumi-tools/26.06/share/man:/opt/cray/pe/dsmml/0.3.1/dsmml/man:/opt/cray/pe/lmod/lmod/share/man:/usr/local/man:/usr/share/man
+MINICOM='-c on'
+MODULEPATH=/opt/cray/pe/lmod/modulefiles/comnet/crayclang/20.0/ofi/1.0:/opt/cray/pe/lmod/modulefiles/net/ofi/1.0:/opt/cray/pe/lmod/modulefiles/cpu/x86-trento/1.0:/appl/lumi/modules/easybuild/LUMI/25.09/partition/G:/appl/lumi/modules/easybuild/LUMI/25.09/partition/common:/appl/lumi/modules/easybuild/system:/appl/lumi/modules/easybuild/container:/appl/lumi/modules/Infrastructure/LUMI/25.09/partition/G:/opt/cray/pe/lmod/modulefiles/core:/opt/cray/pe/lmod/modulefiles/craype-targets/default:/opt/cray/modulefiles:/opt/modulefiles:/appl/lumi/modules/SystemPartition/LUMI/25.09:/appl/lumi/modules/easybuild/CrayEnv:/opt/cray/pe/lmod/modulefiles/perftools/25.09.0:/opt/cray/pe/lmod/modulefiles/mpi/crayclang/20.0/ofi/1.0/cray-mpich/8.0:/opt/cray/pe/lmod/modulefiles/compiler/crayclang/20.0:/opt/cray/pe/lmod/modulefiles/mix_compilers:/opt/cray/pe/modulefiles/Linux:/opt/cray/pe/modulefiles/Core:/opt/cray/pe/lmod/lmod/modulefiles/Core:/appl/lumi/modules/SoftwareStack:/appl/lumi/modules/StyleModifiers:/appl/lumi/modules/init-LUMI-SoftwareStack
+MODULEPATH_ROOT=/opt/cray/pe/modulefiles
+MODULESHOME=/opt/cray/pe/lmod/lmod
+MORE=-sl
+MOTD_SHOWN=pam
+MPICH_DIR=/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0
+OFFLOAD_INIT=on_start
+OLDPWD=/pfs/lustrep1/projappl/project_465003160/software/grid-env/job/benchmark-grid-1.20033105
+OMPI_MCA_plm_slurm_args=--external-launcher
+OPTERR=1
+OPTIND=1
+OSTYPE=linux
+PAGER=less
+PATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/bin:/opt/cray/libfabric/1.22.0/bin:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/pixi/bin:/opt/cray/pe/perftools/25.09.0/bin:/opt/cray/pe/papi/7.2.0.2/bin:/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/bin:/opt/cray/pe/mpich/9.0.1/bin:/opt/cray/pe/cce/20.0.0/binutils/x86_64/x86_64-pc-linux-gnu/bin:/opt/cray/pe/cce/20.0.0/binutils/cross/x86_64-aarch64/aarch64-linux-gnu/../bin:/opt/cray/pe/cce/20.0.0/utils/x86_64/bin:/opt/cray/pe/cce/20.0.0/bin:/opt/cray/pe/craype/2.7.35/bin:/appl/lumi/SW/system/EB/lumi-tools/26.06/bin:/usr/local/bin:/usr/bin:/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/bin:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/bin:/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/bin:/opt/cray/pe/bin
+PAT_RT_PERFCTR_DISABLE_COMPONENTS=nvml,rocm,rocm_smi,rocp_sdk
+PELOCAL_PRGENV=true
+PERFTOOLS_VERSION=25.09.0
+PE_CRAYCLANG_FIXED_PKGCONFIG_PATH=/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/lib/pkgconfig
+PE_DSMML_MODULE_NAME=cray-dsmml
+PE_DSMML_PKGCONFIG_LIBS=dsmml
+PE_ENV=CRAY
+PE_FORTRAN_PKGCONFIG_LIBS=mpichf90
+PE_LEVEL=20.0
+PE_LIBSCI_GENCOMPILERS_CRAYCLANG_x86_64=20.0
+PE_LIBSCI_GENCOMPS_CRAYCLANG_x86_64=200
+PE_LIBSCI_MODULE_NAME=cray-libsci/25.09.0
+PE_LIBSCI_OMP_REQUIRES=' '
+PE_LIBSCI_OMP_REQUIRES_openmp=_mp
+PE_LIBSCI_PKGCONFIG_LIBS=libsci_mpi:libsci
+PE_LIBSCI_PKGCONFIG_VARIABLES=PE_LIBSCI_OMP_REQUIRES_@openmp@:PE_SCI_EXT_LIBPATH:PE_SCI_EXT_LIBNAME
+PE_LIBSCI_REQUIRED_PRODUCTS=PE_MPICH
+PE_LIBSCI_VOLATILE_PKGCONFIG_PATH=/opt/cray/pe/libsci/25.09.0/@PRGENV@/@PE_LIBSCI_GENCOMPS@/@PE_LIBSCI_TARGET@/lib/pkgconfig
+PE_LIBSCI_VOLATILE_PRGENV=CRAYCLANG
+PE_MPICH_FIXED_PRGENV=CRAYCLANG
+PE_MPICH_FORTRAN_PKGCONFIG_LIBS=mpichf90
+PE_MPICH_GENCOMPILERS_CRAYCLANG=20.0
+PE_MPICH_GTL_DIR_amd_gfx906=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_amd_gfx908=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_amd_gfx90a=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_amd_gfx940=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_amd_gfx942=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_nvidia70=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_nvidia80=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_nvidia90=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_DIR_ponteVecchio=-L/opt/cray/pe/mpich/9.0.1/gtl/lib
+PE_MPICH_GTL_LIBS_amd_gfx906=-lmpi_gtl_hsa
+PE_MPICH_GTL_LIBS_amd_gfx908=-lmpi_gtl_hsa
+PE_MPICH_GTL_LIBS_amd_gfx90a=-lmpi_gtl_hsa
+PE_MPICH_GTL_LIBS_amd_gfx940=-lmpi_gtl_hsa
+PE_MPICH_GTL_LIBS_amd_gfx942=-lmpi_gtl_hsa
+PE_MPICH_GTL_LIBS_nvidia70=-lmpi_gtl_cuda
+PE_MPICH_GTL_LIBS_nvidia80=-lmpi_gtl_cuda
+PE_MPICH_GTL_LIBS_nvidia90=-lmpi_gtl_cuda
+PE_MPICH_GTL_LIBS_ponteVecchio=-lmpi_gtl_ze
+PE_MPICH_MODULE_NAME=cray-mpich
+PE_MPICH_PKGCONFIG_LIBS=mpich
+PE_MPICH_PKGCONFIG_VARIABLES=PE_MPICH_GTL_DIR_@accelerator@:PE_MPICH_GTL_LIBS_@accelerator@
+PE_PERFTOOLS_MPICH_LIBDIR=/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/lib
+PE_PKGCONFIG_LIBS=rocm-6.4.4:mpich:libsci_mpi:libsci:dsmml
+PE_PKGCONFIG_PRODUCTS=PE_XPMEM:PE_MPICH:PE_LIBSCI:PE_DSMML
+PE_PRODUCT_LIST=CRAYPE_X86_TRENTO:CRAYPE:PERFTOOLS:CRAYPAT:CRAY_ACCEL:CRAY_ROCM
+PE_XPMEM_PKGCONFIG_LIBS=cray-xpmem
+PIPESTATUS=([0]="0")
+PIXI_HOME=/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/pixi
+PKGCONFIG_ENABLED=1
+PKG_CONFIG_PATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/share/pkgconfig:/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/pkgconfig:/opt/cray/libfabric/1.22.0/lib64/pkgconfig:/opt/cray/pe/craype/2.7.35/pkg-config:/opt/cray/pe/dsmml/0.3.1/dsmml/lib/pkgconfig
+PPID=84413
+PROFILEREAD=true
+PRTE_MCA_plm_slurm_args=--external-launcher
+PS4='+ '
+PWD=/pfs/lustrep1/projappl/project_465003160/software/grid-env
+ROCM_PATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4
+ROCR_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+SDK_HOME=/usr/lib64/jvm/java-11-openjdk-11
+SHELL=/bin/bash
+SHELLOPTS=braceexpand:errexit:hashall:interactive-comments:nounset:pipefail
+SHLVL=3
+SLURMD_NODENAME=nid005943
+SLURM_CLUSTER_NAME=lumi
+SLURM_CONF=/etc/slurm/slurm.conf
+SLURM_CPUS_ON_NODE=56
+SLURM_CPUS_PER_TASK=7
+SLURM_GPUS_ON_NODE=8
+SLURM_GPUS_PER_NODE=8
+SLURM_GTIDS=0
+SLURM_HINT=nomultithread
+SLURM_JOBID=20033223
+SLURM_JOB_ACCOUNT=project_465003160
+SLURM_JOB_CPUS_PER_NODE='56(x4)'
+SLURM_JOB_END_TIME=1784556883
+SLURM_JOB_GID=327001355
+SLURM_JOB_GPUS=0,1,2,3,4,5,6,7
+SLURM_JOB_ID=20033223
+SLURM_JOB_NAME=benchmark-grid-4
+SLURM_JOB_NODELIST='nid[005943-005946]'
+SLURM_JOB_NUM_NODES=4
+SLURM_JOB_PARTITION=standard-g
+SLURM_JOB_QOS=normal
+SLURM_JOB_START_TIME=1784553283
+SLURM_JOB_UID=327001355
+SLURM_JOB_USER=blackmat
+SLURM_LOCALID=0
+SLURM_NNODES=4
+SLURM_NODEID=0
+SLURM_NODELIST='nid[005943-005946]'
+SLURM_NPROCS=32
+SLURM_NTASKS=32
+SLURM_NTASKS_PER_NODE=8
+SLURM_PRIO_PROCESS=0
+SLURM_PROCID=0
+SLURM_SUBMIT_DIR=/pfs/lustrep1/projappl/project_465003160/software/grid-env
+SLURM_SUBMIT_HOST=uan03
+SLURM_TASKS_PER_NODE='8(x4)'
+SLURM_TASK_PID=84417
+SLURM_THREADS_PER_CORE=1
+SLURM_TOPOLOGY_ADDR=nid005943
+SLURM_TOPOLOGY_ADDR_PATTERN=node
+SLURM_TRES_PER_TASK=cpu=7
+SRUN_CPUS_PER_TASK=7
+SSH_CLIENT='192.41.125.249 44286 22'
+SSH_CONNECTION='192.41.125.249 44286 193.167.209.165 22'
+SSH_TTY=/dev/pts/116
+TERM=xterm-256color
+TERM_PROGRAM=tmux
+TERM_PROGRAM_VERSION=3.4
+TMPDIR=/tmp
+TMUX=/run/tmux/327001355/default,59454,0
+TMUX_PANE=%10
+UID=327001355
+USER=blackmat
+WINDOWMANAGER=xterm
+XDG_CONFIG_DIRS=/etc/xdg
+XDG_DATA_DIRS=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/share:/appl/lumi/SW/system/EB/lumi-tools/26.06/share:/usr/share
+XDG_RUNTIME_DIR=/run/user/327001355
+XDG_SESSION_CLASS=user
+XDG_SESSION_ID=260065
+XDG_SESSION_TYPE=tty
+XKEYSYMDB=/usr/X11R6/lib/X11/XKeysymDB
+XNLSPATH=/usr/X11R6/lib/X11/nls
+_='epoch 1784553287'
+_LMFILES_=/opt/cray/pe/lmod/modulefiles/core/cray-dsmml/0.3.1.lua:/opt/cray/pe/lmod/modulefiles/core/PrgEnv-cray/8.6.0.lua:/appl/lumi/modules/StyleModifiers/ModuleLabel/label.lua:/appl/lumi/modules/easybuild/system/lumi-tools/26.06.lua:/appl/lumi/modules/init-LUMI-SoftwareStack/init-lumi/0.2.lua:/opt/cray/pe/lmod/modulefiles/core/craype/2.7.35.lua:/opt/cray/pe/lmod/modulefiles/core/cce/20.0.0.lua:/opt/cray/pe/lmod/modulefiles/compiler/crayclang/20.0/cray-libsci/25.09.0.lua:/opt/cray/pe/lmod/modulefiles/comnet/crayclang/20.0/ofi/1.0/cray-mpich/9.0.1.lua:/opt/cray/pe/lmod/modulefiles/core/perftools-base/25.09.0.lua:/appl/lumi/modules/SoftwareStack/LUMI/25.09.lua:/opt/cray/pe/lmod/modulefiles/craype-targets/default/craype-x86-trento.lua:/opt/cray/pe/lmod/modulefiles/craype-targets/default/craype-accel-amd-gfx90a.lua:/opt/cray/modulefiles/libfabric/1.22.0:/opt/cray/pe/lmod/modulefiles/craype-targets/default/craype-network-ofi.lua:/opt/cray/modulefiles/xpmem/2.11.5-1.3_g73ade43320bc:/appl/lumi/modules/SystemPartition/LUMI/25.09/partition/G.lua:/appl/lumi/modules/easybuild/LUMI/25.09/partition/G/rocm/6.4.4.lua
+_LUMI_INIT_FIRST_LOAD=1
+_ModuleTable001_=X01vZHVsZVRhYmxlXyA9IHsKTVR2ZXJzaW9uID0gMywKY19yZWJ1aWxkVGltZSA9IGZhbHNlLApjX3Nob3J0VGltZSA9IGZhbHNlLApkZXB0aFQgPSB7fSwKZmFtaWx5ID0gewpMVU1JX1NvZnR3YXJlU3RhY2sgPSAiTFVNSSIsCkxVTUlfcGFydGl0aW9uID0gInBhcnRpdGlvbiIsClByZ0VudiA9ICJQcmdFbnYtY3JheSIsCmNvbXBpbGVyID0gImNjZSIsCmNyYXlwZSA9ICJjcmF5cGUiLApjcmF5cGVfYWNjZWwgPSAiY3JheXBlLWFjY2VsLWFtZC1nZng5MGEiLApjcmF5cGVfY3B1ID0gImNyYXlwZS14ODYtdHJlbnRvIiwKY3JheXBlX25ldHdvcmsgPSAiY3JheXBlLW5ldHdvcmstb2ZpIiwKbGlic2NpID0gImNyYXktbGlic2NpIiwKbXBpID0gImNyYXktbXBpY2giLAp9LApt
+_ModuleTable002_=VCA9IHsKTFVNSSA9IHsKYWN0aW9uQSA9IHsKInByZXBlbmRfcGF0aChcIk1PRFVMRVBBVEhcIixcIi9hcHBsL2x1bWkvbW9kdWxlcy9TeXN0ZW1QYXJ0aXRpb24vTFVNSS8yNS4wOVwiKSIsCn0sCmZuID0gIi9hcHBsL2x1bWkvbW9kdWxlcy9Tb2Z0d2FyZVN0YWNrL0xVTUkvMjUuMDkubHVhIiwKZnVsbE5hbWUgPSAiTFVNSS8yNS4wOSIsCmxvYWRPcmRlciA9IDExLApwcm9wVCA9IHsKbG1vZCA9IHsKc3RpY2t5ID0gMSwKfSwKfSwKc3RhY2tEZXB0aCA9IDAsCnN0YXR1cyA9ICJhY3RpdmUiLAp1c2VyTmFtZSA9ICJMVU1JLzI1LjA5IiwKd1YgPSAiMDAwMDAwMDI1LjAwMDAwMDAwOS4qemZpbmFsIiwKfSwKTW9kdWxlTGFiZWwgPSB7CmZuID0gIi9hcHBsL2x1bWkvbW9kdWxl
+_ModuleTable003_=cy9TdHlsZU1vZGlmaWVycy9Nb2R1bGVMYWJlbC9sYWJlbC5sdWEiLApmdWxsTmFtZSA9ICJNb2R1bGVMYWJlbC9sYWJlbCIsCmxvYWRPcmRlciA9IDMsCnByb3BUID0gewpsbW9kID0gewpzdGlja3kgPSAxLAp9LAp9LApzdGFja0RlcHRoID0gMSwKc3RhdHVzID0gImFjdGl2ZSIsCnVzZXJOYW1lID0gIk1vZHVsZUxhYmVsL2xhYmVsIiwKd1YgPSAic2xhYmVsLip6ZmluYWwiLAp9LApbIlByZ0Vudi1jcmF5Il0gPSB7CmZuID0gIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL2NvcmUvUHJnRW52LWNyYXkvOC42LjAubHVhIiwKZnVsbE5hbWUgPSAiUHJnRW52LWNyYXkvOC42LjAiLApsb2FkT3JkZXIgPSAyLApwcm9wVCA9IHt9LApzdGFja0RlcHRoID0gMCwKc3RhdHVz
+_ModuleTable004_=ID0gImFjdGl2ZSIsCnVzZXJOYW1lID0gIlByZ0Vudi1jcmF5IiwKd1YgPSAiXjAwMDAwMDA4LjAwMDAwMDAwNi4qemZpbmFsIiwKfSwKY2NlID0gewphY3Rpb25BID0gewoKInByZXBlbmRfcGF0aChcIk1PRFVMRVBBVEhcIixcIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL2NvbXBpbGVyL2NyYXljbGFuZy8yMC4wOi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL21peF9jb21waWxlcnNcIikiLCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29tbmV0L2NyYXljbGFuZy8yMC4wL29maS8xLjBcIikiLAp9LApmbiA9ICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jb3JlL2NjZS8yMC4wLjAu
+_ModuleTable005_=bHVhIiwKZnVsbE5hbWUgPSAiY2NlLzIwLjAuMCIsCmxvYWRPcmRlciA9IDcsCnByb3BUID0ge30sCnN0YWNrRGVwdGggPSAwLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAiY2NlIiwKd1YgPSAiczAwMDAwMDIwLip6ZmluYWwiLAp9LApbImNyYXktZHNtbWwiXSA9IHsKZm4gPSAiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29yZS9jcmF5LWRzbW1sLzAuMy4xLmx1YSIsCmZ1bGxOYW1lID0gImNyYXktZHNtbWwvMC4zLjEiLApsb2FkT3JkZXIgPSAxLApwcm9wVCA9IHt9LApzdGFja0RlcHRoID0gMSwKc3RhdHVzID0gImFjdGl2ZSIsCnVzZXJOYW1lID0gImNyYXktZHNtbWwiLAp3ViA9ICJeMDAwMDAwMDAuMDAwMDAwMDAzLjAwMDAwMDAwMS4qemZpbmFs
+_ModuleTable006_=IiwKfSwKWyJjcmF5LWxpYnNjaSJdID0gewpmbiA9ICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jb21waWxlci9jcmF5Y2xhbmcvMjAuMC9jcmF5LWxpYnNjaS8yNS4wOS4wLmx1YSIsCmZ1bGxOYW1lID0gImNyYXktbGlic2NpLzI1LjA5LjAiLApsb2FkT3JkZXIgPSA4LApwcm9wVCA9IHt9LApzdGFja0RlcHRoID0gMCwKc3RhdHVzID0gImFjdGl2ZSIsCnVzZXJOYW1lID0gImNyYXktbGlic2NpIiwKd1YgPSAiczAwMDAwMDI1LjAwMDAwMDAwOS4qemZpbmFsIiwKfSwKWyJjcmF5LW1waWNoIl0gPSB7CmFjdGlvbkEgPSB7CgoicmVtb3ZlX3BhdGgoXCJNT0RVTEVQQVRIXCIsXCIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9tcGkvY3JheWNsYW5nLzE3LjAv
+_ModuleTable007_=b2ZpLzEuMC9jcmF5LW1waWNoLzguMFwiKSIsICJwcmVwZW5kX3BhdGgoXCJNT0RVTEVQQVRIXCIsXCIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9tcGkvY3JheWNsYW5nLzIwLjAvb2ZpLzEuMC9jcmF5LW1waWNoLzguMFwiKSIsCn0sCmZuID0gIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL2NvbW5ldC9jcmF5Y2xhbmcvMjAuMC9vZmkvMS4wL2NyYXktbXBpY2gvOS4wLjEubHVhIiwKZnVsbE5hbWUgPSAiY3JheS1tcGljaC85LjAuMSIsCmxvYWRPcmRlciA9IDksCnByb3BUID0ge30sCnN0YWNrRGVwdGggPSAwLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAiY3JheS1tcGljaCIsCndWID0gInMwMDAwMDAwOS4wMDAwMDAwMDAuMDAwMDAwMDAxLip6
+_ModuleTable008_=ZmluYWwiLAp9LApjcmF5cGUgPSB7CmZuID0gIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL2NvcmUvY3JheXBlLzIuNy4zNS5sdWEiLApmdWxsTmFtZSA9ICJjcmF5cGUvMi43LjM1IiwKbG9hZE9yZGVyID0gNiwKcHJvcFQgPSB7fSwKc3RhY2tEZXB0aCA9IDAsCnN0YXR1cyA9ICJhY3RpdmUiLAp1c2VyTmFtZSA9ICJjcmF5cGUiLAp3ViA9ICJzMDAwMDAwMDIuMDAwMDAwMDA3LjAwMDAwMDAzNS4qemZpbmFsIiwKfSwKWyJjcmF5cGUtYWNjZWwtYW1kLWdmeDkwYSJdID0gewpmbiA9ICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jcmF5cGUtdGFyZ2V0cy9kZWZhdWx0L2NyYXlwZS1hY2NlbC1hbWQtZ2Z4OTBhLmx1YSIsCmZ1bGxOYW1lID0gImNyYXlwZS1h
+_ModuleTable009_=Y2NlbC1hbWQtZ2Z4OTBhIiwKbG9hZE9yZGVyID0gMTMsCnByb3BUID0ge30sCnN0YWNrRGVwdGggPSAxLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAiY3JheXBlLWFjY2VsLWFtZC1nZng5MGEiLAp3ViA9ICJNLip6ZmluYWwiLAp9LApbImNyYXlwZS1uZXR3b3JrLW9maSJdID0gewphY3Rpb25BID0gewoicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvbmV0L29maS8xLjBcIikiLCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29tbmV0L2NyYXljbGFuZy8yMC4wL29maS8xLjBcIikiLAp9LApmbiA9ICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1
+_ModuleTable010_=bGVmaWxlcy9jcmF5cGUtdGFyZ2V0cy9kZWZhdWx0L2NyYXlwZS1uZXR3b3JrLW9maS5sdWEiLApmdWxsTmFtZSA9ICJjcmF5cGUtbmV0d29yay1vZmkiLApsb2FkT3JkZXIgPSAxNSwKcHJvcFQgPSB7fSwKc3RhY2tEZXB0aCA9IDEsCnN0YXR1cyA9ICJhY3RpdmUiLAp1c2VyTmFtZSA9ICJjcmF5cGUtbmV0d29yay1vZmkiLAp3ViA9ICJNLip6ZmluYWwiLAp9LApbImNyYXlwZS14ODYtdHJlbnRvIl0gPSB7CmFjdGlvbkEgPSB7CiJwcmVwZW5kX3BhdGgoXCJNT0RVTEVQQVRIXCIsXCIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jcHUveDg2LXRyZW50by8xLjBcIikiLAp9LApmbiA9ICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jcmF5cGUtdGFyZ2V0cy9k
+_ModuleTable011_=ZWZhdWx0L2NyYXlwZS14ODYtdHJlbnRvLmx1YSIsCmZ1bGxOYW1lID0gImNyYXlwZS14ODYtdHJlbnRvIiwKbG9hZE9yZGVyID0gMTIsCnByb3BUID0ge30sCnN0YWNrRGVwdGggPSAxLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAiY3JheXBlLXg4Ni10cmVudG8iLAp3ViA9ICJNLip6ZmluYWwiLAp9LApbImluaXQtbHVtaSJdID0gewphY3Rpb25BID0gewoicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL2FwcGwvbHVtaS9tb2R1bGVzL2Vhc3lidWlsZC9zeXN0ZW1cIikiLAp9LApmbiA9ICIvYXBwbC9sdW1pL21vZHVsZXMvaW5pdC1MVU1JLVNvZnR3YXJlU3RhY2svaW5pdC1sdW1pLzAuMi5sdWEiLApmdWxsTmFtZSA9ICJpbml0LWx1bWkvMC4yIiwKbG9h
+_ModuleTable012_=ZE9yZGVyID0gNSwKcHJvcFQgPSB7Cmxtb2QgPSB7CnN0aWNreSA9IDEsCn0sCn0sCnN0YWNrRGVwdGggPSAwLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAiaW5pdC1sdW1pIiwKd1YgPSAiMDAwMDAwMDAwLjAwMDAwMDAwMi4qemZpbmFsIiwKfSwKbGliZmFicmljID0gewpmbiA9ICIvb3B0L2NyYXkvbW9kdWxlZmlsZXMvbGliZmFicmljLzEuMjIuMCIsCmZ1bGxOYW1lID0gImxpYmZhYnJpYy8xLjIyLjAiLApsb2FkT3JkZXIgPSAxNCwKcHJvcFQgPSB7fSwKc3RhY2tEZXB0aCA9IDIsCnN0YXR1cyA9ICJhY3RpdmUiLAp1c2VyTmFtZSA9ICJsaWJmYWJyaWMiLAp3ViA9ICJeMDAwMDAwMDEuMDAwMDAwMDIyLip6ZmluYWwiLAp9LApbImx1bWktdG9vbHMiXSA9IHsK
+_ModuleTable013_=Zm4gPSAiL2FwcGwvbHVtaS9tb2R1bGVzL2Vhc3lidWlsZC9zeXN0ZW0vbHVtaS10b29scy8yNi4wNi5sdWEiLApmdWxsTmFtZSA9ICJsdW1pLXRvb2xzLzI2LjA2IiwKbG9hZE9yZGVyID0gNCwKcHJvcFQgPSB7Cmxtb2QgPSB7CnN0aWNreSA9IDEsCn0sCn0sCnN0YWNrRGVwdGggPSAxLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAibHVtaS10b29scyIsCndWID0gIjAwMDAwMDAyNi4wMDAwMDAwMDYuKnpmaW5hbCIsCn0sCnBhcnRpdGlvbiA9IHsKYWN0aW9uQSA9IHsKInByZXBlbmRfcGF0aChcIk1PRFVMRVBBVEhcIixcIi9vcHQvbW9kdWxlZmlsZXNcIikiCiwgInByZXBlbmRfcGF0aChcIk1PRFVMRVBBVEhcIixcIi9vcHQvY3JheS9tb2R1bGVmaWxlc1wiKSIK
+_ModuleTable014_=LCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY3JheXBlLXRhcmdldHMvZGVmYXVsdFwiKSIKLCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29yZVwiKSIKLCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL2FwcGwvbHVtaS9tb2R1bGVzL0luZnJhc3RydWN0dXJlL0xVTUkvMjUuMDkvcGFydGl0aW9uL0dcIikiCiwgInByZXBlbmRfcGF0aChcIk1PRFVMRVBBVEhcIixcIi9hcHBsL2x1bWkvbW9kdWxlcy9lYXN5YnVpbGQvY29udGFpbmVyXCIpIgosICJwcmVwZW5kX3BhdGgoXCJNT0RVTEVQQVRIXCIsXCIvYXBwbC9sdW1pL21vZHVsZXMv
+_ModuleTable015_=ZWFzeWJ1aWxkL3N5c3RlbVwiKSIKLCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL2FwcGwvbHVtaS9tb2R1bGVzL2Vhc3lidWlsZC9MVU1JLzI1LjA5L3BhcnRpdGlvbi9jb21tb25cIikiLCAicHJlcGVuZF9wYXRoKFwiTU9EVUxFUEFUSFwiLFwiL2FwcGwvbHVtaS9tb2R1bGVzL2Vhc3lidWlsZC9MVU1JLzI1LjA5L3BhcnRpdGlvbi9HXCIpIiwKfSwKZm4gPSAiL2FwcGwvbHVtaS9tb2R1bGVzL1N5c3RlbVBhcnRpdGlvbi9MVU1JLzI1LjA5L3BhcnRpdGlvbi9HLmx1YSIsCmZ1bGxOYW1lID0gInBhcnRpdGlvbi9HIiwKbG9hZE9yZGVyID0gMTcsCnByb3BUID0gewpsbW9kID0gewpzdGlja3kgPSAxLAp9LAp9LApzdGFja0RlcHRoID0gMCwKc3RhdHVzID0gImFj
+_ModuleTable016_=dGl2ZSIsCnVzZXJOYW1lID0gInBhcnRpdGlvbi9HIiwKd1YgPSAiKmcuKnpmaW5hbCIsCn0sClsicGVyZnRvb2xzLWJhc2UiXSA9IHsKYWN0aW9uQSA9IHsKInByZXBlbmRfcGF0aChcIk1PRFVMRVBBVEhcIixcIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL3BlcmZ0b29scy8yNS4wOS4wXCIpIiwKfSwKZm4gPSAiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29yZS9wZXJmdG9vbHMtYmFzZS8yNS4wOS4wLmx1YSIsCmZ1bGxOYW1lID0gInBlcmZ0b29scy1iYXNlLzI1LjA5LjAiLApsb2FkT3JkZXIgPSAxMCwKcHJvcFQgPSB7fSwKc3RhY2tEZXB0aCA9IDAsCnN0YXR1cyA9ICJhY3RpdmUiLAp1c2VyTmFtZSA9ICJwZXJmdG9vbHMtYmFzZSIsCndWID0gInMw
+_ModuleTable017_=MDAwMDAyNS4wMDAwMDAwMDkuKnpmaW5hbCIsCn0sCnJvY20gPSB7CmZuID0gIi9hcHBsL2x1bWkvbW9kdWxlcy9lYXN5YnVpbGQvTFVNSS8yNS4wOS9wYXJ0aXRpb24vRy9yb2NtLzYuNC40Lmx1YSIsCmZ1bGxOYW1lID0gInJvY20vNi40LjQiLApsb2FkT3JkZXIgPSAxOCwKcHJvcFQgPSB7fSwKc3RhY2tEZXB0aCA9IDAsCnN0YXR1cyA9ICJhY3RpdmUiLAp1c2VyTmFtZSA9ICJyb2NtLzYuNC40IiwKd1YgPSAiczAwMDAwMDA2LjAwMDAwMDAwNC4wMDAwMDAwMDQuKnpmaW5hbCIsCn0sCnhwbWVtID0gewpmbiA9ICIvb3B0L2NyYXkvbW9kdWxlZmlsZXMveHBtZW0vMi4xMS41LTEuM19nNzNhZGU0MzMyMGJjIiwKZnVsbE5hbWUgPSAieHBtZW0vMi4xMS41LTEuM19nNzNhZGU0
+_ModuleTable018_=MzMyMGJjIiwKbG9hZE9yZGVyID0gMTYsCnByb3BUID0ge30sCnN0YWNrRGVwdGggPSAxLApzdGF0dXMgPSAiYWN0aXZlIiwKdXNlck5hbWUgPSAieHBtZW0iLAp3ViA9ICIwMDAwMDAwMDIuMDAwMDAwMDExLjAwMDAwMDAwNS4qemZpbmFsLS4wMDAwMDAwMDEuMDAwMDAwMDAzLipfLipnLjAwMDAwMDA3My4qYWRlLjAwMDA0MzMyMC4qYmMuKnpmaW5hbCIsCn0sCn0sCm1wYXRoQSA9IHsKIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL2NvbW5ldC9jcmF5Y2xhbmcvMjAuMC9vZmkvMS4wIgosICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9uZXQvb2ZpLzEuMCIKLCAiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY3B1L3g4Ni10cmVudG8vMS4wIgosICIv
+_ModuleTable019_=YXBwbC9sdW1pL21vZHVsZXMvZWFzeWJ1aWxkL0xVTUkvMjUuMDkvcGFydGl0aW9uL0ciCiwgIi9hcHBsL2x1bWkvbW9kdWxlcy9lYXN5YnVpbGQvTFVNSS8yNS4wOS9wYXJ0aXRpb24vY29tbW9uIgosICIvYXBwbC9sdW1pL21vZHVsZXMvZWFzeWJ1aWxkL3N5c3RlbSIKLCAiL2FwcGwvbHVtaS9tb2R1bGVzL2Vhc3lidWlsZC9jb250YWluZXIiCiwgIi9hcHBsL2x1bWkvbW9kdWxlcy9JbmZyYXN0cnVjdHVyZS9MVU1JLzI1LjA5L3BhcnRpdGlvbi9HIgosICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jb3JlIgosICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jcmF5cGUtdGFyZ2V0cy9kZWZhdWx0IgosICIvb3B0L2NyYXkvbW9kdWxlZmlsZXMiLCAiL29w
+_ModuleTable020_=dC9tb2R1bGVmaWxlcyIKLCAiL2FwcGwvbHVtaS9tb2R1bGVzL1N5c3RlbVBhcnRpdGlvbi9MVU1JLzI1LjA5IgosICIvYXBwbC9sdW1pL21vZHVsZXMvZWFzeWJ1aWxkL0NyYXlFbnYiCiwgIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL3BlcmZ0b29scy8yNS4wOS4wIgosICIvb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9tcGkvY3JheWNsYW5nLzIwLjAvb2ZpLzEuMC9jcmF5LW1waWNoLzguMCIKLCAiL29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29tcGlsZXIvY3JheWNsYW5nLzIwLjAiCiwgIi9vcHQvY3JheS9wZS9sbW9kL21vZHVsZWZpbGVzL21peF9jb21waWxlcnMiCiwgIi9vcHQvY3JheS9wZS9tb2R1bGVmaWxlcy9MaW51eCIsICIvb3B0L2Ny
+_ModuleTable021_=YXkvcGUvbW9kdWxlZmlsZXMvQ29yZSIKLCAiL29wdC9jcmF5L3BlL2xtb2QvbG1vZC9tb2R1bGVmaWxlcy9Db3JlIiwgIi9hcHBsL2x1bWkvbW9kdWxlcy9Tb2Z0d2FyZVN0YWNrIgosICIvYXBwbC9sdW1pL21vZHVsZXMvU3R5bGVNb2RpZmllcnMiLCAiL2FwcGwvbHVtaS9tb2R1bGVzL2luaXQtTFVNSS1Tb2Z0d2FyZVN0YWNrIiwKfSwKc3lzdGVtQmFzZU1QQVRIID0gIi9vcHQvY3JheS9wZS9tb2R1bGVmaWxlcy9MaW51eDovb3B0L2NyYXkvcGUvbW9kdWxlZmlsZXMvQ29yZTovb3B0L2NyYXkvcGUvbG1vZC9sbW9kL21vZHVsZWZpbGVzL0NvcmU6L29wdC9jcmF5L3BlL2xtb2QvbW9kdWxlZmlsZXMvY29yZTovb3B0L2NyYXkvcGUvbG1vZC9tb2R1bGVmaWxlcy9jcmF5cGUt
+_ModuleTable022_=dGFyZ2V0cy9kZWZhdWx0Oi9hcHBsL2x1bWkvbW9kdWxlcy9Tb2Z0d2FyZVN0YWNrOi9hcHBsL2x1bWkvbW9kdWxlcy9TdHlsZU1vZGlmaWVyczovYXBwbC9sdW1pL21vZHVsZXMvaW5pdC1MVU1JLVNvZnR3YXJlU3RhY2s6L29wdC9jcmF5L21vZHVsZWZpbGVzIiwKfQo=
+_ModuleTable_Sz_=22
+__LMOD_REF_COUNT_CMAKE_PREFIX_PATH='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4:1;/appl/lumi/SW/system/EB/lumi-tools/26.06:1'
+__LMOD_REF_COUNT_CPATH=/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/include:1
+__LMOD_REF_COUNT_CRAY_LD_LIBRARY_PATH='/opt/cray/pe/perftools/25.09.0/lib64:1;/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/lib:1;/opt/cray/pe/mpich/9.0.1/gtl/lib:1;/opt/cray/pe/libsci/25.09.0/CRAYCLANG/20.0/x86_64/lib:1;/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/lib:1;/opt/cray/pe/cce/20.0.0/cce/x86_64/lib:1;/opt/cray/pe/dsmml/0.3.1/dsmml/lib:1'
+__LMOD_REF_COUNT_INCLUDE_PATH_AARCH64=/opt/cray/pe/cce/20.0.0/cce/aarch64/include/craylibs:1
+__LMOD_REF_COUNT_INCLUDE_PATH_X86_64='/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/lib/clang/20/include:1;/opt/cray/pe/cce/20.0.0/cce/x86_64/include/craylibs:1'
+__LMOD_REF_COUNT_LD_LIBRARY_PATH='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler-systems:1;/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/roctracer:1;/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/rocprofiler:1;/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib:1;/opt/cray/libfabric/1.22.0/lib64:1;/opt/rocm-6.4.4/lib/llvm/lib:2;/opt/cray/pe/papi/7.2.0.2/lib64:1;/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:6;/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/lib:3;/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/lib:3'
+__LMOD_REF_COUNT_LIBRARY_PATH='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib:1;:1;/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/lib:6;/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/lib:3;/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/lib:3'
+__LMOD_REF_COUNT_LMOD_MODULERCFILE='/appl/lumi/mgmt/LMOD/ModuleRC/LUMIstack_25.09_modulerc.lua:1;/appl/lumi/LUMI-SoftwareStack/LMOD/LUMIstack_modulerc.lua:1;/appl/lumi/LUMI-SoftwareStack/LMOD/CrayEnv_modulerc.lua:1;/appl/lumi/LUMI-SoftwareStack/LMOD/modulerc.lua:1'
+__LMOD_REF_COUNT_MANPATH='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/share/man:1;/opt/cray/libfabric/1.22.0/share/man:1;/opt/cray/pe/perftools/25.09.0/man:1;/opt/cray/pe/papi/7.2.0.2/share/pdoc/man:1;/opt/cray/pe/mpich/9.0.1/ofi/man:1;/opt/cray/pe/mpich/9.0.1/man/mpich:1;/opt/cray/pe/libsci/25.09.0/share/man:1;/opt/cray/pe/cce/20.0.0/cce-clang/x86_64/share/man:1;/opt/cray/pe/cce/20.0.0/man:1;/opt/cray/pe/craype/2.7.35/man:1;/appl/lumi/SW/system/EB/lumi-tools/26.06/share/man:1;/opt/cray/pe/dsmml/0.3.1/dsmml/man:1;/opt/cray/pe/lmod/lmod/share/man:1;/usr/local/man:1;/usr/share/man:1'
+__LMOD_REF_COUNT_MODULEPATH='/opt/cray/pe/lmod/modulefiles/comnet/crayclang/20.0/ofi/1.0:1;/opt/cray/pe/lmod/modulefiles/net/ofi/1.0:1;/opt/cray/pe/lmod/modulefiles/cpu/x86-trento/1.0:1;/appl/lumi/modules/easybuild/LUMI/25.09/partition/G:1;/appl/lumi/modules/easybuild/LUMI/25.09/partition/common:1;/appl/lumi/modules/easybuild/system:2;/appl/lumi/modules/easybuild/container:2;/appl/lumi/modules/Infrastructure/LUMI/25.09/partition/G:1;/opt/cray/pe/lmod/modulefiles/core:2;/opt/cray/pe/lmod/modulefiles/craype-targets/default:2;/opt/cray/modulefiles:2;/opt/modulefiles:1;/appl/lumi/modules/SystemPartition/LUMI/25.09:1;/appl/lumi/modules/easybuild/CrayEnv:1;/opt/cray/pe/lmod/modulefiles/perftools/25.09.0:1;/opt/cray/pe/lmod/modulefiles/mpi/crayclang/20.0/ofi/1.0/cray-mpich/8.0:1;/opt/cray/pe/lmod/modulefiles/compiler/crayclang/20.0:1;/opt/cray/pe/lmod/modulefiles/mix_compilers:1;/opt/cray/pe/modulefiles/Linux:1;/opt/cray/pe/modulefiles/Core:1;/opt/cray/pe/lmod/lmod/modulefiles/Core:1;/appl/lumi/modules/SoftwareStack:1;/appl/lumi/modules/StyleModifiers:1;/appl/lumi/modules/init-LUMI-SoftwareStack:1'
+__LMOD_REF_COUNT_PATH='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/bin:1;/opt/cray/libfabric/1.22.0/bin:1;/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/pixi/bin:3;/opt/cray/pe/perftools/25.09.0/bin:1;/opt/cray/pe/papi/7.2.0.2/bin:1;/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/bin:1;/opt/cray/pe/mpich/9.0.1/bin:1;/opt/cray/pe/cce/20.0.0/binutils/x86_64/x86_64-pc-linux-gnu/bin:1;/opt/cray/pe/cce/20.0.0/binutils/cross/x86_64-aarch64/aarch64-linux-gnu/../bin:1;/opt/cray/pe/cce/20.0.0/utils/x86_64/bin:1;/opt/cray/pe/cce/20.0.0/bin:1;/opt/cray/pe/craype/2.7.35/bin:1;/appl/lumi/SW/system/EB/lumi-tools/26.06/bin:1;/usr/local/bin:1;/usr/bin:1;/bin:1;/usr/lib/mit/bin:1;/usr/lib/mit/sbin:1;/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/lime/bin:6;/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/default/bin:3;/pfs/lustrep1/projappl/project_465003160/software/grid-env/.pixi/envs/gpu-amd/bin:3;/opt/cray/pe/bin:1'
+__LMOD_REF_COUNT_PE_CRAYCLANG_FIXED_PKGCONFIG_PATH=/opt/cray/pe/mpich/9.0.1/ofi/crayclang/20.0/lib/pkgconfig:1
+__LMOD_REF_COUNT_PE_DSMML_PKGCONFIG_LIBS=dsmml:1
+__LMOD_REF_COUNT_PE_FORTRAN_PKGCONFIG_LIBS=mpichf90:1
+__LMOD_REF_COUNT_PE_LIBSCI_REQUIRED_PRODUCTS=PE_MPICH:1
+__LMOD_REF_COUNT_PE_MPICH_FIXED_PRGENV=CRAYCLANG:1
+__LMOD_REF_COUNT_PE_MPICH_FORTRAN_PKGCONFIG_LIBS=mpichf90:1
+__LMOD_REF_COUNT_PE_MPICH_GENCOMPILERS_CRAYCLANG=20.0:1
+__LMOD_REF_COUNT_PE_MPICH_PKGCONFIG_LIBS=mpich:1
+__LMOD_REF_COUNT_PE_PKGCONFIG_LIBS='rocm-6.4.4:1;mpich:1;libsci_mpi:1;libsci:1;dsmml:1'
+__LMOD_REF_COUNT_PE_PKGCONFIG_PRODUCTS='PE_XPMEM:1;PE_MPICH:1;PE_LIBSCI:1;PE_DSMML:1'
+__LMOD_REF_COUNT_PE_PRODUCT_LIST='CRAYPE_X86_TRENTO:1;CRAYPE:1;PERFTOOLS:1;CRAYPAT:1;CRAY_ACCEL:1;CRAY_ROCM:1'
+__LMOD_REF_COUNT_PKG_CONFIG_PATH='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/share/pkgconfig:1;/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/lib/pkgconfig:1;/opt/cray/libfabric/1.22.0/lib64/pkgconfig:1;/opt/cray/pe/craype/2.7.35/pkg-config:1;/opt/cray/pe/dsmml/0.3.1/dsmml/lib/pkgconfig:1'
+__LMOD_REF_COUNT_XDG_DATA_DIRS='/appl/lumi/SW/LUMI-25.09/G/EB/rocm/6.4.4/share:1;/appl/lumi/SW/system/EB/lumi-tools/26.06/share:1;/usr/share:1'
+__LMOD_STACK_LMOD_AVAIL_STYLE=PGxhYmVsPjpQRWhpZXJhcmNoeTpzeXN0ZW0=
+__lmod_my_status=0
+__script_dir__=/pfs/lustrep1/projappl/project_465003160/software/grid-env
+app=/pfs/lustrep1/projappl/project_465003160/software/grid-env/prefix/gridbench_gpu/bin/Benchmark_Grid
+cfg=gpu
+entry=$'{\n  "name": "gpu",\n  "env-script": "env-gpu.sh",\n  "commit": "6165931afaa53a9885b6183ff762fc2477f30b51",\n  "config-options": "--enable-comms=mpi --enable-simd=GPU --enable-alloc-align=4k --enable-shm=nvlink --enable-gen-simd-width=64 --enable-accelerator=hip --disable-unified",\n  "env": {\n    "CXX": "hipcc",\n    "MPICXX": "mpicxx",\n    "LDFLAGS": "-L/opt/cray/pe/mpich/9.0.1/ofi/gnu/12.3/lib -lmpi -L/opt/cray/pe/mpich/9.0.1/gtl/lib -lmpi_gtl_hsa -lamdhip64 -fopenmp",\n    "CXXFLAGS": "-fPIC -fopenmp --offload-arch=gfx90a -I${ROCM_PATH}/include/ -I/opt/cray/pe/mpich/9.0.1/ofi/gnu/12.3/include"\n  },\n  "pixi-env": "gpu-amd"\n}'
+env=gpu-amd
+env_cfg=/users/blackmat/.config/grid-benchmark/grid-env
+env_dir=/pfs/lustrep1/projappl/project_465003160/software/grid-env
+env_script=env-gpu.sh
+job_info_dir=job/benchmark-grid-4.20033223
+pixi_env=gpu-amd
+clearLmod () 
+{ 
+    module --force purge;
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full "$@")
+}
+clearMT () 
+{ 
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --simple)
+}
+ml () 
+{ 
+    eval "$($LMOD_DIR/ml_cmd "$@")"
+}
+module () 
+{ 
+    if [ -z "${LMOD_SH_DBG_ON+x}" ]; then
+        case "$-" in 
+            *v*x*)
+                __lmod_sh_dbg='vx'
+            ;;
+            *v*)
+                __lmod_sh_dbg='v'
+            ;;
+            *x*)
+                __lmod_sh_dbg='x'
+            ;;
+        esac;
+    fi;
+    if [ -n "${__lmod_sh_dbg:-}" ]; then
+        set +$__lmod_sh_dbg;
+        echo "Shell debugging temporarily silenced: export LMOD_SH_DBG_ON=1 for Lmod's output" 1>&2;
+    fi;
+    eval "$($LMOD_CMD shell "$@")" && eval "$(${LMOD_SETTARG_CMD:-:} -s sh)";
+    __lmod_my_status=$?;
+    if [ -n "${__lmod_sh_dbg:-}" ]; then
+        echo "Shell debugging restarted" 1>&2;
+        set -$__lmod_sh_dbg;
+    fi;
+    unset __lmod_sh_dbg;
+    return $__lmod_my_status
+}
+xSetTitleLmod () 
+{ 
+    builtin echo -n -e "\033]2;$1\007"
+}
