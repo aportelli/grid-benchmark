@@ -1,0 +1,887 @@
+{
+  "SU4": [
+    {
+      "GBps": 645.718804607084,
+      "GFlops": 866.6691088123874,
+      "L": 8,
+      "size_MB": 6.0
+    },
+    {
+      "GBps": 7972.064311922271,
+      "GFlops": 10699.923594160906,
+      "L": 16,
+      "size_MB": 96.0
+    },
+    {
+      "GBps": 10357.985623286457,
+      "GFlops": 13902.25297014172,
+      "L": 24,
+      "size_MB": 486.0
+    },
+    {
+      "GBps": 12248.08264582779,
+      "GFlops": 16439.098250792347,
+      "L": 32,
+      "size_MB": 1536.0
+    },
+    {
+      "GBps": 12936.075996754276,
+      "GFlops": 17362.50729519694,
+      "L": 40,
+      "size_MB": 3750.0
+    },
+    {
+      "GBps": 13158.578743534426,
+      "GFlops": 17661.145426662853,
+      "L": 48,
+      "size_MB": 7776.0
+    }
+  ],
+  "axpy": [
+    {
+      "GBps": 323.9467949783927,
+      "GFlops": 28.986268543254454,
+      "L": 8,
+      "size_MB": 3.0
+    },
+    {
+      "GBps": 4478.714907402569,
+      "GFlops": 400.74862615420216,
+      "L": 16,
+      "size_MB": 48.0
+    },
+    {
+      "GBps": 8482.03765670657,
+      "GFlops": 758.9598820623999,
+      "L": 24,
+      "size_MB": 243.0
+    },
+    {
+      "GBps": 10889.193383000154,
+      "GFlops": 974.3485304126096,
+      "L": 32,
+      "size_MB": 768.0
+    },
+    {
+      "GBps": 11750.958243057406,
+      "GFlops": 1051.4579448040247,
+      "L": 40,
+      "size_MB": 1875.0
+    },
+    {
+      "GBps": 12041.796582271703,
+      "GFlops": 1077.481718873782,
+      "L": 48,
+      "size_MB": 3888.0
+    },
+    {
+      "GBps": 12154.689212363519,
+      "GFlops": 1087.583180419694,
+      "L": 56,
+      "size_MB": 7203.0
+    },
+    {
+      "GBps": 12227.118730417506,
+      "GFlops": 1094.064063988588,
+      "L": 64,
+      "size_MB": 12288.0
+    }
+  ],
+  "comms": [
+    {
+      "L": 16,
+      "bytes": 4718592,
+      "dir": 1,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.0921632117972028,
+        "max": 169.02043269230768,
+        "mean": 166.8466138294338
+      },
+      "shared_mem": false,
+      "time_usec": 210.71
+    },
+    {
+      "L": 16,
+      "bytes": 4718592,
+      "dir": 2,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.07857212271446004,
+        "max": 168.21172248803828,
+        "mean": 166.64099161018154
+      },
+      "shared_mem": false,
+      "time_usec": 210.97
+    },
+    {
+      "L": 16,
+      "bytes": 4718592,
+      "dir": 3,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.07753815603622241,
+        "max": 173.18349753694577,
+        "mean": 171.59434791097226
+      },
+      "shared_mem": false,
+      "time_usec": 204.88
+    },
+    {
+      "L": 16,
+      "bytes": 4718592,
+      "dir": 5,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.09786774825759983,
+        "max": 169.83695652173913,
+        "mean": 167.94654373477283
+      },
+      "shared_mem": false,
+      "time_usec": 209.33
+    },
+    {
+      "L": 16,
+      "bytes": 4718592,
+      "dir": 6,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.060242333706081334,
+        "max": 169.02043269230768,
+        "mean": 167.67020388696793
+      },
+      "shared_mem": false,
+      "time_usec": 209.675
+    },
+    {
+      "L": 16,
+      "bytes": 4718592,
+      "dir": 7,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.06266087920116145,
+        "max": 174.04084158415841,
+        "mean": 172.33033504080782
+      },
+      "shared_mem": false,
+      "time_usec": 204.005
+    },
+    {
+      "L": 24,
+      "bytes": 15925248,
+      "dir": 1,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.021150072384115093,
+        "max": 178.69328878012047,
+        "mean": 178.38031728969503
+      },
+      "shared_mem": false,
+      "time_usec": 665.165
+    },
+    {
+      "L": 24,
+      "bytes": 15925248,
+      "dir": 2,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.027018947475486665,
+        "max": 178.69328878012047,
+        "mean": 178.24900849539176
+      },
+      "shared_mem": false,
+      "time_usec": 665.655
+    },
+    {
+      "L": 24,
+      "bytes": 15925248,
+      "dir": 3,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.037451061880784085,
+        "max": 180.3227108662614,
+        "mean": 179.58444956523712
+      },
+      "shared_mem": false,
+      "time_usec": 660.705
+    },
+    {
+      "L": 24,
+      "bytes": 15925248,
+      "dir": 5,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.09817184227781332,
+        "max": 178.69328878012047,
+        "mean": 178.0283635667987
+      },
+      "shared_mem": false,
+      "time_usec": 666.48
+    },
+    {
+      "L": 24,
+      "bytes": 15925248,
+      "dir": 6,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.018026384561394573,
+        "max": 179.23314765861028,
+        "mean": 178.78214135036993
+      },
+      "shared_mem": false,
+      "time_usec": 663.67
+    },
+    {
+      "L": 24,
+      "bytes": 15925248,
+      "dir": 7,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.02572444301858904,
+        "max": 180.3227108662614,
+        "mean": 179.72317837911524
+      },
+      "shared_mem": false,
+      "time_usec": 660.195
+    },
+    {
+      "L": 32,
+      "bytes": 37748736,
+      "dir": 1,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.09754447324591524,
+        "max": 181.68604651162795,
+        "mean": 181.46858899703523
+      },
+      "shared_mem": false,
+      "time_usec": 1549.855
+    },
+    {
+      "L": 32,
+      "bytes": 37748736,
+      "dir": 2,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.006370657059312547,
+        "max": 181.80349062702004,
+        "mean": 181.6338326514665
+      },
+      "shared_mem": false,
+      "time_usec": 1548.445
+    },
+    {
+      "L": 32,
+      "bytes": 37748736,
+      "dir": 3,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.015781088223745222,
+        "max": 182.15673575129534,
+        "mean": 181.88520375993093
+      },
+      "shared_mem": false,
+      "time_usec": 1546.305
+    },
+    {
+      "L": 32,
+      "bytes": 37748736,
+      "dir": 5,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.012352505511350764,
+        "max": 181.6860465116279,
+        "mean": 181.4059688207483
+      },
+      "shared_mem": false,
+      "time_usec": 1550.39
+    },
+    {
+      "L": 32,
+      "bytes": 37748736,
+      "dir": 6,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.010574615675379026,
+        "max": 181.80349062702004,
+        "mean": 181.55703311600286
+      },
+      "shared_mem": false,
+      "time_usec": 1549.1
+    },
+    {
+      "L": 32,
+      "bytes": 37748736,
+      "dir": 7,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.014695278894034757,
+        "max": 182.15673575129534,
+        "mean": 181.8869681625051
+      },
+      "shared_mem": false,
+      "time_usec": 1546.29
+    },
+    {
+      "L": 40,
+      "bytes": 73728000,
+      "dir": 1,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.030267850366926027,
+        "max": 182.80080074875207,
+        "mean": 182.652490573378
+      },
+      "shared_mem": false,
+      "time_usec": 3007.44
+    },
+    {
+      "L": 40,
+      "bytes": 73728000,
+      "dir": 2,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.006768876376322446,
+        "max": 182.8616532123835,
+        "mean": 182.69896355608768
+      },
+      "shared_mem": false,
+      "time_usec": 3006.675
+    },
+    {
+      "L": 40,
+      "bytes": 73728000,
+      "dir": 3,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.0073935291418584445,
+        "max": 182.80080074875207,
+        "mean": 182.67405352692057
+      },
+      "shared_mem": false,
+      "time_usec": 3007.085
+    },
+    {
+      "L": 40,
+      "bytes": 73728000,
+      "dir": 5,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.004175907552807457,
+        "max": 182.80080074875207,
+        "mean": 182.69136831515232
+      },
+      "shared_mem": false,
+      "time_usec": 3006.8
+    },
+    {
+      "L": 40,
+      "bytes": 73728000,
+      "dir": 6,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.007268140570278827,
+        "max": 182.8616532123835,
+        "mean": 182.68590013269525
+      },
+      "shared_mem": false,
+      "time_usec": 3006.89
+    },
+    {
+      "L": 40,
+      "bytes": 73728000,
+      "dir": 7,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.0073410064601872015,
+        "max": 182.8616532123835,
+        "mean": 182.69987502743908
+      },
+      "shared_mem": false,
+      "time_usec": 3006.66
+    },
+    {
+      "L": 48,
+      "bytes": 127401984,
+      "dir": 1,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.04082281127298879,
+        "max": 183.24686293436292,
+        "mean": 183.1245442233566
+      },
+      "shared_mem": false,
+      "time_usec": 5183.46
+    },
+    {
+      "L": 48,
+      "bytes": 127401984,
+      "dir": 2,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.005907763351991504,
+        "max": 183.24686293436292,
+        "mean": 183.1819712514968
+      },
+      "shared_mem": false,
+      "time_usec": 5181.835
+    },
+    {
+      "L": 48,
+      "bytes": 127401984,
+      "dir": 3,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.005715202930340385,
+        "max": 183.14079683580937,
+        "mean": 183.03785349354936
+      },
+      "shared_mem": false,
+      "time_usec": 5185.915
+    },
+    {
+      "L": 48,
+      "bytes": 127401984,
+      "dir": 5,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.003631164598994875,
+        "max": 183.24686293436292,
+        "mean": 183.17649204263228
+      },
+      "shared_mem": false,
+      "time_usec": 5181.99
+    },
+    {
+      "L": 48,
+      "bytes": 127401984,
+      "dir": 6,
+      "partial_shared_mem": true,
+      "rate_GBps": {
+        "error": 0.0043303195100524985,
+        "max": 183.28224560726008,
+        "mean": 183.19628944133183
+      },
+      "shared_mem": false,
+      "time_usec": 5181.43
+    },
+    {
+      "L": 48,
+      "bytes": 127401984,
+      "dir": 7,
+      "partial_shared_mem": false,
+      "rate_GBps": {
+        "error": 0.003973710454232934,
+        "max": 183.10546875,
+        "mean": 183.0456187646979
+      },
+      "shared_mem": false,
+      "time_usec": 5185.695
+    }
+  ],
+  "flops": {
+    "comparison_point_Gflops": 12894.965831920406,
+    "results": [
+      {
+        "Gflops_dwf4": 1010.8689824024484,
+        "Gflops_dwf4_sp4_2as": 2206.740048212441,
+        "Gflops_dwf4_sp4_fund": 1590.2909381977504,
+        "Gflops_dwf4_su4": 1571.8161225849435,
+        "Gflops_staggered": 26.06165052856001,
+        "Gflops_wilson": 84.70179865523981,
+        "Gflops_wilson_sp4_2as": 255.008401280532,
+        "Gflops_wilson_sp4_fund": 169.94442743692713,
+        "L": 8,
+        "Precision": "FP32"
+      },
+      {
+        "Gflops_dwf4": 3142.1665085076997,
+        "Gflops_dwf4_sp4_2as": 6203.133405570783,
+        "Gflops_dwf4_sp4_fund": 4645.073673464427,
+        "Gflops_dwf4_su4": 4581.852916260409,
+        "Gflops_staggered": 143.1930293936874,
+        "Gflops_wilson": 490.8707001321004,
+        "Gflops_wilson_sp4_2as": 1183.4158046629268,
+        "Gflops_wilson_sp4_fund": 813.7304809919607,
+        "L": 12,
+        "Precision": "FP32"
+      },
+      {
+        "Gflops_dwf4": 6029.839910091335,
+        "Gflops_dwf4_sp4_2as": 9079.920098400984,
+        "Gflops_dwf4_sp4_fund": 7143.997886693661,
+        "Gflops_dwf4_su4": 6629.3939609028275,
+        "Gflops_staggered": 405.80662869987134,
+        "Gflops_wilson": 1436.3352086492832,
+        "Gflops_wilson_sp4_2as": 3140.3893381251874,
+        "Gflops_wilson_sp4_fund": 2237.02841565676,
+        "L": 16,
+        "Precision": "FP32"
+      },
+      {
+        "Gflops_dwf4": 9015.627869360687,
+        "Gflops_dwf4_sp4_2as": 18098.017875614547,
+        "Gflops_dwf4_sp4_fund": 15218.15846029036,
+        "Gflops_dwf4_su4": 11527.707699847939,
+        "Gflops_staggered": 1488.722639655125,
+        "Gflops_wilson": 4828.288674975366,
+        "Gflops_wilson_sp4_2as": 9893.190112329092,
+        "Gflops_wilson_sp4_fund": 7354.852683940616,
+        "L": 24,
+        "Precision": "FP32"
+      },
+      {
+        "Gflops_dwf4": 16774.303794480125,
+        "Gflops_dwf4_sp4_2as": 26888.03307290244,
+        "Gflops_dwf4_sp4_fund": 21958.475979840423,
+        "Gflops_dwf4_su4": 21963.749544868777,
+        "Gflops_staggered": 2852.6110166836,
+        "Gflops_wilson": 10035.220416708205,
+        "Gflops_wilson_sp4_2as": 14898.754006248537,
+        "Gflops_wilson_sp4_fund": 12921.91023892428,
+        "L": 32,
+        "Precision": "FP32"
+      },
+      {
+        "Gflops_dwf4": 840.964546229934,
+        "Gflops_dwf4_sp4_2as": 1668.6119898156007,
+        "Gflops_dwf4_sp4_fund": 1239.5872063749207,
+        "Gflops_dwf4_su4": 1231.994952187204,
+        "Gflops_staggered": 22.647522000926354,
+        "Gflops_wilson": 104.92755170113409,
+        "Gflops_wilson_sp4_2as": 256.56944568022067,
+        "Gflops_wilson_sp4_fund": 170.22030627153188,
+        "L": 8,
+        "Precision": "FP64"
+      },
+      {
+        "Gflops_dwf4": 1891.5093831657296,
+        "Gflops_dwf4_sp4_2as": 3381.169740087783,
+        "Gflops_dwf4_sp4_fund": 3020.706390646652,
+        "Gflops_dwf4_su4": 2986.901850047671,
+        "Gflops_staggered": 140.85720721254728,
+        "Gflops_wilson": 476.3067457401172,
+        "Gflops_wilson_sp4_2as": 1062.9200524246394,
+        "Gflops_wilson_sp4_fund": 752.2199234802324,
+        "L": 12,
+        "Precision": "FP64"
+      },
+      {
+        "Gflops_dwf4": 3222.325359055891,
+        "Gflops_dwf4_sp4_2as": 5464.157688830637,
+        "Gflops_dwf4_sp4_fund": 4144.31322176249,
+        "Gflops_dwf4_su4": 4958.498083032994,
+        "Gflops_staggered": 372.01135288552507,
+        "Gflops_wilson": 1219.3588149788882,
+        "Gflops_wilson_sp4_2as": 2461.1833991251465,
+        "Gflops_wilson_sp4_fund": 1754.510684282079,
+        "L": 16,
+        "Precision": "FP64"
+      },
+      {
+        "Gflops_dwf4": 5000.755436138746,
+        "Gflops_dwf4_sp4_2as": 7956.629403074729,
+        "Gflops_dwf4_sp4_fund": 7796.495038447252,
+        "Gflops_dwf4_su4": 6276.749979471965,
+        "Gflops_staggered": 1075.4824088479054,
+        "Gflops_wilson": 3640.6510777269755,
+        "Gflops_wilson_sp4_2as": 5513.883343877773,
+        "Gflops_wilson_sp4_fund": 4621.958823849517,
+        "L": 24,
+        "Precision": "FP64"
+      },
+      {
+        "Gflops_dwf4": 8926.307322910163,
+        "Gflops_dwf4_sp4_2as": 9433.03426887348,
+        "Gflops_dwf4_sp4_fund": 7686.288918376844,
+        "Gflops_dwf4_su4": 7586.6411941823335,
+        "Gflops_staggered": 1724.0253711193334,
+        "Gflops_wilson": 6031.3022399876745,
+        "Gflops_wilson_sp4_2as": 6310.405142715484,
+        "Gflops_wilson_sp4_fund": 6008.941843632945,
+        "L": 32,
+        "Precision": "FP64"
+      }
+    ]
+  },
+  "geometry": {
+    "mpi": [
+      1,
+      4,
+      8,
+      8
+    ],
+    "nodes": 64,
+    "pattern": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "ranks": 256,
+    "shm": [
+      1,
+      2,
+      2,
+      1
+    ]
+  },
+  "hostnames": [
+    "jpbo-014-33.jupiter.internal",
+    "jpbo-014-33.jupiter.internal",
+    "jpbo-014-33.jupiter.internal",
+    "jpbo-014-33.jupiter.internal",
+    "jpbo-014-34.jupiter.internal",
+    "jpbo-014-34.jupiter.internal",
+    "jpbo-014-34.jupiter.internal",
+    "jpbo-014-34.jupiter.internal",
+    "jpbo-014-35.jupiter.internal",
+    "jpbo-014-35.jupiter.internal",
+    "jpbo-014-35.jupiter.internal",
+    "jpbo-014-35.jupiter.internal",
+    "jpbo-014-36.jupiter.internal",
+    "jpbo-014-36.jupiter.internal",
+    "jpbo-014-36.jupiter.internal",
+    "jpbo-014-36.jupiter.internal",
+    "jpbo-014-37.jupiter.internal",
+    "jpbo-014-37.jupiter.internal",
+    "jpbo-014-37.jupiter.internal",
+    "jpbo-014-37.jupiter.internal",
+    "jpbo-014-39.jupiter.internal",
+    "jpbo-014-39.jupiter.internal",
+    "jpbo-014-39.jupiter.internal",
+    "jpbo-014-39.jupiter.internal",
+    "jpbo-014-40.jupiter.internal",
+    "jpbo-014-40.jupiter.internal",
+    "jpbo-014-40.jupiter.internal",
+    "jpbo-014-40.jupiter.internal",
+    "jpbo-014-41.jupiter.internal",
+    "jpbo-014-41.jupiter.internal",
+    "jpbo-014-41.jupiter.internal",
+    "jpbo-014-41.jupiter.internal",
+    "jpbo-014-42.jupiter.internal",
+    "jpbo-014-42.jupiter.internal",
+    "jpbo-014-42.jupiter.internal",
+    "jpbo-014-42.jupiter.internal",
+    "jpbo-014-43.jupiter.internal",
+    "jpbo-014-43.jupiter.internal",
+    "jpbo-014-43.jupiter.internal",
+    "jpbo-014-43.jupiter.internal",
+    "jpbo-014-44.jupiter.internal",
+    "jpbo-014-44.jupiter.internal",
+    "jpbo-014-44.jupiter.internal",
+    "jpbo-014-44.jupiter.internal",
+    "jpbo-014-45.jupiter.internal",
+    "jpbo-014-45.jupiter.internal",
+    "jpbo-014-45.jupiter.internal",
+    "jpbo-014-45.jupiter.internal",
+    "jpbo-014-46.jupiter.internal",
+    "jpbo-014-46.jupiter.internal",
+    "jpbo-014-46.jupiter.internal",
+    "jpbo-014-46.jupiter.internal",
+    "jpbo-014-47.jupiter.internal",
+    "jpbo-014-47.jupiter.internal",
+    "jpbo-014-47.jupiter.internal",
+    "jpbo-014-47.jupiter.internal",
+    "jpbo-014-48.jupiter.internal",
+    "jpbo-014-48.jupiter.internal",
+    "jpbo-014-48.jupiter.internal",
+    "jpbo-014-48.jupiter.internal",
+    "jpbo-029-33.jupiter.internal",
+    "jpbo-029-33.jupiter.internal",
+    "jpbo-029-33.jupiter.internal",
+    "jpbo-029-33.jupiter.internal",
+    "jpbo-029-34.jupiter.internal",
+    "jpbo-029-34.jupiter.internal",
+    "jpbo-029-34.jupiter.internal",
+    "jpbo-029-34.jupiter.internal",
+    "jpbo-029-36.jupiter.internal",
+    "jpbo-029-36.jupiter.internal",
+    "jpbo-029-36.jupiter.internal",
+    "jpbo-029-36.jupiter.internal",
+    "jpbo-029-40.jupiter.internal",
+    "jpbo-029-40.jupiter.internal",
+    "jpbo-029-40.jupiter.internal",
+    "jpbo-029-40.jupiter.internal",
+    "jpbo-029-41.jupiter.internal",
+    "jpbo-029-41.jupiter.internal",
+    "jpbo-029-41.jupiter.internal",
+    "jpbo-029-41.jupiter.internal",
+    "jpbo-029-42.jupiter.internal",
+    "jpbo-029-42.jupiter.internal",
+    "jpbo-029-42.jupiter.internal",
+    "jpbo-029-42.jupiter.internal",
+    "jpbo-029-43.jupiter.internal",
+    "jpbo-029-43.jupiter.internal",
+    "jpbo-029-43.jupiter.internal",
+    "jpbo-029-43.jupiter.internal",
+    "jpbo-029-44.jupiter.internal",
+    "jpbo-029-44.jupiter.internal",
+    "jpbo-029-44.jupiter.internal",
+    "jpbo-029-44.jupiter.internal",
+    "jpbo-029-45.jupiter.internal",
+    "jpbo-029-45.jupiter.internal",
+    "jpbo-029-45.jupiter.internal",
+    "jpbo-029-45.jupiter.internal",
+    "jpbo-029-46.jupiter.internal",
+    "jpbo-029-46.jupiter.internal",
+    "jpbo-029-46.jupiter.internal",
+    "jpbo-029-46.jupiter.internal",
+    "jpbo-030-10.jupiter.internal",
+    "jpbo-030-10.jupiter.internal",
+    "jpbo-030-10.jupiter.internal",
+    "jpbo-030-10.jupiter.internal",
+    "jpbo-030-13.jupiter.internal",
+    "jpbo-030-13.jupiter.internal",
+    "jpbo-030-13.jupiter.internal",
+    "jpbo-030-13.jupiter.internal",
+    "jpbo-030-14.jupiter.internal",
+    "jpbo-030-14.jupiter.internal",
+    "jpbo-030-14.jupiter.internal",
+    "jpbo-030-14.jupiter.internal",
+    "jpbo-043-17.jupiter.internal",
+    "jpbo-043-17.jupiter.internal",
+    "jpbo-043-17.jupiter.internal",
+    "jpbo-043-17.jupiter.internal",
+    "jpbo-043-18.jupiter.internal",
+    "jpbo-043-18.jupiter.internal",
+    "jpbo-043-18.jupiter.internal",
+    "jpbo-043-18.jupiter.internal",
+    "jpbo-043-19.jupiter.internal",
+    "jpbo-043-19.jupiter.internal",
+    "jpbo-043-19.jupiter.internal",
+    "jpbo-043-19.jupiter.internal",
+    "jpbo-043-20.jupiter.internal",
+    "jpbo-043-20.jupiter.internal",
+    "jpbo-043-20.jupiter.internal",
+    "jpbo-043-20.jupiter.internal",
+    "jpbo-043-21.jupiter.internal",
+    "jpbo-043-21.jupiter.internal",
+    "jpbo-043-21.jupiter.internal",
+    "jpbo-043-21.jupiter.internal",
+    "jpbo-043-22.jupiter.internal",
+    "jpbo-043-22.jupiter.internal",
+    "jpbo-043-22.jupiter.internal",
+    "jpbo-043-22.jupiter.internal",
+    "jpbo-043-23.jupiter.internal",
+    "jpbo-043-23.jupiter.internal",
+    "jpbo-043-23.jupiter.internal",
+    "jpbo-043-23.jupiter.internal",
+    "jpbo-043-24.jupiter.internal",
+    "jpbo-043-24.jupiter.internal",
+    "jpbo-043-24.jupiter.internal",
+    "jpbo-043-24.jupiter.internal",
+    "jpbo-043-25.jupiter.internal",
+    "jpbo-043-25.jupiter.internal",
+    "jpbo-043-25.jupiter.internal",
+    "jpbo-043-25.jupiter.internal",
+    "jpbo-043-26.jupiter.internal",
+    "jpbo-043-26.jupiter.internal",
+    "jpbo-043-26.jupiter.internal",
+    "jpbo-043-26.jupiter.internal",
+    "jpbo-043-27.jupiter.internal",
+    "jpbo-043-27.jupiter.internal",
+    "jpbo-043-27.jupiter.internal",
+    "jpbo-043-27.jupiter.internal",
+    "jpbo-043-28.jupiter.internal",
+    "jpbo-043-28.jupiter.internal",
+    "jpbo-043-28.jupiter.internal",
+    "jpbo-043-28.jupiter.internal",
+    "jpbo-043-29.jupiter.internal",
+    "jpbo-043-29.jupiter.internal",
+    "jpbo-043-29.jupiter.internal",
+    "jpbo-043-29.jupiter.internal",
+    "jpbo-043-30.jupiter.internal",
+    "jpbo-043-30.jupiter.internal",
+    "jpbo-043-30.jupiter.internal",
+    "jpbo-043-30.jupiter.internal",
+    "jpbo-043-31.jupiter.internal",
+    "jpbo-043-31.jupiter.internal",
+    "jpbo-043-31.jupiter.internal",
+    "jpbo-043-31.jupiter.internal",
+    "jpbo-043-32.jupiter.internal",
+    "jpbo-043-32.jupiter.internal",
+    "jpbo-043-32.jupiter.internal",
+    "jpbo-043-32.jupiter.internal",
+    "jpbo-058-05.jupiter.internal",
+    "jpbo-058-05.jupiter.internal",
+    "jpbo-058-05.jupiter.internal",
+    "jpbo-058-05.jupiter.internal",
+    "jpbo-058-06.jupiter.internal",
+    "jpbo-058-06.jupiter.internal",
+    "jpbo-058-06.jupiter.internal",
+    "jpbo-058-06.jupiter.internal",
+    "jpbo-058-07.jupiter.internal",
+    "jpbo-058-07.jupiter.internal",
+    "jpbo-058-07.jupiter.internal",
+    "jpbo-058-07.jupiter.internal",
+    "jpbo-058-08.jupiter.internal",
+    "jpbo-058-08.jupiter.internal",
+    "jpbo-058-08.jupiter.internal",
+    "jpbo-058-08.jupiter.internal",
+    "jpbo-058-09.jupiter.internal",
+    "jpbo-058-09.jupiter.internal",
+    "jpbo-058-09.jupiter.internal",
+    "jpbo-058-09.jupiter.internal",
+    "jpbo-058-10.jupiter.internal",
+    "jpbo-058-10.jupiter.internal",
+    "jpbo-058-10.jupiter.internal",
+    "jpbo-058-10.jupiter.internal",
+    "jpbo-058-11.jupiter.internal",
+    "jpbo-058-11.jupiter.internal",
+    "jpbo-058-11.jupiter.internal",
+    "jpbo-058-11.jupiter.internal",
+    "jpbo-058-14.jupiter.internal",
+    "jpbo-058-14.jupiter.internal",
+    "jpbo-058-14.jupiter.internal",
+    "jpbo-058-14.jupiter.internal",
+    "jpbo-105-17.jupiter.internal",
+    "jpbo-105-17.jupiter.internal",
+    "jpbo-105-17.jupiter.internal",
+    "jpbo-105-17.jupiter.internal",
+    "jpbo-105-18.jupiter.internal",
+    "jpbo-105-18.jupiter.internal",
+    "jpbo-105-18.jupiter.internal",
+    "jpbo-105-18.jupiter.internal",
+    "jpbo-105-19.jupiter.internal",
+    "jpbo-105-19.jupiter.internal",
+    "jpbo-105-19.jupiter.internal",
+    "jpbo-105-19.jupiter.internal",
+    "jpbo-105-21.jupiter.internal",
+    "jpbo-105-21.jupiter.internal",
+    "jpbo-105-21.jupiter.internal",
+    "jpbo-105-21.jupiter.internal",
+    "jpbo-105-22.jupiter.internal",
+    "jpbo-105-22.jupiter.internal",
+    "jpbo-105-22.jupiter.internal",
+    "jpbo-105-22.jupiter.internal",
+    "jpbo-105-23.jupiter.internal",
+    "jpbo-105-23.jupiter.internal",
+    "jpbo-105-23.jupiter.internal",
+    "jpbo-105-23.jupiter.internal",
+    "jpbo-105-24.jupiter.internal",
+    "jpbo-105-24.jupiter.internal",
+    "jpbo-105-24.jupiter.internal",
+    "jpbo-105-24.jupiter.internal",
+    "jpbo-105-25.jupiter.internal",
+    "jpbo-105-25.jupiter.internal",
+    "jpbo-105-25.jupiter.internal",
+    "jpbo-105-25.jupiter.internal",
+    "jpbo-105-26.jupiter.internal",
+    "jpbo-105-26.jupiter.internal",
+    "jpbo-105-26.jupiter.internal",
+    "jpbo-105-26.jupiter.internal",
+    "jpbo-105-28.jupiter.internal",
+    "jpbo-105-28.jupiter.internal",
+    "jpbo-105-28.jupiter.internal",
+    "jpbo-105-28.jupiter.internal",
+    "jpbo-105-29.jupiter.internal",
+    "jpbo-105-29.jupiter.internal",
+    "jpbo-105-29.jupiter.internal",
+    "jpbo-105-29.jupiter.internal",
+    "jpbo-105-30.jupiter.internal",
+    "jpbo-105-30.jupiter.internal",
+    "jpbo-105-30.jupiter.internal",
+    "jpbo-105-30.jupiter.internal"
+  ]
+}
